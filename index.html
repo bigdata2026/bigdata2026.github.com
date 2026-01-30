@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Data Management - Semantic Web & Knowledge Graphs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .instructor {
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Week sections with distinct colors */
+        .week-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-top: 8px solid #667eea;
+        }
+
+        .week-section.week2 {
+            border-top-color: #48bb78;
+        }
+
+        .week-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #e2e8f0;
+        }
+
+        .week-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-right: 15px;
+        }
+
+        .week-section.week2 .week-badge {
+            background: #48bb78;
+        }
+
+        .week-title {
+            color: #2d3748;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .lecture-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .week2 .lecture-card {
+            border-left-color: #48bb78;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .lecture-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .lecture-number {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .week2 .lecture-number {
+            background: #48bb78;
+        }
+
+        .lecture-card h3 {
+            color: #2d3748;
+            margin-bottom: 12px;
+            font-size: 1.3em;
+        }
+
+        .lecture-topics {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .lecture-topics li {
+            padding: 6px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .lecture-topics li:before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .week2 .lecture-topics li:before {
+            color: #48bb78;
+        }
+
+        .resources {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .resources-title {
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            margin: 5px 5px 5px 0;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+            font-size: 0.9em;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .week2 .btn {
+            background: #48bb78;
+        }
+
+        .week2 .btn:hover {
+            background: #38a169;
+        }
+
+        .btn-secondary {
+            background: #ed8936;
+        }
+
+        .btn-secondary:hover {
+            background: #dd6b20;
+        }
+
+        .quiz-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            border-top: 8px solid #ed8936;
+        }
+
+        .quiz-section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .quiz-section h2:before {
+            content: "📝 ";
+        }
+
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .quiz-btn {
+            background: #ed8936;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+            display: block;
+        }
+
+        .quiz-btn:hover {
+            background: #dd6b20;
+            transform: scale(1.05);
+        }
+
+        .quiz-btn.revision {
+            background: #9f7aea;
+        }
+
+        .quiz-btn.revision:hover {
+            background: #805ad5;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        footer h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e2e8f0;
+            color: #4a5568;
+            border-radius: 4px;
+            font-size: 0.75em;
+            margin-left: 8px;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .info-box strong {
+            color: #234e52;
+        }
+
+        @media (max-width: 768px) {
+            .lectures-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .week-title {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Big Data Management</h1>
+            <p class="subtitle">Semantic Web & Knowledge Graphs</p>
+            <p class="instructor">Dr. Radu Mihailescu | Associate Professor | Programme Director MSc AI</p>
+        </header>
+
+        <!-- WEEK 1 SECTION -->
+        <div class="week-section week1">
+            <div class="week-header">
+                <span class="week-badge">WEEK 1</span>
+                <span class="week-title">Foundations of Semantic Web</span>
+            </div>
+
+            <div class="lectures-grid">
+                <!-- Lecture 11 -->
+                <div class="lecture-card">
+                    <div class="lecture-header">
+                        <span class="lecture-number">L11</span>
+                        <span class="badge">PDF</span>
+                    </div>
+                    <h3>Introduction to Big Data Management</h3>
+                    <ul class="lecture-topics">
+                        <li>Course Overview & Structure</li>
+                        <li>Data, Information & Knowledge</li>
+                        <li>Big Data Characteristics (5 V's)</li>
+                        <li>Data Science Process</li>
+                        <li>Big Data Analytics & Management</li>
+                    </ul>
+                    <div class="resources">
+                        <div class="resources-title">📚 Materials:</div>
+                        <a href="lectures/W1_L11_introduction.pdf" class="btn">View Lecture PDF</a>
+                    </div>
+                </div>
+
+                <!-- Lecture 12 -->
+                <div class="lecture-card">
+                    <div class="lecture-header">
+                        <span class="lecture-number">L12</span>
+                        <span class="badge">PDF + Example</span>
+                    </div>
+                    <h3>Knowledge Graphs</h3>
+                    <ul class="lecture-topics">
+                        <li>Web of Documents → Web of Data</li>
+                        <li>Semantic Web Concepts</li>
+                        <li>Knowledge Graph Structure</li>
+                        <li>Linked Open Data (LOD)</li>
+                        <li>5-Star Deployment Scheme</li>
+                        <li>Real-world Applications</li>
+                    </ul>
+                    <div class="resources">
+                        <div class="resources-title">📚 Materials:</div>
+                        <a href="lectures/W1_L12_knowledge_graph.pdf" class="btn">View Lecture PDF</a>
+                        <a href="examples/knowledge_graph_example.html" class="btn-secondary btn">Interactive Example</a>
+                    </div>
+                </div>
+
+                <!-- Lecture 13 -->
+                <div class="lecture-card">
+                    <div class="lecture-header">
+                        <span class="lecture-number">L13</span>
+                        <span class="badge">PDF + Guide</span>
+                    </div>
+                    <h3>Semantic Web Technologies</h3>
+                    <ul class="lecture-topics">
+                        <li>Semantic Web Technology Stack</li>
+                        <li>RDF Framework & Triples</li>
+                        <li>Serialization Formats (XML, Turtle, JSON-LD)</li>
+                        <li>Namespaces & IRIs</li>
+                        <li>Open vs Closed World Assumption</li>
+                        <li>RDF Visualization Tools</li>
+                    </ul>
+                    <div class="resources">
+                        <div class="resources-title">📚 Materials:</div>
+                        <a href="lectures/W1_L13_sw_technologies.pdf" class="btn">View Lecture PDF</a>
+                        <a href="explanations/rdf_explanation.html" class="btn-secondary btn">RDF Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WEEK 2 SECTION -->
+        <div class="week-section week2">
+            <div class="week-header">
+                <span class="week-badge">WEEK 2</span>
+                <span class="week-title">Knowledge Representation & Ontologies</span>
+            </div>
+
+            <div class="lectures-grid">
+                <!-- Lecture 21 -->
+                <div class="lecture-card">
+                    <div class="lecture-header">
+                        <span class="lecture-number">L21</span>
+                        <span class="badge">PDF + Guides</span>
+                    </div>
+                    <h3>RDF Schema & SKOS</h3>
+                    <ul class="lecture-topics">
+                        <li>RDF Triple Structure Deep Dive</li>
+                        <li>RDF Schema (RDFS) Vocabularies</li>
+                        <li>Classes, Properties, Domain & Range</li>
+                        <li>SKOS for Taxonomies & Thesauri</li>
+                        <li>Inference & Reasoning Basics</li>
+                        <li>Linked Open Vocabularies</li>
+                    </ul>
+                    <div class="resources">
+                        <div class="resources-title">📚 Materials:</div>
+                        <a href="lectures/W2_L21_knowledge_representation.pdf" class="btn">View Lecture PDF</a>
+                        <a href="explanations/rdfs_explanation.html" class="btn-secondary btn">RDFS Guide</a>
+                        <a href="explanations/skos_explanation.html" class="btn-secondary btn">SKOS Guide</a>
+                    </div>
+                </div>
+
+                <!-- Lecture 22 -->
+                <div class="lecture-card">
+                    <div class="lecture-header">
+                        <span class="lecture-number">L22</span>
+                        <span class="badge">PDF + Guide</span>
+                    </div>
+                    <h3>Introduction to OWL</h3>
+                    <ul class="lecture-topics">
+                        <li>Ontology Definition & Purpose</li>
+                        <li>OWL (Web Ontology Language)</li>
+                        <li>TBox (Terminology) vs ABox (Assertions)</li>
+                        <li>Classes, Properties & Individuals</li>
+                        <li>Reasoning Tasks & Inference</li>
+                        <li>Protégé Editor Introduction</li>
+                    </ul>
+                    <div class="resources">
+                        <div class="resources-title">📚 Materials:</div>
+                        <a href="lectures/W2_L22-intro_OWL.pdf" class="btn">View Lecture PDF</a>
+                        <a href="explanations/owl_explanation.html" class="btn-secondary btn">OWL Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRACTICE & ASSESSMENT SECTION -->
+        <div class="quiz-section">
+            <h2>Practice & Assessment Resources</h2>
+            <div class="info-box">
+                <strong>📌 Note:</strong> These quizzes and practice materials cover content from <strong>both Week 1 and Week 2</strong>. Use them to test your understanding of all topics covered in the Semantic Web portion of the course.
+            </div>
+            <div class="quiz-grid">
+                <a href="quizzes/semantic_web_mastery_quiz.html" class="quiz-btn">
+                    Semantic Web Mastery Quiz<br>
+                    <small style="opacity: 0.9;">Comprehensive coverage</small>
+                </a>
+                <a href="quizzes/ultimate_quiz.html" class="quiz-btn">
+                    Ultimate Quiz<br>
+                    <small style="opacity: 0.9;">Advanced questions</small>
+                </a>
+                <a href="quizzes/interactive_exam_practice.html" class="quiz-btn">
+                    Interactive Exam Practice<br>
+                    <small style="opacity: 0.9;">Exam-style questions</small>
+                </a>
+                <a href="revision/revision_notes.html" class="quiz-btn revision">
+                    Revision Notes<br>
+                    <small style="opacity: 0.9;">Study guide & summary</small>
+                </a>
+            </div>
+        </div>
+
+        <footer>
+            <h3>📋 Course Assessment</h3>
+            <p><strong>Class Test:</strong> 20% (Week 7 - Covers Weeks 1-4)</p>
+            <p><strong>Final Exam:</strong> 80% (Part 1: 40% Semantic Web | Part 2: 40% NoSQL)</p>
+            <p style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e2e8f0;">
+                <strong>Topics Covered:</strong> Ontologies, OWL, SPARQL Queries, RDF/RDFS, Data Integration
+            </p>
+            <p style="margin-top: 15px; font-size: 0.9em; color: #888;">
+                Heriot-Watt University | MSc Artificial Intelligence
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
