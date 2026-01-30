@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Interactive Exam Practice - Semantic Web</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.7;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .header .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .phase-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .phase-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .phase-learn { background: #4ecdc4; color: #1a1a2e; }
+        .phase-practice { background: #ff6b6b; color: white; }
+        .phase-check { background: #ffe66d; color: #1a1a2e; }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4ecdc4;
+        }
+        
+        .card h3 {
+            color: #16213e;
+            margin: 20px 0 15px 0;
+        }
+        
+        /* Topic Section */
+        .topic-header {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        /* Example Box */
+        .example-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 5px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .example-box h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Question Box */
+        .question-box {
+            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .question-box h4 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .code-block .property { color: #9cdcfe; }
+        
+        /* Answer Input */
+        .answer-area {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+            margin: 15px 0;
+            transition: border-color 0.3s;
+        }
+        
+        .answer-area:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+        
+        .answer-area.correct {
+            border-color: #4caf50;
+            background: #f1f8e9;
+        }
+        
+        .answer-area.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+        
+        .btn-hint {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+        }
+        
+        .btn-hint:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,152,0,0.4);
+        }
+        
+        .btn-check {
+            background: linear-gradient(135deg, #4caf50, #388e3c);
+            color: white;
+        }
+        
+        .btn-check:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76,175,80,0.4);
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, #2196f3, #1976d2);
+            color: white;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33,150,243,0.4);
+        }
+        
+        .btn-reset {
+            background: #9e9e9e;
+            color: white;
+        }
+        
+        /* Hint Box */
+        .hint-box {
+            background: #fff8e1;
+            border: 2px dashed #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .hint-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Answer Box */
+        .answer-reveal {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border: 2px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .answer-reveal.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .answer-reveal h5 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Score Display */
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .score-display .score-number {
+            font-size: 1.5em;
+        }
+        
+        /* Step Box */
+        .step {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #4ecdc4;
+        }
+        
+        .step-number {
+            background: #4ecdc4;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        /* Graph Drawing Area */
+        .graph-area {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 200px;
+            font-family: monospace;
+            white-space: pre;
+            line-height: 1.4;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 15px;
+            background: linear-gradient(90deg, #4ecdc4, #44a08d);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+        
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        /* Topic Tabs */
+        .topic-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .topic-tab {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .topic-tab:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .topic-tab.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        /* Marking Criteria */
+        .marking-criteria {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .marking-criteria h5 {
+            color: #7b1fa2;
+            margin-bottom: 10px;
+        }
+        
+        .mark-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px dashed #ce93d8;
+        }
+        
+        .mark-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            padding-top: 10px;
+        }
+        
+        /* Hidden */
+        .hidden { display: none !important; }
+        
+        /* Final Score Card */
+        .final-score-card {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: white;
+        }
+        
+        .score-circle .big-number {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .grade-badge {
+            font-size: 1.5em;
+            padding: 15px 40px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .grade-excellent { background: #4caf50; color: white; }
+        .grade-good { background: #8bc34a; color: white; }
+        .grade-pass { background: #ffc107; color: #333; }
+        .grade-retry { background: #ff5722; color: white; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .score-display { 
+                position: static; 
+                margin: 10px auto;
+                text-align: center;
+            }
+            .btn { width: 100%; margin: 5px 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="score-display">
+        Score: <span class="score-number" id="totalScore">0</span>/90
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Interactive Exam Practice</h1>
+            <p class="subtitle">Semantic Web - Master the Concepts</p>
+            
+            <div class="phase-indicator">
+                <span class="phase-badge phase-learn">📖 Phase 1: Watch & Learn</span>
+                <span class="phase-badge phase-practice">✏️ Phase 2: Try Yourself</span>
+                <span class="phase-badge phase-check">✅ Phase 3: Check Answers</span>
+            </div>
+        </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+        
+        <div class="topic-tabs">
+            <button class="topic-tab active" onclick="showTopic(1)">Topic 1: RDF Triples</button>
+            <button class="topic-tab" onclick="showTopic(2)">Topic 2: RDF Graphs</button>
+            <button class="topic-tab" onclick="showTopic(3)">Topic 3: Inference</button>
+            <button class="topic-tab" onclick="showTopic(4)">Topic 4: Open World</button>
+            <button class="topic-tab" onclick="showTopic(5)">Final Exam</button>
+        </div>
+        
+        <!-- ==================== TOPIC 1: RDF TRIPLES ==================== -->
+        <div id="topic1" class="topic-section">
+            <div class="card">
+                <div class="topic-header">🔵 TOPIC 1: Writing RDF Triples</div>
+                
+                <!-- Example 1 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 1 - Watch Me Solve This</h4>
+                    <p><strong>Question:</strong> Write RDF triples for this information:</p>
+                    <ul>
+                        <li>Alice is a student</li>
+                        <li>Alice is 20 years old</li>
+                        <li>Alice studies at Heriot-Watt University</li>
+                    </ul>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Identify the parts</strong>
+                        <div class="code-block">Fact 1: "Alice is a student"
+- Subject: Alice
+- Predicate: is a (type)
+- Object: Student
+
+Fact 2: "Alice is 20 years old"
+- Subject: Alice
+- Predicate: age
+- Object: 20
+
+Fact 3: "Alice studies at Heriot-Watt"
+- Subject: Alice
+- Predicate: studiesAt
+- Object: Heriot-Watt University</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Write as triples</strong>
+                        <div class="code-block">(Alice, rdf:type, Student)
+(Alice, age, 20)
+(Alice, studiesAt, HeriotWatt)</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>Write in Turtle format (grouped)</strong>
+                        <div class="code-block">PREFIX ex: &lt;http://example.org/&gt;
+
+ex:Alice a ex:Student ;
+    ex:age 20 ;
+    ex:studiesAt ex:HeriotWatt .</div>
+                    </div>
+                    
+                    <p style="color: #2e7d32; font-weight: bold; margin-top: 15px;">✓ DONE! That's how you do it.</p>
+                </div>
+                
+                <!-- Example 2 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 2 - Another One</h4>
+                    <p><strong>Question:</strong> Write RDF triples for:</p>
+                    <ul>
+                        <li>Course F21DL is taught by Dr. Smith</li>
+                        <li>F21DL has 15 credits</li>
+                        <li>Dr. Smith works for the Computer Science department</li>
+                    </ul>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Break it down</strong>
+                        <div class="code-block">Fact 1: "F21DL is taught by Dr. Smith"
+→ (F21DL, taughtBy, DrSmith)
+
+Fact 2: "F21DL has 15 credits"
+→ (F21DL, hasCredits, 15)
+
+Fact 3: "Dr. Smith works for CS dept"
+→ (DrSmith, worksFor, CSDept)</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Write in Turtle</strong>
+                        <div class="code-block">PREFIX ex: &lt;http://example.org/&gt;
+
+ex:F21DL ex:taughtBy ex:DrSmith ;
+    ex:hasCredits 15 .
+
+ex:DrSmith ex:worksFor ex:CSDept .</div>
+                    </div>
+                    
+                    <p style="color: #2e7d32; font-weight: bold; margin-top: 15px;">✓ DONE!</p>
+                </div>
+                
+                <!-- Practice Question 1 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 1</h4>
+                    <p><strong>Write RDF triples (in Turtle format) for:</strong></p>
+                    <ul>
+                        <li>Bob is a professor</li>
+                        <li>Bob is 45 years old</li>
+                        <li>Bob teaches course CS101</li>
+                    </ul>
+                    
+                    <textarea class="answer-area" id="q1-answer" placeholder="PREFIX ex: <http://example.org/>
+
+(Write your Turtle code here...)"></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q1')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q1')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q1-hint">
+                        <strong>💡 Hint:</strong><br>
+                        Remember the pattern:<br>
+                        <code>ex:Subject ex:predicate ex:Object ;</code><br>
+                        <code>    ex:predicate2 value .</code><br><br>
+                        • Use <code>a</code> for "is a type"<br>
+                        • Age is a number (no quotes)<br>
+                        • Teaching is a relationship between two things
+                    </div>
+                    
+                    <div class="answer-reveal" id="q1-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="code-block">PREFIX ex: &lt;http://example.org/&gt;
+
+ex:Bob a ex:Professor ;
+    ex:age 45 ;
+    ex:teaches ex:CS101 .</div>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking Criteria:</h5>
+                            <div class="mark-item"><span>✓ Bob as Professor</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Age 45</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Teaches CS101</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Proper Turtle syntax with ;</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ PREFIX declared</span><span>2 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q1-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="2">2 - Got 1-2 parts right</option>
+                            <option value="4">4 - Got about half right</option>
+                            <option value="6">6 - Minor mistakes</option>
+                            <option value="8">8 - Almost perfect</option>
+                            <option value="10">10 - Perfect!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Practice Question 2 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 2</h4>
+                    <p><strong>Write RDF triples for:</strong></p>
+                    <ul>
+                        <li>University has name "Heriot-Watt University"</li>
+                        <li>University is located in Edinburgh</li>
+                        <li>University was founded in 1821</li>
+                    </ul>
+                    
+                    <textarea class="answer-area" id="q2-answer" placeholder="PREFIX ex: <http://example.org/>
+
+(Write your Turtle code here...)"></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q2')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q2')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q2-hint">
+                        <strong>💡 Hint:</strong><br>
+                        • Name is TEXT → put in quotes: "Heriot-Watt University"<br>
+                        • Edinburgh is a PLACE (resource) → no quotes: ex:Edinburgh<br>
+                        • 1821 is a NUMBER → no quotes: 1821
+                    </div>
+                    
+                    <div class="answer-reveal" id="q2-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="code-block">PREFIX ex: &lt;http://example.org/&gt;
+
+ex:HeriotWatt a ex:University ;
+    ex:name "Heriot-Watt University" ;
+    ex:locatedIn ex:Edinburgh ;
+    ex:foundedIn 1821 .</div>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Key Points:</h5>
+                            <div class="mark-item"><span>✓ Name in quotes (literal)</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Edinburgh as IRI (not literal)</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ 1821 as number</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Proper grouping with ;</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Correct syntax</span><span>2 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q2-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="2">2 - Got 1-2 parts right</option>
+                            <option value="4">4 - Got about half right</option>
+                            <option value="6">6 - Minor mistakes</option>
+                            <option value="8">8 - Almost perfect</option>
+                            <option value="10">10 - Perfect!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-reset" onclick="resetTopic(1)">🔄 Reset Topic</button>
+                    <button class="btn btn-next" onclick="showTopic(2)">Next: RDF Graphs →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== TOPIC 2: RDF GRAPHS ==================== -->
+        <div id="topic2" class="topic-section hidden">
+            <div class="card">
+                <div class="topic-header">🔵 TOPIC 2: Drawing RDF Graphs</div>
+                
+                <!-- Example 3 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 3 - Watch Me Draw This</h4>
+                    <p><strong>Question:</strong> Draw an RDF graph for these triples:</p>
+                    <div class="code-block">:Hamza :enrolledIn :F21DL .
+:F21DL :taughtBy :DrSmith .
+:DrSmith :worksFor :CSdept .</div>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>List what I have</strong>
+                        <ul>
+                            <li>4 nodes: Hamza, F21DL, DrSmith, CSdept</li>
+                            <li>3 relationships: enrolledIn, taughtBy, worksFor</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Draw it (it's a chain!)</strong>
+                        <div class="graph-area">
+    ┌────────┐
+    │ Hamza  │
+    └───┬────┘
+        │
+   enrolledIn
+        │
+        ↓
+    ┌────────┐
+    │ F21DL  │
+    └───┬────┘
+        │
+    taughtBy
+        │
+        ↓
+    ┌─────────┐
+    │ DrSmith │
+    └────┬────┘
+         │
+     worksFor
+         │
+         ↓
+    ┌────────┐
+    │ CSdept │
+    └────────┘</div>
+                    </div>
+                    
+                    <p style="color: #2e7d32; font-weight: bold; margin-top: 15px;">✓ DONE! It's a chain - each node connects to the next.</p>
+                </div>
+                
+                <!-- Example 4 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 4 - With Literals</h4>
+                    <p><strong>Question:</strong> Draw graph for:</p>
+                    <div class="code-block">:Alice :knows :Bob .
+:Alice :age 20 .
+:Bob :age 25 .</div>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Notice the difference</strong>
+                        <ul>
+                            <li>:Alice and :Bob are <strong>resources</strong> (can have their own properties)</li>
+                            <li>20 and 25 are <strong>literals</strong> (just values, dead ends)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Draw it</strong>
+                        <div class="graph-area">
+       ┌───────┐
+       │ Alice │  ← Resource (oval)
+       └───┬───┘
+           │
+      ┌────┴────┐
+      │         │
+    knows      age
+      │         │
+      ↓         ↓
+   ┌─────┐    [20]  ← Literal (box/plain)
+   │ Bob │
+   └──┬──┘
+      │
+     age
+      │
+      ↓
+    [25]  ← Literal (dead end)</div>
+                    </div>
+                    
+                    <p><strong>Key:</strong> Resources can have outgoing edges. Literals are dead ends (can't be subjects).</p>
+                </div>
+                
+                <!-- Practice Question 3 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 3</h4>
+                    <p><strong>Draw an RDF graph for:</strong></p>
+                    <div class="code-block">:Course101 :hasName "Introduction to AI" .
+:Course101 :taughtBy :ProfJones .
+:ProfJones :age 50 .</div>
+                    
+                    <textarea class="answer-area" id="q3-answer" placeholder="Draw your graph here using ASCII art like the examples above...
+
+Example:
+    ┌────────┐
+    │ Node1  │
+    └───┬────┘
+        │
+   relationship
+        │
+        ↓
+    ┌────────┐
+    │ Node2  │
+    └────────┘"></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q3')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q3')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q3-hint">
+                        <strong>💡 Hint:</strong><br>
+                        • Course101 has TWO relationships (hasName and taughtBy)<br>
+                        • "Introduction to AI" is a literal (text)<br>
+                        • ProfJones is a resource (person)<br>
+                        • 50 is a literal (number)
+                    </div>
+                    
+                    <div class="answer-reveal" id="q3-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="graph-area">
+       ┌──────────┐
+       │Course101 │
+       └────┬─────┘
+            │
+       ┌────┴─────────┐
+       │              │
+    hasName        taughtBy
+       │              │
+       ↓              ↓
+["Introduction   ┌──────────┐
+   to AI"]       │ProfJones │
+                 └────┬─────┘
+                      │
+                     age
+                      │
+                      ↓
+                    [50]</div>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking Criteria:</h5>
+                            <div class="mark-item"><span>✓ All nodes shown</span><span>3 marks</span></div>
+                            <div class="mark-item"><span>✓ Correct arrows with labels</span><span>3 marks</span></div>
+                            <div class="mark-item"><span>✓ Literals vs Resources shown</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Clear readable structure</span><span>2 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q3-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="3">3 - Basic structure</option>
+                            <option value="5">5 - Most parts correct</option>
+                            <option value="7">7 - Minor issues</option>
+                            <option value="10">10 - Perfect!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Practice Question 4 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 4</h4>
+                    <p><strong>Draw graph for:</strong></p>
+                    <div class="code-block">:Bob :owns :Car123 .
+:Car123 :hasColor "Red" .
+:Car123 :manufactured :Tesla .</div>
+                    
+                    <textarea class="answer-area" id="q4-answer" placeholder="Draw your graph here..."></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q4')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q4')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q4-hint">
+                        <strong>💡 Hint:</strong><br>
+                        • Bob owns Car123 (both resources)<br>
+                        • Car123 has TWO relationships going out<br>
+                        • "Red" is a literal (text in quotes)<br>
+                        • Tesla is a resource (company)
+                    </div>
+                    
+                    <div class="answer-reveal" id="q4-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="graph-area">
+    ┌─────┐
+    │ Bob │
+    └──┬──┘
+       │
+     owns
+       │
+       ↓
+    ┌────────┐
+    │ Car123 │
+    └───┬────┘
+        │
+    ┌───┴───────────┐
+    │               │
+ hasColor      manufactured
+    │               │
+    ↓               ↓
+ ["Red"]        ┌───────┐
+                │ Tesla │
+                └───────┘</div>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking Criteria:</h5>
+                            <div class="mark-item"><span>✓ Correct structure</span><span>3 marks</span></div>
+                            <div class="mark-item"><span>✓ All relationships labeled</span><span>3 marks</span></div>
+                            <div class="mark-item"><span>✓ "Red" shown as literal</span><span>2 marks</span></div>
+                            <div class="mark-item"><span>✓ Tesla as resource</span><span>2 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q4-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="3">3 - Basic structure</option>
+                            <option value="5">5 - Most parts correct</option>
+                            <option value="7">7 - Minor issues</option>
+                            <option value="10">10 - Perfect!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showTopic(1)">← Back: RDF Triples</button>
+                    <button class="btn btn-reset" onclick="resetTopic(2)">🔄 Reset Topic</button>
+                    <button class="btn btn-next" onclick="showTopic(3)">Next: Inference →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== TOPIC 3: INFERENCE ==================== -->
+        <div id="topic3" class="topic-section hidden">
+            <div class="card">
+                <div class="topic-header">🔵 TOPIC 3: Inference (What Can Computers Figure Out?)</div>
+                
+                <!-- Example 5 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 5 - SubClassOf Inference</h4>
+                    <p><strong>Question:</strong> Given:</p>
+                    <div class="code-block">:Parent subClassOf :Person .
+:Alice a :Parent .</div>
+                    <p>What can the computer infer?</p>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Understand the rule</strong>
+                        <p><code>subClassOf</code> means: "If you're X, you're also Y"</p>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Apply it</strong>
+                        <div class="code-block">Given: Parent subClassOf Person
+Given: Alice is a Parent
+
+Apply rule:
+If Alice is a Parent, and Parent is a subclass of Person
+Then Alice is also a Person ✓</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>Answer</strong>
+                        <div class="code-block"># What we can infer:
+:Alice a :Person .</div>
+                    </div>
+                    
+                    <p style="color: #2e7d32; font-weight: bold;">✓ ANSWER: Alice is a Person</p>
+                </div>
+                
+                <!-- Example 6 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 6 - Domain & Range Inference</h4>
+                    <p><strong>Question:</strong> Given:</p>
+                    <div class="code-block">:hasChild domain :Parent .
+:hasChild range :Person .
+
+:Bob :hasChild :Alice .</div>
+                    <p>What can the computer infer about Bob and Alice?</p>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Remember the rules</strong>
+                        <ul>
+                            <li><strong>Domain</strong> = "The SUBJECT must be this type"</li>
+                            <li><strong>Range</strong> = "The OBJECT must be this type"</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Apply domain rule</strong>
+                        <div class="code-block">hasChild domain Parent
+Bob hasChild Alice
+→ Bob (subject) must be a Parent ✓</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>Apply range rule</strong>
+                        <div class="code-block">hasChild range Person
+Bob hasChild Alice
+→ Alice (object) must be a Person ✓</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">4</span>
+                        <strong>Answer</strong>
+                        <div class="code-block"># What we can infer:
+:Bob a :Parent .
+:Alice a :Person .</div>
+                    </div>
+                </div>
+                
+                <!-- Practice Question 5 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 5</h4>
+                    <p><strong>Given:</strong></p>
+                    <div class="code-block">:Student subClassOf :Person .
+:Person subClassOf :LivingThing .
+:Hamza a :Student .</div>
+                    <p><strong>What can the computer infer? List ALL inferred facts.</strong></p>
+                    
+                    <textarea class="answer-area" id="q5-answer" placeholder="1. Hamza is a ...
+2. Hamza is a ..."></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q5')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q5')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q5-hint">
+                        <strong>💡 Hint:</strong><br>
+                        Think about the chain:<br>
+                        <code>Hamza → Student → Person → LivingThing</code><br><br>
+                        If Hamza is a Student, what else is he? (Follow the chain!)
+                    </div>
+                    
+                    <div class="answer-reveal" id="q5-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="code-block"># Inferred facts:
+:Hamza a :Person .
+:Hamza a :LivingThing .</div>
+                        
+                        <p><strong>Reasoning:</strong></p>
+                        <ol>
+                            <li>Hamza is Student (given)</li>
+                            <li>Student subClassOf Person → <strong>Hamza is Person</strong> ✓</li>
+                            <li>Person subClassOf LivingThing → <strong>Hamza is LivingThing</strong> ✓</li>
+                        </ol>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking:</h5>
+                            <div class="mark-item"><span>✓ Inferred Hamza is Person</span><span>5 marks</span></div>
+                            <div class="mark-item"><span>✓ Inferred Hamza is LivingThing</span><span>5 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q5-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="5">5 - Got one inference</option>
+                            <option value="10">10 - Got both!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Practice Question 6 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 6</h4>
+                    <p><strong>Given:</strong></p>
+                    <div class="code-block">:teaches domain :Professor .
+:teaches range :Course .
+
+:DrSmith :teaches :F21DL .</div>
+                    <p><strong>What can you infer about DrSmith and F21DL?</strong></p>
+                    
+                    <textarea class="answer-area" id="q6-answer" placeholder="1. DrSmith: 
+2. F21DL: "></textarea>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q6')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkAnswer('q6')">✅ Check Answer</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q6-hint">
+                        <strong>💡 Hint:</strong><br>
+                        • Domain = what the SUBJECT must be<br>
+                        • Range = what the OBJECT must be<br>
+                        • DrSmith is the subject (uses the property)<br>
+                        • F21DL is the object (receives the property)
+                    </div>
+                    
+                    <div class="answer-reveal" id="q6-reveal">
+                        <h5>✅ Correct Answer:</h5>
+                        <div class="code-block"># Inferred facts:
+:DrSmith a :Professor .
+:F21DL a :Course .</div>
+                        
+                        <p><strong>Reasoning:</strong></p>
+                        <ul>
+                            <li><code>teaches</code> has domain <code>Professor</code>
+                                <br>DrSmith uses "teaches" → <strong>DrSmith is Professor</strong> ✓</li>
+                            <li><code>teaches</code> has range <code>Course</code>
+                                <br>F21DL receives "teaches" → <strong>F21DL is Course</strong> ✓</li>
+                        </ul>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking:</h5>
+                            <div class="mark-item"><span>✓ DrSmith is Professor (with reasoning)</span><span>5 marks</span></div>
+                            <div class="mark-item"><span>✓ F21DL is Course (with reasoning)</span><span>5 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q6-score" onchange="updateScore()">
+                            <option value="0">0 - Didn't attempt</option>
+                            <option value="5">5 - Got one inference</option>
+                            <option value="10">10 - Got both!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showTopic(2)">← Back: RDF Graphs</button>
+                    <button class="btn btn-reset" onclick="resetTopic(3)">🔄 Reset Topic</button>
+                    <button class="btn btn-next" onclick="showTopic(4)">Next: Open World →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== TOPIC 4: OPEN WORLD ==================== -->
+        <div id="topic4" class="topic-section hidden">
+            <div class="card">
+                <div class="topic-header">🔵 TOPIC 4: Open World Assumption</div>
+                
+                <!-- Example 7 -->
+                <div class="example-box">
+                    <h4>📚 EXAMPLE 7 - TRUE, FALSE, or UNKNOWN?</h4>
+                    <p><strong>Database contains:</strong></p>
+                    <div class="code-block">:Socrates a :Human .
+:Human subClassOf :Mortal .</div>
+                    <p><strong>Answer TRUE, FALSE, or UNKNOWN:</strong></p>
+                    <ol>
+                        <li>Is Socrates mortal?</li>
+                        <li>Is Plato mortal?</li>
+                        <li>Is Socrates immortal?</li>
+                    </ol>
+                    
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Is Socrates mortal?</strong>
+                        <div class="code-block">Given: Socrates is Human
+Given: Human subClassOf Mortal
+Infer: Socrates is Mortal
+→ Answer: TRUE ✓</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Is Plato mortal?</strong>
+                        <div class="code-block">Check database: No information about Plato
+Open World: We don't know
+→ Answer: UNKNOWN ✓
+
+(NOT FALSE! We just don't have info about Plato)</div>
+                    </div>
+                    
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>Is Socrates immortal?</strong>
+                        <div class="code-block">We know: Socrates is Mortal
+Immortal = NOT Mortal
+→ Answer: FALSE ✓</div>
+                    </div>
+                    
+                    <p style="color: #2e7d32; font-weight: bold;">✓ ANSWERS: 1=TRUE, 2=UNKNOWN, 3=FALSE</p>
+                    
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                        <strong>🔑 KEY CONCEPT:</strong><br>
+                        Open World Assumption = "Absence of information is NOT negative information"<br>
+                        If we don't know something, the answer is UNKNOWN, not FALSE!
+                    </div>
+                </div>
+                
+                <!-- Practice Question 7 -->
+                <div class="question-box">
+                    <h4>🎯 YOUR TURN - Question 7</h4>
+                    <p><strong>Database contains:</strong></p>
+                    <div class="code-block">:Alice a :Student .
+:Student subClassOf :Person .</div>
+                    <p><strong>Answer TRUE, FALSE, or UNKNOWN:</strong></p>
+                    <ol>
+                        <li>Is Alice a Person?</li>
+                        <li>Is Alice a Professor?</li>
+                        <li>Is Bob a Student?</li>
+                    </ol>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin: 20px 0;">
+                        <div>
+                            <label><strong>1. Is Alice a Person?</strong></label><br>
+                            <select id="q7-a1" class="answer-select" style="padding: 10px; font-size: 1em; margin-top: 5px;">
+                                <option value="">Select answer...</option>
+                                <option value="true">TRUE</option>
+                                <option value="false">FALSE</option>
+                                <option value="unknown">UNKNOWN</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label><strong>2. Is Alice a Professor?</strong></label><br>
+                            <select id="q7-a2" class="answer-select" style="padding: 10px; font-size: 1em; margin-top: 5px;">
+                                <option value="">Select answer...</option>
+                                <option value="true">TRUE</option>
+                                <option value="false">FALSE</option>
+                                <option value="unknown">UNKNOWN</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label><strong>3. Is Bob a Student?</strong></label><br>
+                            <select id="q7-a3" class="answer-select" style="padding: 10px; font-size: 1em; margin-top: 5px;">
+                                <option value="">Select answer...</option>
+                                <option value="true">TRUE</option>
+                                <option value="false">FALSE</option>
+                                <option value="unknown">UNKNOWN</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <button class="btn btn-hint" onclick="showHint('q7')">💡 Show Hint</button>
+                        <button class="btn btn-check" onclick="checkQ7()">✅ Check Answers</button>
+                    </div>
+                    
+                    <div class="hint-box" id="q7-hint">
+                        <strong>💡 Hint:</strong><br>
+                        • For #1: Can you infer it from subClassOf?<br>
+                        • For #2 and #3: Is there ANY information about Alice being Professor or Bob existing?<br>
+                        • Remember: No info = UNKNOWN (not FALSE!)
+                    </div>
+                    
+                    <div class="answer-reveal" id="q7-reveal">
+                        <h5>✅ Correct Answers:</h5>
+                        <ol>
+                            <li><strong>TRUE</strong> - Alice is a Person (Because Student subClassOf Person)</li>
+                            <li><strong>UNKNOWN</strong> - No information about Alice being Professor (Open World = we don't know)</li>
+                            <li><strong>UNKNOWN</strong> - No information about Bob at all (Open World = we don't know)</li>
+                        </ol>
+                        
+                        <div style="background: #ffebee; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                            <strong>⚠️ Common Mistake:</strong><br>
+                            Saying #2 or #3 is FALSE! Remember: absence of information ≠ false
+                        </div>
+                        
+                        <div class="marking-criteria">
+                            <h5>📊 Marking:</h5>
+                            <div class="mark-item"><span>✓ Question 1 correct (TRUE)</span><span>4 marks</span></div>
+                            <div class="mark-item"><span>✓ Question 2 correct (UNKNOWN not FALSE)</span><span>3 marks</span></div>
+                            <div class="mark-item"><span>✓ Question 3 correct (UNKNOWN not FALSE)</span><span>3 marks</span></div>
+                            <div class="mark-item"><span><strong>Total</strong></span><span><strong>10 marks</strong></span></div>
+                        </div>
+                        
+                        <p style="margin-top: 15px;"><strong>Score yourself:</strong></p>
+                        <select id="q7-score" onchange="updateScore()">
+                            <option value="0">0 - All wrong</option>
+                            <option value="4">4 - Got one right</option>
+                            <option value="7">7 - Got two right</option>
+                            <option value="10">10 - All correct!</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showTopic(3)">← Back: Inference</button>
+                    <button class="btn btn-reset" onclick="resetTopic(4)">🔄 Reset Topic</button>
+                    <button class="btn btn-next" onclick="showTopic(5)">Next: Final Exam →</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== TOPIC 5: FINAL EXAM ==================== -->
+        <div id="topic5" class="topic-section hidden">
+            <div class="card">
+                <div class="topic-header">🎯 FULL EXAM QUESTION (20 marks)</div>
+                
+                <p style="font-size: 1.1em; margin-bottom: 20px;">
+                    You are modeling a university system. Given this information:
+                </p>
+                <ul style="margin-bottom: 20px; font-size: 1.1em;">
+                    <li>F21DL is a course</li>
+                    <li>F21DL is taught by Dr. Smith</li>
+                    <li>F21DL has 15 credits</li>
+                    <li>Hamza enrolls in F21DL</li>
+                    <li>Dr. Smith works for the Computer Science department</li>
+                </ul>
+                
+                <!-- Part A -->
+                <div class="question-box">
+                    <h4>Part A (8 marks): Write this in Turtle format with proper prefixes</h4>
+                    
+                    <textarea class="answer-area" id="final-a" placeholder="PREFIX ex: <http://example.org/>
+
+(Write your Turtle code here...)"></textarea>
+                </div>
+                
+                <!-- Part B -->
+                <div class="question-box">
+                    <h4>Part B (6 marks): Draw the RDF graph</h4>
+                    
+                    <textarea class="answer-area" id="final-b" placeholder="Draw your graph here using ASCII art...
+
+(Show all nodes and relationships)"></textarea>
+                </div>
+                
+                <!-- Part C -->
+                <div class="question-box">
+                    <h4>Part C (6 marks): Given these additional rules, what can the computer infer?</h4>
+                    <div class="code-block">:teaches domain :Professor .
+:enrolledIn domain :Student .</div>
+                    <p><strong>List ALL inferred facts:</strong></p>
+                    
+                    <textarea class="answer-area" id="final-c" placeholder="1. 
+2. "></textarea>
+                </div>
+                
+                <div>
+                    <button class="btn btn-check" onclick="showFinalAnswers()">✅ Show Model Answers</button>
+                </div>
+                
+                <div class="answer-reveal" id="final-reveal">
+                    <h5>📋 MODEL ANSWERS</h5>
+                    
+                    <h4 style="margin-top: 20px;">Part A - Turtle Code (8 marks)</h4>
+                    <div class="code-block">PREFIX ex: &lt;http://example.org/&gt;
+
+ex:F21DL a ex:Course ;
+    ex:taughtBy ex:DrSmith ;
+    ex:hasCredits 15 .
+
+ex:Hamza ex:enrolledIn ex:F21DL .
+
+ex:DrSmith ex:worksFor ex:CSDept .</div>
+                    
+                    <div class="marking-criteria">
+                        <div class="mark-item"><span>✓ Correct PREFIX</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ F21DL as Course</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ taughtBy relationship</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ Credits as number</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ Hamza enrolledIn F21DL</span><span>2 marks</span></div>
+                        <div class="mark-item"><span>✓ DrSmith worksFor</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ Proper syntax (;)</span><span>1 mark</span></div>
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;">Part B - RDF Graph (6 marks)</h4>
+                    <div class="graph-area">
+       ┌──────┐
+       │Hamza │
+       └──┬───┘
+          │
+     enrolledIn
+          │
+          ↓
+       ┌───────┐
+       │F21DL  │
+       └───┬───┘
+           │
+     ┌─────┼──────────┐
+     │     │          │
+  taughtBy │     hasCredits
+     │     │          │
+     ↓     ↓          ↓
+┌─────────┐       [15]
+│DrSmith  │
+└────┬────┘
+     │
+ worksFor
+     │
+     ↓
+┌─────────┐
+│ CSDept  │
+└─────────┘</div>
+                    
+                    <div class="marking-criteria">
+                        <div class="mark-item"><span>✓ All nodes present</span><span>2 marks</span></div>
+                        <div class="mark-item"><span>✓ Correct arrows/relationships</span><span>2 marks</span></div>
+                        <div class="mark-item"><span>✓ Literals vs Resources</span><span>1 mark</span></div>
+                        <div class="mark-item"><span>✓ Clear structure</span><span>1 mark</span></div>
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;">Part C - Inferences (6 marks)</h4>
+                    <div class="code-block"># Inferred facts:
+:DrSmith a :Professor .
+:Hamza a :Student .</div>
+                    
+                    <p><strong>Reasoning:</strong></p>
+                    <ul>
+                        <li><code>teaches</code> has domain <code>Professor</code> → DrSmith teaches F21DL → <strong>DrSmith is Professor</strong></li>
+                        <li><code>enrolledIn</code> has domain <code>Student</code> → Hamza enrolledIn F21DL → <strong>Hamza is Student</strong></li>
+                    </ul>
+                    
+                    <div class="marking-criteria">
+                        <div class="mark-item"><span>✓ DrSmith is Professor</span><span>3 marks</span></div>
+                        <div class="mark-item"><span>✓ Hamza is Student</span><span>3 marks</span></div>
+                    </div>
+                    
+                    <h4 style="margin-top: 25px;">Score yourself for each part:</h4>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin: 15px 0;">
+                        <div>
+                            <label>Part A (/8):</label>
+                            <select id="final-a-score" onchange="updateScore()">
+                                <option value="0">0</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="6">6</option>
+                                <option value="8">8</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Part B (/6):</label>
+                            <select id="final-b-score" onchange="updateScore()">
+                                <option value="0">0</option>
+                                <option value="2">2</option>
+                                <option value="4">4</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Part C (/6):</label>
+                            <select id="final-c-score" onchange="updateScore()">
+                                <option value="0">0</option>
+                                <option value="3">3</option>
+                                <option value="6">6</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showTopic(4)">← Back: Open World</button>
+                    <button class="btn btn-check" onclick="showResults()">📊 See Final Results</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ==================== RESULTS SCREEN ==================== -->
+        <div id="resultsScreen" class="card final-score-card hidden">
+            <h2>📊 Your Final Results</h2>
+            
+            <div class="score-circle">
+                <span class="big-number" id="finalScoreNum">0</span>
+                <span>/90</span>
+            </div>
+            
+            <div id="gradeMessage" class="grade-badge grade-pass">Keep practicing!</div>
+            
+            <div style="text-align: left; margin-top: 30px;">
+                <h4>Score Breakdown:</h4>
+                <div class="marking-criteria">
+                    <div class="mark-item"><span>Q1: RDF Triples</span><span id="score-q1">0</span>/10</div>
+                    <div class="mark-item"><span>Q2: RDF Triples</span><span id="score-q2">0</span>/10</div>
+                    <div class="mark-item"><span>Q3: RDF Graphs</span><span id="score-q3">0</span>/10</div>
+                    <div class="mark-item"><span>Q4: RDF Graphs</span><span id="score-q4">0</span>/10</div>
+                    <div class="mark-item"><span>Q5: Inference</span><span id="score-q5">0</span>/10</div>
+                    <div class="mark-item"><span>Q6: Inference</span><span id="score-q6">0</span>/10</div>
+                    <div class="mark-item"><span>Q7: Open World</span><span id="score-q7">0</span>/10</div>
+                    <div class="mark-item"><span>Final Exam</span><span id="score-final">0</span>/20</div>
+                    <div class="mark-item" style="border-top: 2px solid #333; margin-top: 10px; padding-top: 15px;">
+                        <span><strong>TOTAL</strong></span>
+                        <span><strong id="score-total">0</strong>/90</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h4>Grade Boundaries:</h4>
+                <ul style="text-align: left;">
+                    <li>80-90: <strong>Excellent (A)</strong> 🌟</li>
+                    <li>70-79: <strong>Very Good (B)</strong></li>
+                    <li>60-69: <strong>Good (C)</strong></li>
+                    <li>50-59: <strong>Pass (D)</strong></li>
+                    <li>Below 50: <strong>More practice needed</strong></li>
+                </ul>
+            </div>
+            
+            <button class="btn btn-next" onclick="resetAll()" style="margin-top: 30px;">🔄 Start Over</button>
+        </div>
+    </div>
+
+    <script>
+        // Track scores
+        let scores = {
+            q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0,
+            finalA: 0, finalB: 0, finalC: 0
+        };
+        
+        // Show topic
+        function showTopic(num) {
+            // Hide all topics
+            document.querySelectorAll('.topic-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('resultsScreen').classList.add('hidden');
+            
+            // Show selected topic
+            document.getElementById('topic' + num).classList.remove('hidden');
+            
+            // Update tabs
+            document.querySelectorAll('.topic-tab').forEach((tab, i) => {
+                tab.classList.remove('active');
+                if (i + 1 === num) tab.classList.add('active');
+            });
+            
+            // Update progress
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Show hint
+        function showHint(qId) {
+            document.getElementById(qId + '-hint').classList.toggle('show');
+        }
+        
+        // Check answer (reveal)
+        function checkAnswer(qId) {
+            document.getElementById(qId + '-reveal').classList.add('show');
+        }
+        
+        // Check Q7 specifically (multiple choice)
+        function checkQ7() {
+            const a1 = document.getElementById('q7-a1').value;
+            const a2 = document.getElementById('q7-a2').value;
+            const a3 = document.getElementById('q7-a3').value;
+            
+            // Highlight correct/incorrect
+            document.getElementById('q7-a1').style.background = a1 === 'true' ? '#d4edda' : '#f8d7da';
+            document.getElementById('q7-a2').style.background = a2 === 'unknown' ? '#d4edda' : '#f8d7da';
+            document.getElementById('q7-a3').style.background = a3 === 'unknown' ? '#d4edda' : '#f8d7da';
+            
+            document.getElementById('q7-reveal').classList.add('show');
+        }
+        
+        // Show final answers
+        function showFinalAnswers() {
+            document.getElementById('final-reveal').classList.add('show');
+        }
+        
+        // Update score
+        function updateScore() {
+            scores.q1 = parseInt(document.getElementById('q1-score')?.value || 0);
+            scores.q2 = parseInt(document.getElementById('q2-score')?.value || 0);
+            scores.q3 = parseInt(document.getElementById('q3-score')?.value || 0);
+            scores.q4 = parseInt(document.getElementById('q4-score')?.value || 0);
+            scores.q5 = parseInt(document.getElementById('q5-score')?.value || 0);
+            scores.q6 = parseInt(document.getElementById('q6-score')?.value || 0);
+            scores.q7 = parseInt(document.getElementById('q7-score')?.value || 0);
+            scores.finalA = parseInt(document.getElementById('final-a-score')?.value || 0);
+            scores.finalB = parseInt(document.getElementById('final-b-score')?.value || 0);
+            scores.finalC = parseInt(document.getElementById('final-c-score')?.value || 0);
+            
+            const total = Object.values(scores).reduce((a, b) => a + b, 0);
+            document.getElementById('totalScore').textContent = total;
+            
+            updateProgress();
+        }
+        
+        // Update progress bar
+        function updateProgress() {
+            const total = Object.values(scores).reduce((a, b) => a + b, 0);
+            const percent = Math.round((total / 90) * 100);
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+        
+        // Show results
+        function showResults() {
+            updateScore();
+            
+            document.querySelectorAll('.topic-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            const total = Object.values(scores).reduce((a, b) => a + b, 0);
+            
+            document.getElementById('finalScoreNum').textContent = total;
+            document.getElementById('score-q1').textContent = scores.q1;
+            document.getElementById('score-q2').textContent = scores.q2;
+            document.getElementById('score-q3').textContent = scores.q3;
+            document.getElementById('score-q4').textContent = scores.q4;
+            document.getElementById('score-q5').textContent = scores.q5;
+            document.getElementById('score-q6').textContent = scores.q6;
+            document.getElementById('score-q7').textContent = scores.q7;
+            document.getElementById('score-final').textContent = scores.finalA + scores.finalB + scores.finalC;
+            document.getElementById('score-total').textContent = total;
+            
+            const gradeEl = document.getElementById('gradeMessage');
+            if (total >= 80) {
+                gradeEl.textContent = '🌟 Excellent! You\'re ready!';
+                gradeEl.className = 'grade-badge grade-excellent';
+            } else if (total >= 70) {
+                gradeEl.textContent = '✅ Very Good! Review mistakes';
+                gradeEl.className = 'grade-badge grade-good';
+            } else if (total >= 50) {
+                gradeEl.textContent = '📚 Pass - Keep practicing';
+                gradeEl.className = 'grade-badge grade-pass';
+            } else {
+                gradeEl.textContent = '💪 Review the notes and retry';
+                gradeEl.className = 'grade-badge grade-retry';
+            }
+            
+            window.scrollTo(0, 0);
+        }
+        
+        // Reset topic
+        function resetTopic(num) {
+            const topic = document.getElementById('topic' + num);
+            topic.querySelectorAll('.answer-area').forEach(el => el.value = '');
+            topic.querySelectorAll('.hint-box').forEach(el => el.classList.remove('show'));
+            topic.querySelectorAll('.answer-reveal').forEach(el => el.classList.remove('show'));
+            topic.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+            
+            if (num === 4) {
+                document.getElementById('q7-a1').style.background = '';
+                document.getElementById('q7-a2').style.background = '';
+                document.getElementById('q7-a3').style.background = '';
+            }
+            
+            updateScore();
+        }
+        
+        // Reset all
+        function resetAll() {
+            for (let i = 1; i <= 5; i++) {
+                resetTopic(i);
+            }
+            scores = { q1: 0, q2: 0, q3: 0, q4: 0, q5: 0, q6: 0, q7: 0, finalA: 0, finalB: 0, finalC: 0 };
+            document.getElementById('totalScore').textContent = 0;
+            showTopic(1);
+        }
+    </script>
+</body>
+</html>

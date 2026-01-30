@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦉 Semantic Web Mastery Quiz - Life Ready Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        /* Level Progress */
+        .level-progress {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .level-badge {
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: all 0.3s;
+        }
+        
+        .level-badge.locked {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        
+        .level-badge.current {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .level-badge.completed {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Question Header */
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        
+        .difficulty-badge {
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .diff-foundation { background: #d4edda; color: #155724; }
+        .diff-application { background: #fff3cd; color: #856404; }
+        .diff-analysis { background: #cce5ff; color: #004085; }
+        .diff-synthesis { background: #f8d7da; color: #721c24; }
+        .diff-expert { background: #e2d5f1; color: #4a235a; }
+        
+        /* Scenario Box */
+        .scenario-box {
+            background: linear-gradient(135deg, #e0e5ec, #f0f4f8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .scenario-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        
+        .code-block .keyword { color: #569cd6; }
+        .code-block .property { color: #9cdcfe; }
+        .code-block .string { color: #ce9178; }
+        .code-block .comment { color: #6a9955; }
+        .code-block .uri { color: #4ec9b0; }
+        
+        /* Question Text */
+        .question-text {
+            font-size: 1.2em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .question-text code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            color: #e74c3c;
+            font-size: 0.9em;
+        }
+        
+        /* Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+        }
+        
+        .option.correct {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, rgba(39,174,96,0.15), rgba(46,204,113,0.15));
+        }
+        
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, rgba(231,76,60,0.15), rgba(192,57,43,0.15));
+        }
+        
+        .option.disabled {
+            cursor: default;
+        }
+        
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .option.selected .option-letter {
+            background: #667eea;
+            color: white;
+        }
+        
+        .option.correct .option-letter {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .option.incorrect .option-letter {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .option-text {
+            flex: 1;
+            padding-top: 4px;
+        }
+        
+        /* Explanation Box */
+        .explanation-box {
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .explanation-correct {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 5px solid #27ae60;
+        }
+        
+        .explanation-incorrect {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .explanation-box h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2em;
+        }
+        
+        .explanation-box .why-section {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .explanation-box .why-section h5 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .explanation-box .deep-concept {
+            background: rgba(102,126,234,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .explanation-box .deep-concept h5 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .explanation-box .real-world {
+            background: rgba(243,156,18,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .explanation-box .real-world h5 {
+            color: #f39c12;
+            margin-bottom: 8px;
+        }
+        
+        /* Buttons */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-card .number {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+        
+        .stat-card .label {
+            font-size: 0.85em;
+            opacity: 0.8;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 20px;
+            background: linear-gradient(90deg, #11998e, #38ef7d);
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+        }
+        
+        .start-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .level-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .level-card {
+            padding: 25px 15px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .level-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+        
+        .level-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1));
+        }
+        
+        .level-card .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .level-card h3 {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .level-card p {
+            color: #666;
+            font-size: 0.85em;
+        }
+        
+        .level-card .questions-count {
+            margin-top: 10px;
+            font-size: 0.8em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            color: white;
+        }
+        
+        .score-circle .percentage {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .score-circle .label {
+            font-size: 1em;
+        }
+        
+        .grade-message {
+            font-size: 1.3em;
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .grade-master { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+        .grade-expert { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+        .grade-proficient { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .grade-developing { background: linear-gradient(135deg, #f39c12, #e74c3c); color: white; }
+        
+        .review-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .review-item {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 5px solid #e0e0e0;
+        }
+        
+        .review-item.correct { border-left-color: #27ae60; }
+        .review-item.incorrect { border-left-color: #e74c3c; }
+        
+        .review-item .q-preview {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .review-item .answer-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* Hidden */
+        .hidden { display: none !important; }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.8em; }
+            .question-text { font-size: 1.1em; }
+            .btn { width: 100%; }
+            .button-container { flex-direction: column; }
+        }
+        
+        /* Hint */
+        .hint-btn {
+            background: none;
+            border: 2px dashed #f39c12;
+            color: #f39c12;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .hint-btn:hover {
+            background: rgba(243,156,18,0.1);
+        }
+        
+        .hint-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #f39c12;
+        }
+        
+        /* Streak */
+        .streak-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #f12711, #f5af19);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦉 Semantic Web Mastery Quiz</h1>
+            <p class="subtitle">From Zero to Hero - The Life Ready Challenge</p>
+            
+            <div class="level-progress" id="levelProgress">
+                <span class="level-badge current" data-level="1">Level 1: Foundation</span>
+                <span class="level-badge locked" data-level="2">Level 2: Application</span>
+                <span class="level-badge locked" data-level="3">Level 3: Analysis</span>
+                <span class="level-badge locked" data-level="4">Level 4: Synthesis</span>
+                <span class="level-badge locked" data-level="5">Level 5: Expert</span>
+            </div>
+        </div>
+        
+        <div id="streakIndicator" class="streak-indicator hidden">🔥 <span id="streakCount">0</span> Streak!</div>
+        
+        <!-- Start Screen -->
+        <div id="startScreen" class="card start-screen">
+            <h2>Choose Your Challenge Level</h2>
+            <p>Each level must be passed with 80%+ to unlock the next</p>
+            
+            <div class="level-selector">
+                <div class="level-card selected" data-level="1" onclick="selectLevel(1)">
+                    <div class="icon">🏗️</div>
+                    <h3>Foundation</h3>
+                    <p>Core concepts, terminology, basic understanding</p>
+                    <div class="questions-count">15 Questions</div>
+                </div>
+                <div class="level-card" data-level="2" onclick="selectLevel(2)">
+                    <div class="icon">🔧</div>
+                    <h3>Application</h3>
+                    <p>Using concepts, practical modeling</p>
+                    <div class="questions-count">12 Questions</div>
+                </div>
+                <div class="level-card" data-level="3" onclick="selectLevel(3)">
+                    <div class="icon">🔍</div>
+                    <h3>Analysis</h3>
+                    <p>Breaking down problems, inference chains</p>
+                    <div class="questions-count">10 Questions</div>
+                </div>
+                <div class="level-card" data-level="4" onclick="selectLevel(4)">
+                    <div class="icon">🎨</div>
+                    <h3>Synthesis</h3>
+                    <p>Designing systems, combining concepts</p>
+                    <div class="questions-count">8 Questions</div>
+                </div>
+                <div class="level-card" data-level="5" onclick="selectLevel(5)">
+                    <div class="icon">👑</div>
+                    <h3>Expert</h3>
+                    <p>Real-world scenarios, edge cases</p>
+                    <div class="questions-count">5 Questions</div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startQuiz()" style="padding: 18px 50px; font-size: 1.1em;">
+                🚀 Begin Challenge
+            </button>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div id="quizScreen" class="hidden">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="number" id="currentQ">1</div>
+                    <div class="label">Question</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="correctCount">0</div>
+                    <div class="label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="incorrectCount">0</div>
+                    <div class="label">Incorrect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="scorePercent">0%</div>
+                    <div class="label">Score</div>
+                </div>
+            </div>
+            
+            <div class="card" id="questionCard">
+                <!-- Question content dynamically inserted -->
+            </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="card results-screen hidden">
+            <!-- Results dynamically inserted -->
+        </div>
+    </div>
+
+    <script>
+        // ==================== QUESTION BANK ====================
+        const questionBank = {
+            1: [ // Level 1: Foundation
+                {
+                    id: "1.1",
+                    scenario: "A hospital publishes patient statistics as a password-protected Excel file that researchers can access after signing an NDA.",
+                    question: "According to the 5-star linked open data scheme, how many stars does this deserve?",
+                    options: [
+                        "0 stars - it's not openly licensed",
+                        "1 star - it's online but not open",
+                        "2 stars - it's structured and machine-readable",
+                        "3 stars - it's in an open format"
+                    ],
+                    correct: 0,
+                    explanation: {
+                        why: "The 5-star scheme REQUIRES an open license as the foundation. Even though it's online (which would normally give 1 star) and machine-readable (2 stars), the NDA and password protection mean it's NOT openly licensed.",
+                        deepConcept: "'Open' doesn't just mean 'digital' or 'structured' - it means freely accessible and reusable without legal or technical barriers. The 'OL' (Open License) requirement appears at EVERY star level.",
+                        realWorld: "Many organizations claim they have 'open data' because they digitized it, but if there are access restrictions, licensing fees, or usage limitations, it fails the fundamental principle."
+                    }
+                },
+                {
+                    id: "1.2",
+                    question: "Which statement is TRUE about the relationship between knowledge graphs and the semantic web?",
+                    options: [
+                        "Knowledge graphs are a specific implementation of semantic web principles",
+                        "The semantic web is one type of knowledge graph",
+                        "They are competing technologies with different goals",
+                        "Knowledge graphs existed before the semantic web concept"
+                    ],
+                    correct: 0,
+                    explanation: {
+                        why: "Semantic Web (coined by Tim Berners-Lee) = the VISION/CONCEPT/GOAL. Knowledge Graphs = PRACTICAL IMPLEMENTATION of that vision. The semantic web provides the standards (RDF, OWL, SPARQL), and knowledge graphs USE those standards.",
+                        deepConcept: "Think of it like: Semantic Web = Recipe for how to organize web data. Knowledge Graph = The actual dish cooked using that recipe.",
+                        realWorld: "Google's Knowledge Graph (announced 2012) specifically implements semantic web standards to power search features like knowledge panels."
+                    }
+                },
+                {
+                    id: "1.3",
+                    scenario: "You're building a knowledge graph for a university. You have the statement: 'Dr. Smith teaches CS101 in Room 405.'",
+                    question: "Which of the following should receive an IRI (unique web address)?",
+                    options: [
+                        "Only 'Dr. Smith'",
+                        "'Dr. Smith' and 'CS101'",
+                        "'Dr. Smith', 'CS101', and 'Room 405'",
+                        "All entities including 'teaches' and 'in'"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "Dr. Smith (person), CS101 (course), and Room 405 (location) are all specific entities that need unique identification. While predicates also get IRIs, the question tests whether you understand that concrete entities (nouns) need unique identification.",
+                        deepConcept: "Generic terms like 'person', 'course', 'room' = types (don't need unique IRIs). Specific instances like 'Dr. Smith', 'CS101', 'Room 405' = entities (need unique IRIs).",
+                        realWorld: "IRI Structure Example: <http://university.edu/people/smith_john_12345>, <http://university.edu/courses/CS101_fall2024>, <http://university.edu/locations/room_405_bldg3>"
+                    }
+                },
+                {
+                    id: "1.4",
+                    question: "Which scenario best represents the difference between 'information' and 'knowledge' in the DIKW pyramid?",
+                    options: [
+                        "Information: 'Sales were $1M in Q1'; Knowledge: 'Sales typically increase in Q1'",
+                        "Information: 'It's 30°C'; Knowledge: 'Temperature is measured in Celsius'",
+                        "Information: 'Customer bought product X'; Knowledge: 'Product X exists'",
+                        "Information: 'Meeting at 2pm'; Knowledge: 'Meetings happen'"
+                    ],
+                    correct: 0,
+                    explanation: {
+                        why: "Information = Facts in context (what happened, descriptive). Knowledge = Patterns, principles, rules (understanding why/how, predictive). Option A shows a specific fact vs a recognized pattern across multiple quarters.",
+                        deepConcept: "Information answers: 'What happened?' Knowledge answers: 'Why does this happen?' or 'What will likely happen?'",
+                        realWorld: "Data: 1000000, Q1, 2024. Information: 'Sales were $1M in Q1 2024'. Knowledge: 'Sales typically increase 20% in Q1 due to New Year promotions'. Wisdom: 'We should increase inventory in December to prepare.'"
+                    }
+                },
+                {
+                    id: "1.5",
+                    scenario: "In RDF triple notation, consider: <JohnSmith> <worksAt> <HeriotWatt>. A researcher wants to add that John Smith started working there in 2020.",
+                    question: "Why is this challenging in basic RDF?",
+                    options: [
+                        "RDF can't handle dates",
+                        "You can't have two predicates for the same subject",
+                        "Triples can't have metadata about themselves (reification problem)",
+                        "'worksAt' and 'startedIn' are incompatible predicates"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "RDF triples are EXACTLY three parts: Subject - Predicate - Object. You can't easily add information ABOUT a relationship. This is the 'reification problem' - how to make statements about statements.",
+                        deepConcept: "Solutions include: (1) Create intermediate nodes like <Employment_01> with multiple properties, or (2) Use named graphs. This is why knowledge graphs become complex when adding context.",
+                        realWorld: "In healthcare: '<Patient> <hasDiagnosis> <Diabetes>' seems simple, but you need: When diagnosed? Who diagnosed? How certain? Which type? This requires reification or intermediate nodes."
+                    }
+                },
+                {
+                    id: "1.6",
+                    scenario: "A company claims their data is '5-star linked open data' with these properties: Published as RDF, Uses HTTP IRIs, Available under Creative Commons license, Contains links to DBpedia. However, when you try to access the IRIs, you get 404 errors.",
+                    question: "What star rating does it actually deserve?",
+                    options: [
+                        "Still 5 stars - the format is correct",
+                        "4 stars - the links don't resolve",
+                        "3 stars - it's RDF but not properly linked",
+                        "2 stars - it's just structured open data"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "★ Open License? ✅ ★★ Machine-readable? ✅ ★★★ Open format (RDF)? ✅ ★★★★ Uses HTTP IRIs that RESOLVE? ❌ (404 errors!) ★★★★★ Linked to other data? ❌ (Can't verify if links don't work)",
+                        deepConcept: "The 4th star specifically requires that IRIs be DEREFERENCEABLE - meaning when you visit the IRI, you actually GET information back. It's not enough to just use the IRI format.",
+                        realWorld: "Like a map with roads that don't exist. You could write perfect RDF that points to nothing - that's only 3 stars."
+                    }
+                },
+                {
+                    id: "1.7",
+                    question: "Which statement correctly describes the relationship between ontologies and knowledge graphs?",
+                    options: [
+                        "Ontologies ARE knowledge graphs",
+                        "Ontologies define the vocabulary/structure that knowledge graphs use",
+                        "Knowledge graphs are older technology that ontologies replaced",
+                        "Ontologies and knowledge graphs serve completely different purposes"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Ontology = The rule book, dictionary, schema (defines what CAN be said). Knowledge Graph = The actual data (uses the ontology to make statements).",
+                        deepConcept: "Perfect Analogy: Ontology = Grammar rules + dictionary of English language. Knowledge Graph = Actual sentences written in English.",
+                        realWorld: "Medical Ontology (SNOMED CT) defines: 'Diabetes' is a type of 'Disease'. Medical Knowledge Graph uses it: <Patient_12345> <hasDiagnosis> <Type2Diabetes>. The computer can now infer Patient_12345 has a Disease."
+                    }
+                },
+                {
+                    id: "1.8",
+                    question: "Your boss asks why moving from a traditional relational database to a knowledge graph is beneficial. What is the STRONGEST argument?",
+                    options: [
+                        "Knowledge graphs are always faster for queries",
+                        "Knowledge graphs can represent many-to-many relationships that SQL can't",
+                        "Knowledge graphs allow flexible schema evolution and relationship discovery without restructuring",
+                        "Knowledge graphs use less storage space"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "In relational DBs, adding new relationships (skills, certifications, mentorships) requires designing new tables, creating foreign keys, migrating data, updating queries. In knowledge graphs, you just add new triples - no schema changes needed!",
+                        deepConcept: "A) FALSE - Relational DBs are often faster for structured queries. B) FALSE - SQL handles many-to-many fine with junction tables. D) FALSE - RDF often uses MORE space due to full IRIs.",
+                        realWorld: "Company evolves over 5 years adding employee tracking, customer relationships, project management, supply chain, social media. Relational DB = 5 major schema redesigns. Knowledge Graph = continuously add new relationship types, no downtime."
+                    }
+                },
+                {
+                    id: "1.9",
+                    scenario: "Consider these statements:\n1. 'CS101 is taught by Dr. Smith'\n2. 'CS101 is taught by Dr. Jones'\n3. 'Dr. Smith teaches on Mondays'\n4. 'Dr. Jones teaches on Wednesdays'",
+                    question: "If you model this in RDF, what inferencing can be done?",
+                    options: [
+                        "CS101 happens on Mondays and Wednesdays",
+                        "Dr. Smith and Dr. Jones work together",
+                        "One of the statements must be wrong (conflict)",
+                        "No inferencing is possible without additional ontology rules"
+                    ],
+                    correct: 3,
+                    explanation: {
+                        why: "Raw RDF triples are just statements - they don't automatically enable reasoning! We can't conclude when CS101 happens without a rule like 'If Course X is taught by Person Y, and Y teaches on Day Z, then X happens on Day Z'.",
+                        deepConcept: "Computers don't have common sense unless you encode it as rules! RDF alone just stores statements. RDF + RDFS = basic hierarchies. RDF + OWL = complex rules and rich reasoning.",
+                        realWorld: "Many students think knowledge graphs are 'automatically smart' - they're not! The intelligence comes from: (1) Quality of ontology (rules), (2) Reasoning engine (software), (3) Proper modeling."
+                    }
+                },
+                {
+                    id: "1.10",
+                    question: "The 'semantic' in 'semantic web' primarily refers to:",
+                    options: [
+                        "The use of natural language processing to extract meaning from text",
+                        "Machines being able to understand the meaning/context of data, not just syntax",
+                        "Web pages that load semantically based on user intent",
+                        "Semantic similarity between documents for better search"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Semantic = Meaning/context/relationships. Syntactic = Structure/format/grammar. Current web: Computer sees '<p>John works at Heriot-Watt</p>' as just a paragraph tag with string characters. Semantic web: Computer understands John is a Person, Heriot-Watt is an Organization, 'works at' is employment.",
+                        deepConcept: "Tim Berners-Lee's Vision: 'The Semantic Web is an extension of the current one, in which information is given well-defined meaning, better enabling computers and people to work in cooperation.'",
+                        realWorld: "Search 'Paris hotels' - Syntactic system finds pages with words 'Paris' AND 'hotels' (might return 'Paris Hilton hotels scandal'). Semantic system understands Paris = place, Hotel = lodging, returns actual hotels in the city."
+                    }
+                },
+                {
+                    id: "1.11",
+                    question: "In RDF triple notation, what are the three components in correct order?",
+                    options: [
+                        "Subject, Verb, Object",
+                        "Subject, Predicate, Object",
+                        "Entity, Relationship, Value",
+                        "Node, Edge, Node"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "RDF triples ALWAYS follow: Subject (the thing you're describing), Predicate (the relationship/property), Object (the value or thing being related to).",
+                        deepConcept: "Think of it like English: 'Bob knows Alice' - Bob (noun/subject), knows (verb/predicate), Alice (noun/object). The deeper rule: Subject MUST be an IRI, Predicate MUST be an IRI, Object can be IRI OR literal.",
+                        realWorld: "Every fact in a knowledge graph is stored this way: <http://example.org/Bob> <http://example.org/knows> <http://example.org/Alice>"
+                    }
+                },
+                {
+                    id: "1.12",
+                    scenario: "Database contains:\n• Socrates isA Human\n• All Humans areMortal",
+                    question: "Under the Open World Assumption, what does the system know about Plato's mortality?",
+                    options: [
+                        "Plato is mortal",
+                        "Plato is not mortal",
+                        "Unknown - insufficient information",
+                        "Error - Plato not in database"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "Open World Assumption = 'Absence of information is not negative information'. We don't know if Plato is a Human. We can't infer anything. NOT FALSE - just UNKNOWN.",
+                        deepConcept: "Contrast with Closed World (traditional databases): Is Plato mortal? → NOT IN DATABASE → FALSE. This is dangerous in real applications!",
+                        realWorld: "Doctor's office doesn't have your allergy information. Closed World: 'No allergies' (dangerous!). Open World: 'Allergy information unknown' (safe - doctor asks)."
+                    }
+                },
+                {
+                    id: "1.13",
+                    code: "<p>Bob knows Alice. Bob's age is 25.</p>",
+                    question: "What can a computer automatically understand from this HTML?",
+                    options: [
+                        "That Bob is a person",
+                        "That 'knows' is a relationship",
+                        "That 25 is Bob's age, not Alice's",
+                        "None of the above - just formatting"
+                    ],
+                    correct: 3,
+                    explanation: {
+                        why: "HTML only tells the computer HOW TO DISPLAY text. It has ZERO semantic meaning. Computer sees: 'Display this as a paragraph'. Computer understands: NOTHING about Bob or Alice.",
+                        deepConcept: "HTML (Presentation) → Computer sees formatting. XML (Structure) → Computer sees structure but no meaning. RDF (Meaning) → Computer understands relationships and can query them.",
+                        realWorld: "With HTML, try to answer: 'Who does Bob know?' → Impossible without human interpretation. With RDF, query: SELECT ?person WHERE {Person:Bob relationship:knows ?person} → Returns: Alice"
+                    }
+                },
+                {
+                    id: "1.14",
+                    question: "Order these from SIMPLEST to MOST COMPLEX knowledge organization systems:",
+                    options: [
+                        "Folksonomy → Taxonomy → Ontology",
+                        "Ontology → Taxonomy → Folksonomy",
+                        "Taxonomy → Folksonomy → Ontology",
+                        "Folksonomy → Ontology → Taxonomy"
+                    ],
+                    correct: 0,
+                    explanation: {
+                        why: "Folksonomy (simplest) = Community-created tags, no structure. Taxonomy = Controlled vocabulary + hierarchy. Ontology (most complex) = Everything + custom rules + inference capability.",
+                        deepConcept: "Full order: Folksonomy → Controlled Vocabulary → Taxonomy → Thesaurus → Ontology. Each level adds more structure and capability.",
+                        realWorld: "Building a simple blog? → Folksonomy (tags). Medical records? → Controlled vocabulary. Library catalog? → Taxonomy. AI system that reasons? → Ontology."
+                    }
+                },
+                {
+                    id: "1.15",
+                    scenario: "You have 3 datasets about the same person using different IRIs:\n• Dataset A: :Person123\n• Dataset B: :BobSmith\n• Dataset C: :bob_smith",
+                    question: "How does Semantic Web solve this integration problem?",
+                    options: [
+                        "Convert everything to the same database",
+                        "Write custom code to merge results",
+                        "Use owl:sameAs to declare they're the same entity",
+                        "Rename all IRIs to match"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "owl:sameAs tells the computer: 'These three IRIs refer to the same thing!' Now queries automatically find information across all datasets without custom integration code.",
+                        deepConcept: "The whole point of semantic web is LINKING data! After declaring owl:sameAs, querying for Person123's phone number automatically follows links to find it in Dataset C.",
+                        realWorld: "Hospital A has your allergies. Hospital B has your medications. Emergency room can't access either → dangerous! With owl:sameAs linking patient records, emergency room gets everything automatically."
+                    }
+                }
+            ],
+            2: [ // Level 2: Application
+                {
+                    id: "2.1",
+                    scenario: "You have this ontology:\n• :hasChild domain :Parent\n• :hasChild range :Person\n• :Alice :hasChild :Bob",
+                    question: "What types can the system infer for Alice and Bob?",
+                    options: [
+                        "Alice: Person, Bob: Parent",
+                        "Alice: Parent, Bob: Person",
+                        "Alice: Parent, Bob: Parent",
+                        "Cannot infer anything"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Domain means 'the SUBJECT must be this type'. Range means 'the OBJECT must be this type'. Since Alice is the subject of hasChild → Alice is a Parent. Since Bob is the object → Bob is a Person.",
+                        deepConcept: "Domain restricts WHO can use the property (subject). Range restricts WHAT the result can be (object). These are INFERENCE rules, not validation!",
+                        realWorld: "If :Fido :hasChild :Buddy (about dogs), the system infers Fido is a Parent and Buddy is a Person! RDFS doesn't reject - it INFERS. This is the Open World Assumption in action."
+                    }
+                },
+                {
+                    id: "2.2",
+                    scenario: "Given:\n• :Vehicle a owl:Class\n• :Car rdfs:subClassOf :Vehicle\n• :ElectricCar rdfs:subClassOf :Car\n• :TeslaModel3 a :ElectricCar",
+                    question: "Is :TeslaModel3 also a :Vehicle?",
+                    options: [
+                        "Yes - through transitive subClassOf chain",
+                        "No - it's only an ElectricCar",
+                        "Only if explicitly stated",
+                        "Depends on the reasoner"
+                    ],
+                    correct: 0,
+                    explanation: {
+                        why: "SubClassOf is TRANSITIVE. TeslaModel3 → ElectricCar → Car → Vehicle. Therefore TeslaModel3 is a Vehicle (and also a Car, and an ElectricCar simultaneously).",
+                        deepConcept: "Classes are NOT mutually exclusive by default! An instance can belong to multiple classes at once through the hierarchy chain.",
+                        realWorld: "Query 'Find all vehicles' will return TeslaModel3 even though we only declared it as ElectricCar. This is the power of hierarchical reasoning."
+                    }
+                },
+                {
+                    id: "2.3",
+                    question: "What is the difference between owl:ObjectProperty and owl:DatatypeProperty?",
+                    options: [
+                        "ObjectProperty is for objects, DatatypeProperty is for data",
+                        "ObjectProperty links individuals to individuals, DatatypeProperty links individuals to literal values",
+                        "ObjectProperty is more complex, DatatypeProperty is simpler",
+                        "They are interchangeable"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "ObjectProperty connects one individual/resource to another (John hasWife Mary). DatatypeProperty connects an individual to a literal value like a string or number (John hasAge '45').",
+                        deepConcept: "Object Property = thing → thing (both have identity). Datatype Property = thing → value (just data, no identity). The target of a DatatypeProperty cannot have its own properties.",
+                        realWorld: ":John :hasAge '45' (DatatypeProperty - 45 is just a number). :John :hasFriend :Mary (ObjectProperty - Mary is a resource with her own properties)."
+                    }
+                },
+                {
+                    id: "2.4",
+                    scenario: "Given:\n• :owns owl:inverseOf :ownedBy\n• :Alice :owns :TeslaModel3",
+                    question: "What can the reasoner infer?",
+                    options: [
+                        "Nothing additional",
+                        ":TeslaModel3 :ownedBy :Alice",
+                        ":Alice :ownedBy :TeslaModel3",
+                        ":owns and :ownedBy are the same property"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Inverse properties: If X P Y, and P is inverse of Q, then Y Q X. Since Alice owns TeslaModel3, the reasoner automatically infers TeslaModel3 ownedBy Alice.",
+                        deepConcept: "Inverse properties are mirror relationships. Define one, get the other free! Examples: hasChild/hasParent, teaches/taughtBy, employs/employedBy.",
+                        realWorld: "You only need to state 'Alice owns the Tesla'. Queries for 'What is owned by Alice?' AND 'Who owns the Tesla?' both work automatically."
+                    }
+                },
+                {
+                    id: "2.5",
+                    question: "If :hasSSN is declared as owl:FunctionalProperty, what does this mean?",
+                    options: [
+                        "Everyone must have an SSN",
+                        "Each subject can have at most ONE value for hasSSN",
+                        "SSN must be a function in programming",
+                        "The SSN must be functional/working"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "FunctionalProperty means for any given subject, there can be AT MOST ONE value. If John hasSSN '123' and John hasSSN '456', the reasoner will either infer '123' = '456' (same thing) or detect an inconsistency.",
+                        deepConcept: "Functional = 'at most one value per subject'. Like a function in math - one input gives exactly one output. Good for: hasSSN, hasBirthDate, hasMother.",
+                        realWorld: "This enables data quality checking. If your database has someone with two different SSNs, the reasoner flags it as potentially inconsistent data."
+                    }
+                },
+                {
+                    id: "2.6",
+                    question: "If :isFriendOf is declared as owl:SymmetricProperty, and :John :isFriendOf :Mary, what is inferred?",
+                    options: [
+                        "Nothing additional",
+                        ":Mary :isFriendOf :John",
+                        ":John and :Mary are the same person",
+                        ":John has no other friends"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "SymmetricProperty means if A relates to B, then B automatically relates to A. So if John isFriendOf Mary, the reasoner automatically infers Mary isFriendOf John.",
+                        deepConcept: "Symmetric = works both ways automatically. Good for: isSiblingOf, isMarriedTo, isAdjacentTo, knows (sometimes).",
+                        realWorld: "Social network modeling: state friendships once, query them both directions. 'Who are John's friends?' and 'Whose friend is Mary?' both work."
+                    }
+                },
+                {
+                    id: "2.7",
+                    scenario: "Given:\n• :isAncestorOf a owl:TransitiveProperty\n• :Alice :isAncestorOf :Bob\n• :Bob :isAncestorOf :Carol",
+                    question: "What can be inferred?",
+                    options: [
+                        "Nothing additional",
+                        ":Alice :isAncestorOf :Carol",
+                        ":Carol :isAncestorOf :Alice",
+                        ":Alice, :Bob, :Carol are the same person"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "TransitiveProperty chains: if A→B and B→C, then A→C. Since Alice isAncestorOf Bob and Bob isAncestorOf Carol, the reasoner infers Alice isAncestorOf Carol.",
+                        deepConcept: "Transitive properties 'chain' through intermediate nodes. Perfect for: isAncestorOf, isPartOf, isLocatedIn, isGreaterThan.",
+                        realWorld: "Query 'Who are all ancestors of Carol?' returns both Bob AND Alice, even though Alice wasn't directly stated as Carol's ancestor."
+                    }
+                },
+                {
+                    id: "2.8",
+                    question: "What is the difference between owl:SymmetricProperty and owl:AsymmetricProperty?",
+                    options: [
+                        "Symmetric is faster to process",
+                        "Symmetric implies the reverse; Asymmetric forbids the reverse being true",
+                        "Asymmetric is for numbers only",
+                        "They are the same with different names"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Symmetric: if A→B then B→A (automatically true). Asymmetric: if A→B then B→A is IMPOSSIBLE (would cause inconsistency).",
+                        deepConcept: "Symmetric = automatically bidirectional. Asymmetric = forbidden to be bidirectional. Example: isParentOf is asymmetric - if John isParentOf Mary, Mary CANNOT be isParentOf John.",
+                        realWorld: "isOlderThan is asymmetric. If you state 'Alice isOlderThan Bob' AND 'Bob isOlderThan Alice', the reasoner detects a logical contradiction."
+                    }
+                },
+                {
+                    id: "2.9",
+                    question: "What does owl:disjointWith mean?",
+                    options: [
+                        "Two classes are the same",
+                        "Two classes cannot have any common instances",
+                        "Two classes are related",
+                        "One class contains the other"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "owl:disjointWith declares that two classes have NO overlap - nothing can be an instance of both. For example, 'Man disjointWith Woman' means nothing can be both simultaneously.",
+                        deepConcept: "Disjoint = no overlap. If you declare Man and Woman disjoint, then saying 'John is a Man' AND 'John is a Woman' creates an inconsistency the reasoner will detect.",
+                        realWorld: "This is crucial for data validation. If your database has someone classified as both 'Living' and 'Deceased' (which should be disjoint), the reasoner catches the error."
+                    }
+                },
+                {
+                    id: "2.10",
+                    scenario: "You're designing a vocabulary for a university. You need IRIs for the Computer Science department, course 'F21DL', and student 'Hamza'.",
+                    question: "What's the BEST IRI design approach?",
+                    options: [
+                        "Use random UUIDs for all",
+                        "Use your institution's domain with separate namespaces by type",
+                        "Use simple names like :ComputerScience, :F21DL, :Hamza",
+                        "Store everything in one namespace"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Best practice: Use your domain (globally unique, you own it), separate namespaces by type (organization, access control, maintenance), meaningful identifiers (readability, stability).",
+                        deepConcept: "Example: hw-dept:ComputerScience, hw-course:F21DL, hw-person:hamza. This prevents collision with other universities and allows different teams to manage different namespaces.",
+                        realWorld: "DBpedia uses consistent patterns: /resource/ for things, /ontology/ for classes/properties. This makes IRIs predictable and maintainable."
+                    }
+                },
+                {
+                    id: "2.11",
+                    question: "Why use named graphs in RDF?",
+                    options: [
+                        "To make queries faster",
+                        "To track provenance (who said what, when)",
+                        "To reduce storage space",
+                        "Named graphs are required by RDF"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Named graphs let you make statements ABOUT statements. You can track: Who said it (source), When it was said (timestamp), How trustworthy it is (credibility score).",
+                        deepConcept: "Without named graphs: ':Biden :age 80' and ':Biden :age 81' = contradiction. With named graphs: you know NewspaperA said 80, NewspaperB said 81 - both statements preserved with context.",
+                        realWorld: "Fact-checking systems use named graphs to track which source made each claim, allowing queries like 'Show me Biden's age according to the most credible source'."
+                    }
+                },
+                {
+                    id: "2.12",
+                    question: "Which serialization format is BEST for bulk-loading 1 million triples into a database?",
+                    options: [
+                        "Turtle - most human-readable",
+                        "N-Triples - each triple is independent",
+                        "JSON-LD - JavaScript compatible",
+                        "RDF/XML - most standard"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "N-Triples: One triple per line, no dependencies between lines. If one line corrupts, others still work. Can process in parallel. No need to parse complex structure.",
+                        deepConcept: "Turtle = human-readable (debugging). N-Triples = machine-efficient (bulk loading). JSON-LD = web/JavaScript. RDF/XML = legacy systems.",
+                        realWorld: "Loading 1M triples with Turtle requires parsing the whole structure. N-Triples can split the file across multiple processors and load in parallel."
+                    }
+                }
+            ],
+            3: [ // Level 3: Analysis
+                {
+                    id: "3.1",
+                    scenario: "Hospital has:\n• :Patient123 :hasDiagnosis :Diabetes\n• :Diabetes rdfs:subClassOf :MetabolicDisorder\n• :MetabolicDisorder rdfs:subClassOf :Disease\n\nDrug database has:\n• :DrugX :contraindicatedFor :Disease",
+                    question: "With RDFS reasoning, what can be inferred?",
+                    options: [
+                        "Patient123 should not take DrugX",
+                        "Nothing - separate knowledge bases",
+                        "Patient123 has a Disease",
+                        "Both A and C"
+                    ],
+                    correct: 3,
+                    explanation: {
+                        why: "Step 1: Diabetes → MetabolicDisorder → Disease (subClassOf chain). Step 2: Patient123 has Disease (inferred). Step 3: DrugX contraindicated for Disease. Step 4: DrugX contraindicated for Patient123.",
+                        deepConcept: "This is hierarchical reasoning - a fundamental RDFS capability. The whole point of semantic web is LINKING data across sources using shared vocabularies.",
+                        realWorld: "Without reasoning: 'DrugX contraindicated for Disease, Patient has Diabetes - no match, DrugX is safe' (WRONG!). With reasoning: automatic warning that DrugX is NOT safe."
+                    }
+                },
+                {
+                    id: "3.2",
+                    scenario: "Given:\n• :teaches rdfs:domain :Professor\n• :teaches rdfs:range :Course\n• :RobotArm :teaches :Welding101",
+                    question: "What happens?",
+                    options: [
+                        "Error - RobotArm cannot teach",
+                        "The statement is rejected",
+                        "RobotArm is inferred to be a Professor",
+                        "Nothing - domain/range are ignored"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "In OWL/RDFS, domain and range don't VALIDATE - they INFER. Since :teaches has domain :Professor, using it with RobotArm as subject causes the reasoner to INFER that RobotArm is a Professor!",
+                        deepConcept: "Critical concept! Domain/range are NOT constraints that reject data. They are inference rules that ADD type information. This surprises many people and is commonly tested!",
+                        realWorld: "This is the Open World Assumption in action. The system doesn't say 'RobotArm can't teach' - it says 'If RobotArm teaches, RobotArm must be a Professor'."
+                    }
+                },
+                {
+                    id: "3.3",
+                    scenario: "You define:\n• :hasSpouse a owl:SymmetricProperty\n• :hasHusband rdfs:subPropertyOf :hasSpouse\n• :hasWife rdfs:subPropertyOf :hasSpouse\n• :John :hasWife :Mary",
+                    question: "What can be inferred?",
+                    options: [
+                        "Only: John hasSpouse Mary",
+                        "John hasSpouse Mary AND Mary hasSpouse John",
+                        "Mary hasHusband John",
+                        "John hasWife Mary AND Mary hasWife John"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "hasWife is subPropertyOf hasSpouse → John hasSpouse Mary (inferred). hasSpouse is symmetric → Mary hasSpouse John (inferred). But Mary hasHusband John is NOT inferred - would need explicit inverse declaration.",
+                        deepConcept: "SubProperty inheritance + property characteristics combine. But symmetry of parent doesn't make child symmetric, and doesn't create cross-inferences between sibling properties.",
+                        realWorld: "If you want 'Mary hasHusband John' to be inferred, you need: :hasWife owl:inverseOf :hasHusband"
+                    }
+                },
+                {
+                    id: "3.4",
+                    question: "What does 'consistency checking' in OWL reasoning mean?",
+                    options: [
+                        "Checking if syntax is correct",
+                        "Checking if there are logical contradictions in the ontology",
+                        "Checking if all data is complete",
+                        "Checking naming conventions"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Consistency checking verifies there are no logical contradictions. Example: If Man and Woman are disjoint but John is declared as both, that's an inconsistency.",
+                        deepConcept: "An inconsistent ontology is useless because from a contradiction, anything can be 'proven' (principle of explosion). Always run consistency checking before using an ontology.",
+                        realWorld: "Before deploying a medical knowledge base, you run consistency checking to ensure no patient can be simultaneously 'Alive' and 'Deceased'."
+                    }
+                },
+                {
+                    id: "3.5",
+                    scenario: "Ontology defines:\n• :Parent owl:equivalentClass [owl:Restriction; owl:onProperty :hasChild; owl:minCardinality 1]\n• :Mary :hasChild :John\n• :Mary a :Person",
+                    question: "After reasoning, what additional type will Mary have?",
+                    options: [
+                        "None - she's just a Person",
+                        "Mary will be classified as a Parent",
+                        "Mary will become a Child",
+                        "Error - incomplete information"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "The ontology defines Parent as 'anything with at least 1 child' (minCardinality 1 on hasChild). Since Mary hasChild John, she satisfies the Parent definition. The reasoner will classify Mary as a Parent.",
+                        deepConcept: "This is the power of OWL reasoning - individuals are automatically classified into classes based on their properties matching class restrictions/definitions.",
+                        realWorld: "You don't need to manually tag every parent. Define what 'Parent' means once, and every person with children is automatically classified."
+                    }
+                },
+                {
+                    id: "3.6",
+                    question: "What does 'realisation' in OWL reasoning mean?",
+                    options: [
+                        "Making the ontology practical",
+                        "Finding the most specific class(es) that each individual belongs to",
+                        "Converting abstract to concrete concepts",
+                        "Implementing in code"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Realisation determines the most specific class(es) for each individual based on their properties. If a Person has hasChild property, they might be realised as Parent class.",
+                        deepConcept: "Realisation = 'what type IS this individual?'. It computes direct types based on individual's properties matching class definitions. Different from classification which builds class hierarchy.",
+                        realWorld: "Add a new patient record with certain symptoms. Realisation automatically determines which disease category they fall into based on symptom patterns."
+                    }
+                },
+                {
+                    id: "3.7",
+                    scenario: "A property is both owl:FunctionalProperty AND owl:InverseFunctionalProperty.",
+                    question: "What relationship does this create?",
+                    options: [
+                        "Error - impossible combination",
+                        "One-to-one relationship",
+                        "Many-to-many relationship",
+                        "The property becomes symmetric"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Functional = each subject has at most one object. InverseFunctional = each object has at most one subject. Together = ONE-TO-ONE relationship.",
+                        deepConcept: "Example: hasSSN - Each person has one SSN (Functional), and each SSN belongs to one person (InverseFunctional). Perfect 1:1 mapping.",
+                        realWorld: "isMarriedTo (in monogamous context) - each person married to at most one person, and each person is spouse of at most one person."
+                    }
+                },
+                {
+                    id: "3.8",
+                    question: "Which property characteristics can :isParentOf logically have? (Select the CORRECT combination)",
+                    options: [
+                        "Symmetric and Transitive",
+                        "Asymmetric and Irreflexive",
+                        "Symmetric and Functional",
+                        "Transitive and Reflexive"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "isParentOf is: Asymmetric (you can't be your child's parent AND their child), Irreflexive (nothing is its own parent). NOT: Symmetric, Transitive (that's ancestor), Functional (people have two parents).",
+                        deepConcept: "When analyzing properties, test each characteristic: Does it work both ways? Does it chain? Can it apply to self? How many values allowed?",
+                        realWorld: "isAncestorOf WOULD be transitive (grandparent is ancestor). isParentOf is NOT transitive (grandparent is not parent)."
+                    }
+                },
+                {
+                    id: "3.9",
+                    question: "What is the 'Open World Assumption' in OWL?",
+                    options: [
+                        "Anyone can add to the ontology",
+                        "If something is not stated, it might still be true (we just don't know)",
+                        "The ontology is publicly accessible",
+                        "All data is assumed complete"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Open World Assumption means absence of information doesn't mean the information is false - we just don't know. This is opposite to databases where missing data is assumed false (Closed World).",
+                        deepConcept: "Open World: 'Not stated' ≠ 'False'. Just means unknown. You can't infer something is false just because it's not stated.",
+                        realWorld: "No statement about John having children. OWA: Unknown if John has children. CWA (databases): John has no children. Big difference for reasoning!"
+                    }
+                },
+                {
+                    id: "3.10",
+                    question: "Why does OWL have different 'profiles' (OWL EL, OWL QL, OWL RL)?",
+                    options: [
+                        "Different file formats",
+                        "Different tradeoffs between expressiveness and reasoning complexity",
+                        "Different programming languages",
+                        "Different version numbers"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "OWL profiles trade expressiveness for computational efficiency. OWL EL = good for large ontologies with classification. OWL QL = good for query answering over large datasets. OWL RL = good for rule-based reasoning.",
+                        deepConcept: "More expressive = more you can say, but slower/harder to reason. Full OWL DL is most expressive but reasoning can be very slow.",
+                        realWorld: "Medical ontology with millions of concepts? Use OWL EL for tractable reasoning. Query answering over billions of triples? Use OWL QL."
+                    }
+                }
+            ],
+            4: [ // Level 4: Synthesis
+                {
+                    id: "4.1",
+                    scenario: "You're integrating three databases: Customer (SQL), Products (MongoDB), Social mentions (Neo4j). Need to answer: 'Which customers who bought product X also mentioned our brand on Twitter?'",
+                    question: "What's the BEST integration approach using semantic web?",
+                    options: [
+                        "Write custom code to query all three and merge",
+                        "Convert everything to relational database",
+                        "Create a unified knowledge graph with links to external databases",
+                        "Use a data warehouse to centralize first"
+                    ],
+                    correct: 2,
+                    explanation: {
+                        why: "Knowledge graph as integration layer: Keep each database doing what it's best at. KG stores LINKS and METADATA, not all data. Query in SPARQL across all sources.",
+                        deepConcept: "Polyglot persistence with semantic integration - each database optimized for its use case, KG provides unified querying. No full data duplication needed.",
+                        realWorld: "BBC uses this approach: CMS, audience DB, archive DB, social media DB - all linked through a knowledge graph of entities (people, places, topics)."
+                    }
+                },
+                {
+                    id: "4.2",
+                    scenario: "You need to express: 'A Mother is a Woman who has at least one Child'",
+                    question: "Which OWL construct is most appropriate?",
+                    options: [
+                        "Mother rdfs:subClassOf Woman",
+                        "Mother owl:equivalentClass (Woman AND hasChild some Person)",
+                        "Mother owl:sameAs Woman",
+                        "Mother rdfs:subPropertyOf Woman"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "owl:equivalentClass with intersection (AND) and existential restriction (some/min 1) captures: must be Woman AND must have at least one child. SubClassOf alone doesn't capture the complete definition.",
+                        deepConcept: "'hasChild some Person' = at least one child exists. 'hasChild min 1' = explicit minimum cardinality of 1. Both work for this definition.",
+                        realWorld: "Now any Woman added with a hasChild property is automatically classified as a Mother by the reasoner. No manual tagging needed."
+                    }
+                },
+                {
+                    id: "4.3",
+                    scenario: "Two ontologies: Ontology A uses 'Human', Ontology B uses 'Person' for the same concept.",
+                    question: "Which constructs help integrate them? (Select the WRONG one)",
+                    options: [
+                        "owl:equivalentClass to say Human = Person",
+                        "owl:sameAs to say Human = Person",
+                        "rdfs:subClassOf both ways (Human subClassOf Person AND Person subClassOf Human)",
+                        "skos:exactMatch for vocabulary mapping"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "owl:sameAs is for INDIVIDUALS, not classes! For class equivalence use: owl:equivalentClass, or mutual subClassOf (A⊆B and B⊆A means A=B), or skos:exactMatch for vocabulary alignment.",
+                        deepConcept: "Common mistake! owl:sameAs = individual identity. owl:equivalentClass = class identity. Using sameAs for classes causes reasoning errors.",
+                        realWorld: "When merging medical ontologies, use owl:equivalentClass to say SNOMED's 'Diabetes mellitus' equals ICD-10's 'Diabetes'."
+                    }
+                },
+                {
+                    id: "4.4",
+                    scenario: "You need to model: 'A Vegetarian is a Person who ONLY eats Plants (all food must be Plants)'",
+                    question: "Which restriction type captures this?",
+                    options: [
+                        "owl:someValuesFrom (existential)",
+                        "owl:allValuesFrom (universal)",
+                        "owl:hasValue",
+                        "owl:cardinality"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "owl:allValuesFrom means 'if they eat anything, it must be a Plant' - a universal restriction. This defines Vegetarian as Person whose 'eats' property ONLY connects to Plants.",
+                        deepConcept: "allValuesFrom = 'ONLY these values allowed' (universal). someValuesFrom = 'at least one of these' (existential). Big difference!",
+                        realWorld: "someValuesFrom: 'eats at least one Plant' (could also eat meat). allValuesFrom: 'everything they eat is a Plant' (true vegetarian definition)."
+                    }
+                },
+                {
+                    id: "4.5",
+                    scenario: "Patient must have exactly ONE primary physician, but can have multiple specialists.",
+                    question: "How should you model 'hasPrimaryPhysician'?",
+                    options: [
+                        "Just as owl:ObjectProperty",
+                        "owl:ObjectProperty and owl:FunctionalProperty only",
+                        "owl:ObjectProperty with exactly 1 cardinality restriction",
+                        "Options B and C both work, but C is more explicit"
+                    ],
+                    correct: 3,
+                    explanation: {
+                        why: "FunctionalProperty = 'at most one'. But 'exactly one' also requires 'at least one'. Cardinality restriction (min 1, max 1) explicitly says 'exactly one'. Both approaches work, but cardinality is clearer.",
+                        deepConcept: "FunctionalProperty alone allows 0 or 1 values. For 'exactly 1', combine Functional with someValuesFrom, OR use explicit cardinality min=1 max=1.",
+                        realWorld: "For critical data like primary physician, explicit cardinality makes the requirement clear and enables validation of incomplete records."
+                    }
+                },
+                {
+                    id: "4.6",
+                    scenario: "E-commerce: User reviews Product. You want to automatically infer that if User reviews Product, then Product has been reviewed.",
+                    question: "How model the relationship between 'reviews' and 'hasReview'?",
+                    options: [
+                        "Make them both ObjectProperties with no relation",
+                        "Make hasReview owl:inverseOf reviews",
+                        "Make reviews rdfs:subPropertyOf hasReview",
+                        "Use SKOS broader/narrower"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Inverse properties: when 'User123 reviews Product456' is stated, reasoner automatically infers 'Product456 hasReview User123' (or more precisely, has been reviewed by that user).",
+                        deepConcept: "Inverse properties save you from stating redundant information. Define one relationship, get the reverse for free through reasoning.",
+                        realWorld: "Query 'Products reviewed by User123' and 'Users who reviewed ProductX' both work from a single statement."
+                    }
+                },
+                {
+                    id: "4.7",
+                    question: "When is a thesaurus (SKOS) preferred over a full ontology (OWL)?",
+                    options: [
+                        "When you need complex reasoning",
+                        "When you're organizing vocabulary/terminology without needing inference",
+                        "When data validation is critical",
+                        "When integrating multiple databases"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "SKOS is for organizing CONCEPTS and TERMS (broader/narrower/related) without the complexity of OWL reasoning. Simpler to create, maintain, and doesn't require reasoners.",
+                        deepConcept: "SKOS = vocabulary organization (library classification, thesaurus). OWL = formal ontology with inference. Use the simplest tool that meets your needs.",
+                        realWorld: "Organizing search keywords? SKOS. Automatic medical diagnosis reasoning? OWL. Don't over-engineer!"
+                    }
+                },
+                {
+                    id: "4.8",
+                    question: "What's the critical difference between skos:broader and rdfs:subClassOf?",
+                    options: [
+                        "They are the same thing",
+                        "subClassOf is for class hierarchy (IS-A), broader is for concept/vocabulary hierarchy",
+                        "broader is transitive, subClassOf is not",
+                        "subClassOf is only for OWL"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "rdfs:subClassOf: 'Dog IS-A Animal' (class membership - every dog instance is an animal instance). skos:broader: 'Cats' falls under broader category 'Pets' (vocabulary organization - no instance implications).",
+                        deepConcept: "Common exam mistake! ':UK rdfs:subClassOf :Europe' is WRONG - implies UK is a TYPE of Europe. Use skos:broader for geographic/conceptual hierarchies.",
+                        realWorld: "Library subject headings use SKOS (concept organization). Biological taxonomy uses rdfs:subClassOf (class hierarchy with instance inheritance)."
+                    }
+                }
+            ],
+            5: [ // Level 5: Expert
+                {
+                    id: "5.1",
+                    scenario: "Your ontology has:\n• :Man owl:disjointWith :Woman\n• :John rdf:type :Man\n• :John rdf:type :Woman",
+                    question: "What happens when you run the reasoner?",
+                    options: [
+                        "John is classified as both",
+                        "The reasoner detects an inconsistency",
+                        "John is removed from the ontology",
+                        "The disjointness is ignored"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Since Man and Woman are disjoint (no overlap), and John is declared as both, this is a logical contradiction. The reasoner will detect and report an inconsistency.",
+                        deepConcept: "An inconsistent ontology makes ALL queries meaningless (principle of explosion - from contradiction, anything follows). This is why consistency checking is crucial.",
+                        realWorld: "Before deploying any knowledge base, run consistency checking. Data entry errors often create accidental contradictions."
+                    }
+                },
+                {
+                    id: "5.2",
+                    scenario: "You have:\n• :hasParent owl:inverseOf :hasChild\n• :hasParent rdfs:domain :Person\n• :hasParent rdfs:range :Person\n• :hasChild a owl:IrreflexiveProperty",
+                    question: "If :Alice :hasParent :Alice is stated, what happens?",
+                    options: [
+                        "Alice is inferred to be both Person and Child",
+                        "The reasoner detects an inconsistency (via inverse of irreflexive)",
+                        "Nothing unusual - self-parenthood is allowed",
+                        "Alice is removed from the knowledge base"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: ":Alice :hasParent :Alice means Alice is her own parent. Via inverse, this means :Alice :hasChild :Alice. But hasChild is irreflexive (nothing can have itself as child). Contradiction!",
+                        deepConcept: "Irreflexive means 'cannot apply to self'. When combined with inverse properties, this constraint propagates - self-parent implies self-child which violates irreflexivity.",
+                        realWorld: "This kind of constraint catches data errors where circular relationships are accidentally created."
+                    }
+                },
+                {
+                    id: "5.3",
+                    scenario: "SPARQL query on a LARGE knowledge graph (billions of triples) is slow. The query involves multiple joins across property chains.",
+                    question: "What's the MOST effective optimization strategy?",
+                    options: [
+                        "Add more RAM to the server",
+                        "Pre-materialize inferences and create property chain shortcuts",
+                        "Convert to relational database",
+                        "Remove OWL reasoning entirely"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Pre-materialization: Run reasoner ONCE, store ALL inferences explicitly. Property shortcuts: Create direct predicates for common chains. This trades storage for query speed.",
+                        deepConcept: "Runtime reasoning on billions of triples is expensive. Materialize inferences at load time. Query the expanded graph without runtime reasoning overhead.",
+                        realWorld: "Google's Knowledge Graph pre-computes inferences. You query materialized facts, not raw triples requiring on-the-fly reasoning."
+                    }
+                },
+                {
+                    id: "5.4",
+                    scenario: "You're building a clinical decision support system. Patient data comes from multiple hospitals with different coding systems.",
+                    question: "What's the most critical step for semantic interoperability?",
+                    options: [
+                        "Convert all data to one hospital's format",
+                        "Map local codes to standard ontologies (SNOMED, ICD) using owl:equivalentClass/owl:sameAs",
+                        "Create a new custom ontology from scratch",
+                        "Store data separately and query each hospital individually"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "Standard medical ontologies (SNOMED CT, ICD-10, LOINC) provide common reference points. Map local codes to standards using equivalence/sameAs, enabling cross-hospital queries via shared semantics.",
+                        deepConcept: "Don't reinvent the wheel - reuse established ontologies. Your local concepts become linked to a global semantic network, enabling interoperability.",
+                        realWorld: "HL7 FHIR + SNOMED CT is the emerging standard for healthcare interoperability. Local systems map to these, enabling global health data exchange."
+                    }
+                },
+                {
+                    id: "5.5",
+                    scenario: "Your ontology passes consistency checking, but a reasoner classifies everything as owl:Thing with no more specific types.",
+                    question: "What's the most likely problem?",
+                    options: [
+                        "The reasoner is broken",
+                        "Missing or incorrect class definitions (restrictions/equivalences)",
+                        "Too many triples in the knowledge base",
+                        "IRIs are incorrectly formatted"
+                    ],
+                    correct: 1,
+                    explanation: {
+                        why: "If individuals only classify as owl:Thing, the reasoner can't find matching class definitions. Check: Are classes defined with necessary restrictions? Are properties connecting individuals to values that match those restrictions?",
+                        deepConcept: "Realisation requires: (1) Class definitions with restrictions, (2) Individuals with properties that match those restrictions, (3) Proper domain/range declarations.",
+                        realWorld: "Common debugging: Define 'Parent' as 'hasChild some Person'. Add person with hasChild. Still not classified? Check if hasChild is correctly typed as ObjectProperty with proper range."
+                    }
+                }
+            ]
+        };
+
+        // ==================== STATE ====================
+        let currentLevel = 1;
+        let currentQuestionIndex = 0;
+        let questions = [];
+        let userAnswers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let streak = 0;
+        let selectedAnswer = null;
+
+        // ==================== FUNCTIONS ====================
+        function selectLevel(level) {
+            currentLevel = level;
+            document.querySelectorAll('.level-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`.level-card[data-level="${level}"]`).classList.add('selected');
+        }
+
+        function startQuiz() {
+            questions = [...questionBank[currentLevel]];
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            correctCount = 0;
+            incorrectCount = 0;
+            streak = 0;
+            selectedAnswer = null;
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+            
+            updateLevelProgress();
+            showQuestion();
+        }
+
+        function updateLevelProgress() {
+            document.querySelectorAll('.level-badge').forEach((badge, index) => {
+                badge.classList.remove('current', 'completed', 'locked');
+                if (index + 1 < currentLevel) {
+                    badge.classList.add('completed');
+                } else if (index + 1 === currentLevel) {
+                    badge.classList.add('current');
+                } else {
+                    badge.classList.add('locked');
+                }
+            });
+        }
+
+        function showQuestion() {
+            const q = questions[currentQuestionIndex];
+            const card = document.getElementById('questionCard');
+            
+            // Update stats
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressBar').textContent = Math.round(progress) + '%';
+            document.getElementById('currentQ').textContent = currentQuestionIndex + 1;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            const score = correctCount + incorrectCount > 0 ? Math.round((correctCount / (correctCount + incorrectCount)) * 100) : 0;
+            document.getElementById('scorePercent').textContent = score + '%';
+            
+            // Build HTML
+            let html = `
+                <div class="question-header">
+                    <span class="question-number">Q${q.id}</span>
+                    <span class="difficulty-badge diff-${getLevelName(currentLevel).toLowerCase()}">${getLevelName(currentLevel)}</span>
+                </div>
+            `;
+            
+            if (q.scenario) {
+                html += `
+                    <div class="scenario-box">
+                        <h4>📋 Scenario</h4>
+                        <p>${q.scenario.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            if (q.code) {
+                html += `<div class="code-block">${escapeHtml(q.code)}</div>`;
+            }
+            
+            html += `<p class="question-text">${q.question}</p>`;
+            
+            html += `<div class="options-container" id="optionsContainer">`;
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            q.options.forEach((opt, i) => {
+                html += `
+                    <div class="option" data-index="${i}" onclick="selectOption(${i})">
+                        <span class="option-letter">${letters[i]}</span>
+                        <span class="option-text">${opt}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            
+            html += `<div id="explanationBox"></div>`;
+            
+            html += `
+                <div class="button-container">
+                    <button class="btn btn-secondary" onclick="skipQuestion()">Skip</button>
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+                </div>
+            `;
+            
+            card.innerHTML = html;
+            selectedAnswer = null;
+        }
+
+        function getLevelName(level) {
+            const names = ['', 'Foundation', 'Application', 'Analysis', 'Synthesis', 'Expert'];
+            return names[level] || 'Unknown';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function selectOption(index) {
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector(`.option[data-index="${index}"]`).classList.add('selected');
+            selectedAnswer = index;
+            document.getElementById('submitBtn').disabled = false;
+        }
+
+        function submitAnswer() {
+            const q = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === q.correct;
+            
+            if (isCorrect) {
+                correctCount++;
+                streak++;
+                if (streak >= 3) {
+                    document.getElementById('streakIndicator').classList.remove('hidden');
+                    document.getElementById('streakCount').textContent = streak;
+                }
+            } else {
+                incorrectCount++;
+                streak = 0;
+                document.getElementById('streakIndicator').classList.add('hidden');
+            }
+            
+            userAnswers.push({
+                questionId: q.id,
+                question: q.question,
+                userAnswer: selectedAnswer,
+                correctAnswer: q.correct,
+                isCorrect: isCorrect
+            });
+            
+            // Update display
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            const score = Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+            document.getElementById('scorePercent').textContent = score + '%';
+            
+            // Show feedback
+            showFeedback(q, isCorrect);
+            
+            // Disable options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.add('disabled');
+                opt.onclick = null;
+            });
+            
+            // Update button
+            document.getElementById('submitBtn').classList.add('hidden');
+            const skipBtn = document.querySelector('.btn-secondary');
+            skipBtn.textContent = currentQuestionIndex < questions.length - 1 ? 'Next Question →' : 'See Results';
+            skipBtn.onclick = nextQuestion;
+        }
+
+        function showFeedback(q, isCorrect) {
+            // Highlight options
+            document.querySelector(`.option[data-index="${q.correct}"]`).classList.add('correct');
+            if (!isCorrect && selectedAnswer !== null) {
+                document.querySelector(`.option[data-index="${selectedAnswer}"]`).classList.add('incorrect');
+            }
+            
+            const box = document.getElementById('explanationBox');
+            box.innerHTML = `
+                <div class="explanation-box ${isCorrect ? 'explanation-correct' : 'explanation-incorrect'}">
+                    <h4>${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</h4>
+                    
+                    <div class="why-section">
+                        <h5>📝 Why?</h5>
+                        <p>${q.explanation.why}</p>
+                    </div>
+                    
+                    <div class="deep-concept">
+                        <h5>🧠 Deep Concept</h5>
+                        <p>${q.explanation.deepConcept}</p>
+                    </div>
+                    
+                    <div class="real-world">
+                        <h5>🌍 Real-World Impact</h5>
+                        <p>${q.explanation.realWorld}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function skipQuestion() {
+            const q = questions[currentQuestionIndex];
+            userAnswers.push({
+                questionId: q.id,
+                question: q.question,
+                userAnswer: null,
+                correctAnswer: q.correct,
+                isCorrect: false,
+                skipped: true
+            });
+            incorrectCount++;
+            streak = 0;
+            document.getElementById('streakIndicator').classList.add('hidden');
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            document.getElementById('streakIndicator').classList.add('hidden');
+            
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            const passed = percentage >= 80;
+            
+            let gradeClass, gradeMessage;
+            if (percentage >= 90) {
+                gradeClass = 'grade-master';
+                gradeMessage = '🏆 MASTER! You truly understand this material!';
+            } else if (percentage >= 80) {
+                gradeClass = 'grade-expert';
+                gradeMessage = '🌟 PASSED! Ready for the next level!';
+            } else if (percentage >= 60) {
+                gradeClass = 'grade-proficient';
+                gradeMessage = '📚 Almost there! Review and try again.';
+            } else {
+                gradeClass = 'grade-developing';
+                gradeMessage = '💪 Keep studying! Read the explanations carefully.';
+            }
+            
+            let reviewHtml = '';
+            userAnswers.forEach((ans, i) => {
+                const q = questions[i];
+                reviewHtml += `
+                    <div class="review-item ${ans.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="q-preview">Q${q.id}: ${q.question.substring(0, 80)}...</div>
+                        <div class="answer-info">
+                            ${ans.skipped ? '⏭️ Skipped' : (ans.isCorrect ? '✅ Correct' : '❌ Incorrect')}
+                            ${!ans.isCorrect ? `<br><strong>Correct:</strong> ${q.options[q.correct].substring(0, 60)}...` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('resultsScreen').innerHTML = `
+                <h2>Level ${currentLevel}: ${getLevelName(currentLevel)} Complete!</h2>
+                
+                <div class="score-circle">
+                    <span class="percentage">${percentage}%</span>
+                    <span class="label">${correctCount}/${questions.length}</span>
+                </div>
+                
+                <div class="grade-message ${gradeClass}">${gradeMessage}</div>
+                
+                <p style="margin: 20px 0; color: #666;">
+                    ${passed ? `✅ You passed! ${currentLevel < 5 ? 'Level ' + (currentLevel + 1) + ' unlocked!' : 'You completed all levels!'}` : '❌ Need 80% to pass. Review and try again.'}
+                </p>
+                
+                <div class="review-section">
+                    <h3 style="margin-bottom: 15px;">📝 Question Review</h3>
+                    ${reviewHtml}
+                </div>
+                
+                <div class="button-container" style="justify-content: center; margin-top: 30px;">
+                    <button class="btn btn-secondary" onclick="restartLevel()">🔄 Retry Level</button>
+                    ${passed && currentLevel < 5 ? `<button class="btn btn-primary" onclick="nextLevel()">➡️ Next Level</button>` : ''}
+                    <button class="btn btn-secondary" onclick="backToMenu()">🏠 Menu</button>
+                </div>
+            `;
+        }
+
+        function restartLevel() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            startQuiz();
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            document.getElementById('resultsScreen').classList.add('hidden');
+            startQuiz();
+        }
+
+        function backToMenu() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

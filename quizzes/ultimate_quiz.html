@@ -1,0 +1,2244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Knowledge Representation & OWL Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .app-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header Styles */
+        .header {
+            text-align: center;
+            padding: 30px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 25px;
+            padding: 5px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background: linear-gradient(90deg, #00b894, #00cec9);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-card .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+        
+        /* Question Card */
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .question-number {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+        
+        .difficulty-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .difficulty-easy { background: #d4edda; color: #155724; }
+        .difficulty-medium { background: #fff3cd; color: #856404; }
+        .difficulty-hard { background: #f8d7da; color: #721c24; }
+        .difficulty-expert { background: #d1ecf1; color: #0c5460; }
+        
+        .category-badge {
+            background: #e9ecef;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+        }
+        
+        .question-text {
+            font-size: 1.3em;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        
+        .question-text code {
+            background: #f4f4f4;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #e74c3c;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: #2d3436;
+            color: #dfe6e9;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            line-height: 1.6;
+        }
+        
+        .code-block .keyword { color: #e17055; }
+        .code-block .uri { color: #fdcb6e; }
+        .code-block .string { color: #00b894; }
+        .code-block .comment { color: #636e72; }
+        
+        /* Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            padding: 18px 25px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea15, #764ba215);
+        }
+        
+        .option.correct {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #27ae6020, #2ecc7120);
+        }
+        
+        .option.incorrect {
+            border-color: #e74c3c;
+            background: linear-gradient(135deg, #e74c3c20, #c0392b20);
+        }
+        
+        .option-letter {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .option.selected .option-letter {
+            background: #667eea;
+            color: white;
+        }
+        
+        .option.correct .option-letter {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .option.incorrect .option-letter {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        /* Multi-select */
+        .multi-select-hint {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        /* Matching Question */
+        .matching-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .matching-column h4 {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .matching-item {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .matching-item.selected {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+        
+        .matching-item.matched {
+            background: #d4edda;
+            border-color: #27ae60;
+        }
+        
+        /* Explanation Box */
+        .explanation-box {
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 15px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .explanation-correct {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 5px solid #27ae60;
+        }
+        
+        .explanation-incorrect {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 5px solid #e74c3c;
+        }
+        
+        .explanation-box h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .explanation-box .detailed {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .explanation-box .key-concept {
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .explanation-box .key-concept h5 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        /* Buttons */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .start-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .mode-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .mode-card {
+            padding: 30px;
+            border: 3px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+        }
+        
+        .mode-card.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+        }
+        
+        .mode-card .icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .mode-card h3 {
+            margin-bottom: 10px;
+        }
+        
+        .mode-card p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .category-chip {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+        
+        .category-chip:hover {
+            border-color: #667eea;
+        }
+        
+        .category-chip.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* Results Screen */
+        .results-screen {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .results-screen .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            color: white;
+        }
+        
+        .results-screen .score-circle .percentage {
+            font-size: 3em;
+            font-weight: bold;
+        }
+        
+        .results-screen .score-circle .label {
+            font-size: 1.2em;
+        }
+        
+        .grade-badge {
+            display: inline-block;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .grade-a { background: linear-gradient(135deg, #00b894, #00cec9); color: white; }
+        .grade-b { background: linear-gradient(135deg, #0984e3, #74b9ff); color: white; }
+        .grade-c { background: linear-gradient(135deg, #fdcb6e, #f39c12); color: white; }
+        .grade-d { background: linear-gradient(135deg, #e17055, #d63031); color: white; }
+        
+        .results-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .breakdown-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .breakdown-card h4 {
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Review Section */
+        .review-section {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .review-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            border-left: 5px solid #e0e0e0;
+        }
+        
+        .review-item.correct {
+            border-left-color: #27ae60;
+        }
+        
+        .review-item.incorrect {
+            border-left-color: #e74c3c;
+        }
+        
+        .review-item .question-preview {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .review-item .answer-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        /* Scenario Box */
+        .scenario-box {
+            background: linear-gradient(135deg, #74b9ff20, #0984e320);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0984e3;
+        }
+        
+        .scenario-box h4 {
+            color: #0984e3;
+            margin-bottom: 10px;
+        }
+        
+        /* Hint System */
+        .hint-button {
+            background: none;
+            border: 2px dashed #ffc107;
+            color: #ffc107;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .hint-button:hover {
+            background: #ffc10720;
+        }
+        
+        .hint-box {
+            background: #fff3cd;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Timer */
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            z-index: 100;
+        }
+        
+        .timer.warning {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .question-text {
+                font-size: 1.1em;
+            }
+            
+            .matching-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Drag and Drop */
+        .drag-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .drag-zone {
+            min-width: 250px;
+            min-height: 200px;
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .drag-zone h4 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        .drag-item {
+            background: #667eea;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin: 8px;
+            cursor: grab;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .drag-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .drag-item.dragging {
+            opacity: 0.5;
+        }
+        
+        /* Streak indicator */
+        .streak-indicator {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: linear-gradient(135deg, #f12711, #f5af19);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .streak-indicator.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🦉 Ultimate Knowledge Representation Quiz</h1>
+            <p class="subtitle">Master RDF, RDFS, SKOS, and OWL through challenging scenarios</p>
+        </div>
+        
+        <div id="timer" class="timer hidden">⏱️ <span id="timerDisplay">30:00</span></div>
+        <div id="streakIndicator" class="streak-indicator hidden">🔥 <span id="streakCount">0</span> Streak!</div>
+        
+        <div id="startScreen" class="question-card start-screen">
+            <h2>Choose Your Challenge Mode</h2>
+            <p>Select a mode and optionally filter by category</p>
+            
+            <div class="mode-selector">
+                <div class="mode-card" data-mode="practice" onclick="selectMode('practice')">
+                    <div class="icon">📚</div>
+                    <h3>Practice Mode</h3>
+                    <p>No timer, detailed explanations, learn at your pace</p>
+                </div>
+                <div class="mode-card" data-mode="timed" onclick="selectMode('timed')">
+                    <div class="icon">⏱️</div>
+                    <h3>Timed Challenge</h3>
+                    <p>30 minutes, test under pressure like real exam</p>
+                </div>
+                <div class="mode-card" data-mode="expert" onclick="selectMode('expert')">
+                    <div class="icon">🏆</div>
+                    <h3>Expert Mode</h3>
+                    <p>Hardest questions only, no hints, prove mastery</p>
+                </div>
+            </div>
+            
+            <h3 style="margin: 30px 0 15px;">Filter by Category (Optional)</h3>
+            <div class="category-filter">
+                <div class="category-chip active" data-category="all" onclick="toggleCategory('all')">All Topics</div>
+                <div class="category-chip" data-category="rdf" onclick="toggleCategory('rdf')">RDF Basics</div>
+                <div class="category-chip" data-category="rdfs" onclick="toggleCategory('rdfs')">RDFS</div>
+                <div class="category-chip" data-category="skos" onclick="toggleCategory('skos')">SKOS</div>
+                <div class="category-chip" data-category="owl" onclick="toggleCategory('owl')">OWL</div>
+                <div class="category-chip" data-category="reasoning" onclick="toggleCategory('reasoning')">Reasoning</div>
+                <div class="category-chip" data-category="practical" onclick="toggleCategory('practical')">Practical Scenarios</div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="startQuiz()" style="margin-top: 30px; padding: 20px 60px; font-size: 1.2em;">
+                🚀 Start Quiz
+            </button>
+        </div>
+        
+        <div id="quizScreen" class="hidden">
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar" style="width: 0%">0%</div>
+            </div>
+            
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="number" id="currentQuestion">1</div>
+                    <div class="label">Question</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="correctCount">0</div>
+                    <div class="label">Correct</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="incorrectCount">0</div>
+                    <div class="label">Incorrect</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="scoreDisplay">0%</div>
+                    <div class="label">Score</div>
+                </div>
+            </div>
+            
+            <div class="question-card" id="questionCard">
+                <!-- Question content will be dynamically inserted here -->
+            </div>
+        </div>
+        
+        <div id="resultsScreen" class="question-card results-screen hidden">
+            <!-- Results will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // ==================== COMPREHENSIVE QUESTION BANK ====================
+        const questionBank = [
+            // ========== RDF BASICS ==========
+            {
+                id: 1,
+                category: "rdf",
+                difficulty: "easy",
+                type: "single",
+                question: "In an RDF triple, what are the three components?",
+                options: [
+                    "Subject, Verb, Object",
+                    "Subject, Predicate, Object",
+                    "Entity, Relationship, Value",
+                    "Node, Edge, Node"
+                ],
+                correct: 1,
+                explanation: "An RDF triple consists of Subject, Predicate, and Object. The Subject is the resource being described, the Predicate is the property or relationship, and the Object is the value or another resource.",
+                keyConcept: "The triple is the fundamental unit of RDF. Think of it as a simple sentence: 'John (subject) teaches (predicate) BigData (object)'.",
+                hint: "Think of it like a simple English sentence structure."
+            },
+            {
+                id: 2,
+                category: "rdf",
+                difficulty: "medium",
+                type: "single",
+                question: "In an RDF triple, which components can be an IRI?",
+                options: [
+                    "Only the Subject",
+                    "Subject and Predicate only",
+                    "Subject, Predicate, and Object",
+                    "Only the Object"
+                ],
+                correct: 2,
+                explanation: "Subject MUST be an IRI (or blank node), Predicate MUST be an IRI, and Object can be either an IRI or a Literal (simple value like string or number).",
+                keyConcept: "Remember: Subject and Predicate are ALWAYS IRIs. Object is flexible - it can be an IRI (linking to another resource) OR a literal (a simple value).",
+                hint: "The Object is special - it's the only one with options."
+            },
+            {
+                id: 3,
+                category: "rdf",
+                difficulty: "medium",
+                type: "single",
+                question: "What is the difference between <code>rdf:Bag</code> and <code>rdf:Seq</code>?",
+                options: [
+                    "Bag is for numbers, Seq is for strings",
+                    "Bag is unordered, Seq maintains order",
+                    "Bag allows duplicates, Seq doesn't",
+                    "There is no difference"
+                ],
+                correct: 1,
+                explanation: "rdf:Bag represents an unordered collection (like a shopping bag - order doesn't matter). rdf:Seq represents an ordered sequence (like a numbered list where position matters).",
+                keyConcept: "Use Bag when order doesn't matter (Beatles members). Use Seq when order is important (race positions: 1st, 2nd, 3rd).",
+                hint: "Think about shopping bag vs. a queue."
+            },
+            {
+                id: 4,
+                category: "rdf",
+                difficulty: "hard",
+                type: "single",
+                question: "You need to represent that a music album is available ONLY in CD, Vinyl, or Digital format (user picks one). Which RDF container should you use?",
+                options: [
+                    "rdf:Bag",
+                    "rdf:Seq",
+                    "rdf:Alt",
+                    "rdf:List"
+                ],
+                correct: 2,
+                explanation: "rdf:Alt (Alternative) is used when you have multiple options but only ONE should be selected. It's perfect for representing alternatives like format choices.",
+                keyConcept: "rdf:Alt = 'pick one from these options'. It's like a multiple choice where only one answer is correct.",
+                hint: "The key word is 'picks ONE'."
+            },
+            {
+                id: 5,
+                category: "rdf",
+                difficulty: "hard",
+                type: "scenario",
+                scenario: "You're building a knowledge graph for a university. A professor named 'John Smith' exists, but you don't want to give him a public web address yet. You just need to describe his properties (email, department) internally.",
+                question: "What RDF concept should you use to represent John Smith?",
+                options: [
+                    "Use a random IRI",
+                    "Use a Blank Node (bnode)",
+                    "Use a Literal value",
+                    "You cannot represent him in RDF"
+                ],
+                correct: 1,
+                explanation: "A Blank Node (also called bnode or anonymous node) is used when you need to describe a resource but don't need or want to give it a global identifier. It's perfect for internal references.",
+                keyConcept: "Blank nodes are like 'anonymous' resources - they exist and have properties, but don't have a public web address. Useful for intermediate or internal data.",
+                hint: "You need something that exists but doesn't need a global identity."
+            },
+            {
+                id: 6,
+                category: "rdf",
+                difficulty: "expert",
+                type: "code",
+                question: "What does this Turtle code represent?",
+                code: `@prefix ex: <http://example.org/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+ex:Beatles ex:members [
+    a rdf:Seq ;
+    rdf:_1 "John" ;
+    rdf:_2 "Paul" ;
+    rdf:_3 "George" ;
+    rdf:_4 "Ringo"
+] .`,
+                options: [
+                    "An unordered list of Beatles members",
+                    "An ordered sequence of Beatles members where position matters",
+                    "Four separate statements about the Beatles",
+                    "A collection that can only contain these four members"
+                ],
+                correct: 1,
+                explanation: "The code uses rdf:Seq (sequence) with numbered predicates (rdf:_1, rdf:_2, etc.), indicating an ordered list. The positions 1-4 indicate the order matters.",
+                keyConcept: "rdf:Seq with rdf:_N predicates creates an ordered sequence. The numbers indicate position in the sequence.",
+                hint: "Look at the type declaration (a rdf:Seq) and the numbered predicates."
+            },
+            
+            // ========== RDFS ==========
+            {
+                id: 7,
+                category: "rdfs",
+                difficulty: "easy",
+                type: "single",
+                question: "What does <code>rdfs:subClassOf</code> represent?",
+                options: [
+                    "Two classes are the same",
+                    "One class is a type/kind of another class",
+                    "One class contains another class",
+                    "Two classes are related somehow"
+                ],
+                correct: 1,
+                explanation: "rdfs:subClassOf creates a hierarchy where one class is a more specific type of another. For example, 'Dog rdfs:subClassOf Animal' means every Dog IS an Animal.",
+                keyConcept: "SubClassOf creates an 'is-a' relationship in a hierarchy. All instances of the subclass are automatically instances of the superclass.",
+                hint: "Think inheritance in programming - a Dog IS AN Animal."
+            },
+            {
+                id: 8,
+                category: "rdfs",
+                difficulty: "medium",
+                type: "single",
+                question: "If you define: <code>:hasWife rdfs:domain :Man</code>, what does this mean?",
+                options: [
+                    "Only men can be wives",
+                    "The hasWife property can only be used where the subject is a Man",
+                    "Men must have wives",
+                    "The wife must be a man"
+                ],
+                correct: 1,
+                explanation: "rdfs:domain restricts the SUBJECT of a property. If hasWife has domain Man, then whenever someone 'hasWife', that someone must be a Man.",
+                keyConcept: "Domain = 'WHO can use this property?' It restricts the subject. If X hasWife Y, then X must be a Man.",
+                hint: "Domain restricts the subject (left side) of the triple."
+            },
+            {
+                id: 9,
+                category: "rdfs",
+                difficulty: "medium",
+                type: "single",
+                question: "If you define: <code>:hasWife rdfs:range :Woman</code>, what does this mean?",
+                options: [
+                    "Only women can have husbands",
+                    "The hasWife property must have a Woman as its object",
+                    "Women must be wives",
+                    "The range of ages for wives"
+                ],
+                correct: 1,
+                explanation: "rdfs:range restricts the OBJECT of a property. If hasWife has range Woman, then anyone's wife must be a Woman.",
+                keyConcept: "Range = 'WHAT type is the result?' It restricts the object. If X hasWife Y, then Y must be a Woman.",
+                hint: "Range restricts the object (right side) of the triple."
+            },
+            {
+                id: 10,
+                category: "rdfs",
+                difficulty: "hard",
+                type: "scenario",
+                scenario: "You have these RDFS statements:\n• :knows rdfs:domain :Person\n• :knows rdfs:range :Person\n\nThen you add this data:\n• :Fido :knows :Buddy",
+                question: "What can the reasoner infer from this?",
+                options: [
+                    "Error - Fido cannot know Buddy",
+                    "Fido and Buddy are both Persons",
+                    "Nothing - we need more information",
+                    "Fido is a Person, but nothing about Buddy"
+                ],
+                correct: 1,
+                explanation: "Since 'knows' has domain Person, Fido (the subject) must be a Person. Since 'knows' has range Person, Buddy (the object) must also be a Person. The reasoner INFERS both are Persons, even if they're dogs in real life!",
+                keyConcept: "RDFS domain and range don't validate - they INFER. If you use a property, the reasoner assumes the types match, even if it seems wrong. This is called the Open World Assumption.",
+                hint: "RDFS doesn't reject data - it infers types from usage."
+            },
+            {
+                id: 11,
+                category: "rdfs",
+                difficulty: "hard",
+                type: "single",
+                question: "What is the relationship between <code>rdfs:Class</code> and <code>rdfs:Resource</code>?",
+                options: [
+                    "They are the same thing",
+                    "rdfs:Class is a subclass of rdfs:Resource",
+                    "rdfs:Resource is a subclass of rdfs:Class",
+                    "They are unrelated"
+                ],
+                correct: 1,
+                explanation: "Everything in RDF is a Resource (rdfs:Resource is the superclass of everything). Classes themselves are also resources, so rdfs:Class is a subclass of rdfs:Resource.",
+                keyConcept: "In RDF/RDFS, EVERYTHING is a resource - including classes, properties, and instances. rdfs:Resource is the universal superclass.",
+                hint: "What is the most general thing everything can be?"
+            },
+            {
+                id: 12,
+                category: "rdfs",
+                difficulty: "expert",
+                type: "multi",
+                question: "Which of the following are LIMITATIONS of RDFS that OWL addresses? (Select ALL that apply)",
+                options: [
+                    "Cannot express that two classes are disjoint (no overlap)",
+                    "Cannot express inverse properties (if A relates to B, then B relates to A)",
+                    "Cannot express cardinality (exactly 2 parents)",
+                    "Cannot create class hierarchies",
+                    "Cannot express transitive properties (if A>B and B>C then A>C)"
+                ],
+                correct: [0, 1, 2, 4],
+                explanation: "RDFS CAN create class hierarchies (rdfs:subClassOf), but CANNOT express: disjointness, inverse properties, cardinality restrictions, or transitivity. These all require OWL.",
+                keyConcept: "RDFS is limited to basic hierarchies and domain/range. For complex constraints, you need OWL.",
+                hint: "Think about what basic hierarchy and type rules can't express."
+            },
+            
+            // ========== SKOS ==========
+            {
+                id: 13,
+                category: "skos",
+                difficulty: "easy",
+                type: "single",
+                question: "What is SKOS primarily used for?",
+                options: [
+                    "Building databases",
+                    "Organizing vocabularies, thesauri, and taxonomies",
+                    "Creating user interfaces",
+                    "Storing large files"
+                ],
+                correct: 1,
+                explanation: "SKOS (Simple Knowledge Organization System) is designed for representing structured vocabularies like thesauri, classification systems, and taxonomies - not for general data modeling.",
+                keyConcept: "SKOS = organizing WORDS and CONCEPTS, not data structure. Think library classification systems, glossaries, and subject headings.",
+                hint: "Think about how a library organizes books by subject."
+            },
+            {
+                id: 14,
+                category: "skos",
+                difficulty: "medium",
+                type: "single",
+                question: "What is the difference between <code>skos:broader</code> and <code>rdfs:subClassOf</code>?",
+                options: [
+                    "They are exactly the same",
+                    "skos:broader is for vocabulary concepts, rdfs:subClassOf is for data types/classes",
+                    "rdfs:subClassOf is older, skos:broader is newer",
+                    "skos:broader is transitive, rdfs:subClassOf is not"
+                ],
+                correct: 1,
+                explanation: "rdfs:subClassOf defines class hierarchies (Dog IS-A Animal). skos:broader defines conceptual/vocabulary hierarchies (the term 'Cat' is within the broader category 'Animals'). One is for data structure, one is for terminology.",
+                keyConcept: "subClassOf = 'this TYPE is a kind of that TYPE' (for instances). broader = 'this TERM/CONCEPT falls under that TERM/CONCEPT' (for vocabulary).",
+                hint: "One is about what things ARE, the other is about how we ORGANIZE terms."
+            },
+            {
+                id: 15,
+                category: "skos",
+                difficulty: "hard",
+                type: "scenario",
+                scenario: "A student writes this to represent that UK is in Europe:\n\n<code>:UK rdfs:subClassOf :Europe</code>",
+                question: "Why is this WRONG?",
+                options: [
+                    "The syntax is incorrect",
+                    "It implies UK is a TYPE of Europe, like Cat is a type of Animal",
+                    "Europe should be the subject",
+                    "You cannot relate countries in RDF"
+                ],
+                correct: 1,
+                explanation: "rdfs:subClassOf means 'is a type of'. Saying 'UK subClassOf Europe' implies that UK is a category/type of Europe, and instances of UK would be instances of Europe. This is semantically wrong - UK is not a TYPE of Europe, it's WITHIN Europe.",
+                keyConcept: "Common mistake! Use skos:broader for vocabulary/geographic hierarchies. Use rdfs:subClassOf only when something IS A TYPE of something else.",
+                hint: "Would you say 'UK is a kind of Europe' the same way you'd say 'Dog is a kind of Animal'?"
+            },
+            {
+                id: 16,
+                category: "skos",
+                difficulty: "hard",
+                type: "single",
+                question: "What does <code>skos:related</code> represent, and how is it different from <code>skos:broader</code>?",
+                options: [
+                    "related is hierarchical, broader is not",
+                    "related is symmetric and non-hierarchical, broader is hierarchical",
+                    "They are the same but with different names",
+                    "related is transitive, broader is not"
+                ],
+                correct: 1,
+                explanation: "skos:broader creates a HIERARCHY (parent-child). skos:related creates a NON-HIERARCHICAL association between concepts that are connected but not in a hierarchy. Related is also symmetric (if A related B, then B related A).",
+                keyConcept: "broader/narrower = vertical (hierarchy). related = horizontal (association). Example: 'Economics' is related to 'Politics' but neither is broader than the other.",
+                hint: "Think vertical vs horizontal relationships."
+            },
+            {
+                id: 17,
+                category: "skos",
+                difficulty: "expert",
+                type: "single",
+                question: "In SKOS, <code>skos:broader</code> is neither transitive nor intransitive. What does this mean?",
+                options: [
+                    "It's an error in the SKOS specification",
+                    "If A broader B and B broader C, we cannot automatically conclude A broader C",
+                    "It means broader can only be used once",
+                    "Broader and narrower are the same thing"
+                ],
+                correct: 1,
+                explanation: "SKOS defines broader as neither transitive nor intransitive. This means if 'Cat broader Animal' and 'Animal broader LivingThing', we CANNOT automatically infer 'Cat broader LivingThing'. If you need transitivity, use skos:broaderTransitive explicitly.",
+                keyConcept: "SKOS provides BOTH: skos:broader (not automatically transitive) and skos:broaderTransitive (explicitly transitive). Choose based on your needs.",
+                hint: "SKOS is careful about automatic inferences - you must be explicit."
+            },
+            
+            // ========== OWL BASICS ==========
+            {
+                id: 18,
+                category: "owl",
+                difficulty: "easy",
+                type: "single",
+                question: "What is the main advantage of OWL over RDFS?",
+                options: [
+                    "OWL is faster",
+                    "OWL can express more complex constraints and relationships",
+                    "OWL uses less storage",
+                    "OWL is easier to write"
+                ],
+                correct: 1,
+                explanation: "OWL extends RDFS with much richer expressiveness: cardinality constraints, property characteristics (symmetric, transitive, inverse), disjoint classes, and more. This enables complex reasoning.",
+                keyConcept: "OWL = RDFS with superpowers. Everything RDFS can do, OWL can do, PLUS complex constraints and reasoning.",
+                hint: "Think about what limitations RDFS has."
+            },
+            {
+                id: 19,
+                category: "owl",
+                difficulty: "easy",
+                type: "single",
+                question: "What is the difference between TBox and ABox in ontology terminology?",
+                options: [
+                    "TBox is for text, ABox is for audio",
+                    "TBox contains schema/rules, ABox contains actual instance data",
+                    "TBox is true statements, ABox is assumed statements",
+                    "They are the same thing"
+                ],
+                correct: 1,
+                explanation: "TBox (Terminology Box) contains the ontology schema - classes, properties, and their relationships. ABox (Assertion Box) contains the actual data - instances/individuals and their property values.",
+                keyConcept: "TBox = the RULES and STRUCTURE (blueprint). ABox = the ACTUAL DATA (filled-in forms). An ontology with instances is called a Knowledge Base.",
+                hint: "T for Terminology (structure), A for Assertions (data)."
+            },
+            {
+                id: 20,
+                category: "owl",
+                difficulty: "medium",
+                type: "single",
+                question: "What does <code>owl:disjointWith</code> mean?",
+                options: [
+                    "Two classes are the same",
+                    "Two classes cannot have any common instances",
+                    "Two classes are related",
+                    "One class contains the other"
+                ],
+                correct: 1,
+                explanation: "owl:disjointWith declares that two classes have NO overlap - nothing can be an instance of both. For example, 'Man disjointWith Woman' means nothing can be both a Man and a Woman simultaneously.",
+                keyConcept: "Disjoint = no overlap. If you declare Man and Woman disjoint, then saying 'John is a Man' AND 'John is a Woman' creates an inconsistency the reasoner will detect.",
+                hint: "Think of two circles that cannot overlap."
+            },
+            {
+                id: 21,
+                category: "owl",
+                difficulty: "medium",
+                type: "single",
+                question: "What does <code>owl:equivalentClass</code> mean?",
+                options: [
+                    "Two classes are similar but different",
+                    "Two classes have exactly the same instances - they mean the same thing",
+                    "One class is a subclass of another",
+                    "Two classes are disjoint"
+                ],
+                correct: 1,
+                explanation: "owl:equivalentClass declares that two classes have exactly the same extension - the same set of instances. Often used when integrating ontologies where different names are used for the same concept.",
+                keyConcept: "EquivalentClass = 'these are the same concept with different names'. Example: Human equivalentClass Person means every Human is a Person AND every Person is a Human.",
+                hint: "Think of synonyms in different ontologies."
+            },
+            
+            // ========== OWL PROPERTIES ==========
+            {
+                id: 22,
+                category: "owl",
+                difficulty: "medium",
+                type: "single",
+                question: "What is the difference between <code>owl:ObjectProperty</code> and <code>owl:DatatypeProperty</code>?",
+                options: [
+                    "ObjectProperty links to complex objects, DatatypeProperty links to simple objects",
+                    "ObjectProperty links individuals to individuals, DatatypeProperty links individuals to literal values",
+                    "ObjectProperty is for OOP, DatatypeProperty is for databases",
+                    "They are interchangeable"
+                ],
+                correct: 1,
+                explanation: "ObjectProperty connects one individual/resource to another (John hasWife Mary). DatatypeProperty connects an individual to a literal value like a string or number (John hasAge '45').",
+                keyConcept: "Object Property = thing → thing (both have identity). Datatype Property = thing → value (just data, no identity).",
+                hint: "Is the target another 'thing' or just a value?"
+            },
+            {
+                id: 23,
+                category: "owl",
+                difficulty: "hard",
+                type: "single",
+                question: "If <code>:hasWife</code> is declared as <code>owl:FunctionalProperty</code>, what does this mean?",
+                options: [
+                    "Everyone must have a wife",
+                    "Each subject can have at most ONE value for hasWife",
+                    "The property works like a function in programming",
+                    "The wife must be functional/working"
+                ],
+                correct: 1,
+                explanation: "A FunctionalProperty means for any given subject, there can be AT MOST ONE value. If John hasWife Mary and John hasWife Jane, the reasoner will either infer Mary=Jane (same person) or detect an inconsistency.",
+                keyConcept: "Functional = 'at most one value per subject'. Like a function in math - one input gives exactly one output. Example: hasSSN (one SSN per person).",
+                hint: "Think of a mathematical function - one input, one output."
+            },
+            {
+                id: 24,
+                category: "owl",
+                difficulty: "hard",
+                type: "single",
+                question: "What is an <code>owl:InverseFunctionalProperty</code>?",
+                options: [
+                    "A property that works backwards",
+                    "A property where each object value uniquely identifies the subject",
+                    "The opposite of a functional property",
+                    "A property that can have multiple values"
+                ],
+                correct: 1,
+                explanation: "InverseFunctionalProperty means each OBJECT value uniquely identifies ONE subject. For example, hasSSN is inverse functional because each SSN belongs to exactly one person - if two people have the same SSN, they must be the same person.",
+                keyConcept: "InverseFunctional = 'each value points to at most one subject'. Like a unique key in a database. Example: hasSSN, hasEmail (unique identifiers).",
+                hint: "Think of unique identifiers - each value identifies one thing."
+            },
+            {
+                id: 25,
+                category: "owl",
+                difficulty: "hard",
+                type: "single",
+                question: "What does it mean if a property is both <code>owl:FunctionalProperty</code> AND <code>owl:InverseFunctionalProperty</code>?",
+                options: [
+                    "It's an error - impossible combination",
+                    "It creates a one-to-one relationship",
+                    "It creates a many-to-many relationship",
+                    "The property becomes symmetric"
+                ],
+                correct: 1,
+                explanation: "Functional means each subject has at most one object. InverseFunctional means each object has at most one subject. Together, they create a ONE-TO-ONE relationship - perfect for things like hasSSN or isMarriedTo (in monogamous context).",
+                keyConcept: "Functional + InverseFunctional = 1:1 mapping. Each person has one SSN, and each SSN belongs to one person.",
+                hint: "Combine the constraints: 'at most one' in both directions."
+            },
+            {
+                id: 26,
+                category: "owl",
+                difficulty: "medium",
+                type: "single",
+                question: "If <code>:isFriendOf</code> is declared as <code>owl:SymmetricProperty</code>, and we know <code>:John :isFriendOf :Mary</code>, what can the reasoner infer?",
+                options: [
+                    "Nothing additional",
+                    "Mary isFriendOf John",
+                    "John and Mary are the same person",
+                    "John is not a friend of anyone else"
+                ],
+                correct: 1,
+                explanation: "A SymmetricProperty means if A relates to B, then B automatically relates to A. So if John isFriendOf Mary, the reasoner automatically infers Mary isFriendOf John.",
+                keyConcept: "Symmetric = works both ways automatically. Good for: isSiblingOf, isMarriedTo, isAdjacentTo, knows.",
+                hint: "Symmetric means the relationship works in both directions."
+            },
+            {
+                id: 27,
+                category: "owl",
+                difficulty: "hard",
+                type: "single",
+                question: "What is the difference between <code>owl:SymmetricProperty</code> and <code>owl:AsymmetricProperty</code>?",
+                options: [
+                    "Symmetric is faster to process",
+                    "Symmetric implies the reverse; Asymmetric forbids the reverse being true simultaneously",
+                    "Asymmetric is for numbers only",
+                    "They are the same but with different names"
+                ],
+                correct: 1,
+                explanation: "Symmetric: if A→B then B→A (automatically true). Asymmetric: if A→B then B→A is IMPOSSIBLE (would cause inconsistency). Example: isParentOf is asymmetric - if John isParentOf Mary, Mary cannot be isParentOf John.",
+                keyConcept: "Symmetric = automatically bidirectional. Asymmetric = forbidden to be bidirectional. Example: isOlderThan is asymmetric (if A is older than B, B cannot be older than A).",
+                hint: "Asymmetric means the reverse would be a contradiction."
+            },
+            {
+                id: 28,
+                category: "owl",
+                difficulty: "hard",
+                type: "single",
+                question: "If <code>:isAncestorOf</code> is declared as <code>owl:TransitiveProperty</code>, and we know:\n• <code>:Alice :isAncestorOf :Bob</code>\n• <code>:Bob :isAncestorOf :Charlie</code>\n\nWhat can the reasoner infer?",
+                options: [
+                    "Nothing additional",
+                    "Alice isAncestorOf Charlie",
+                    "Charlie isAncestorOf Alice",
+                    "Alice, Bob, and Charlie are the same person"
+                ],
+                correct: 1,
+                explanation: "A TransitiveProperty chains: if A→B and B→C, then A→C. Since Alice isAncestorOf Bob and Bob isAncestorOf Charlie, the reasoner infers Alice isAncestorOf Charlie.",
+                keyConcept: "Transitive = chains through intermediate relationships. Good for: isAncestorOf, isPartOf, isLocatedIn, isGreaterThan.",
+                hint: "Think of a chain: A→B→C means A→C."
+            },
+            {
+                id: 29,
+                category: "owl",
+                difficulty: "expert",
+                type: "single",
+                question: "If <code>:hasParent</code> is declared as <code>owl:IrreflexiveProperty</code>, what does this mean?",
+                options: [
+                    "Parents cannot have parents",
+                    "Nothing can be its own parent (X hasParent X is impossible)",
+                    "The property cannot be used",
+                    "Parents must be different from children"
+                ],
+                correct: 1,
+                explanation: "IrreflexiveProperty means a resource cannot have itself as a value for that property. No one can be their own parent, so hasParent should be irreflexive. If you state 'John hasParent John', it creates an inconsistency.",
+                keyConcept: "Irreflexive = 'cannot apply to self'. Reflexive = 'always applies to self' (like 'knows' - everyone knows themselves). Irreflexive is the opposite.",
+                hint: "Can something have this relationship with itself?"
+            },
+            {
+                id: 30,
+                category: "owl",
+                difficulty: "expert",
+                type: "multi",
+                question: "Which property characteristics can <code>:isParentOf</code> logically have? (Select ALL that apply)",
+                options: [
+                    "Asymmetric (if A parent of B, B cannot be parent of A)",
+                    "Irreflexive (nothing is its own parent)",
+                    "Symmetric (if A parent of B, B is parent of A)",
+                    "Transitive (if A parent of B and B parent of C, A is parent of C)",
+                    "Functional (each person has at most one parent)"
+                ],
+                correct: [0, 1],
+                explanation: "isParentOf is Asymmetric (you can't be your child's parent AND their child) and Irreflexive (you can't be your own parent). It's NOT symmetric, NOT transitive (that would be ancestor), and NOT functional (people have two biological parents).",
+                keyConcept: "When analyzing properties, think through each characteristic: Does it work both ways? Does it chain? Can it apply to self? How many values are allowed?",
+                hint: "Test each characteristic against real-world logic."
+            },
+            
+            // ========== OWL INVERSE ==========
+            {
+                id: 31,
+                category: "owl",
+                difficulty: "medium",
+                type: "single",
+                question: "If <code>:hasParent owl:inverseOf :hasChild</code>, and we know <code>:Mary :hasChild :John</code>, what can the reasoner infer?",
+                options: [
+                    "John hasChild Mary",
+                    "John hasParent Mary",
+                    "Mary hasParent John",
+                    "Nothing - inverse doesn't work that way"
+                ],
+                correct: 1,
+                explanation: "owl:inverseOf means if A→B via one property, then B→A via the inverse property. Since Mary hasChild John, and hasParent is inverse of hasChild, the reasoner infers John hasParent Mary.",
+                keyConcept: "Inverse properties are mirror relationships. hasChild/hasParent, hasWife/hasHusband, teaches/isTaughtBy. Define one, get the other free!",
+                hint: "Inverse flips the direction: if Mary→John via hasChild, then John→Mary via hasParent."
+            },
+            {
+                id: 32,
+                category: "owl",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You're designing an ontology and you define:\n• <code>:hasSpouse</code> as <code>owl:SymmetricProperty</code>\n• <code>:hasHusband rdfs:subPropertyOf :hasSpouse</code>\n• <code>:hasWife rdfs:subPropertyOf :hasSpouse</code>\n\nThen you add: <code>:John :hasWife :Mary</code>",
+                question: "What can the reasoner infer?",
+                options: [
+                    "Only: John hasSpouse Mary",
+                    "John hasSpouse Mary AND Mary hasSpouse John",
+                    "Mary hasHusband John",
+                    "John hasWife Mary AND Mary hasWife John"
+                ],
+                correct: 1,
+                explanation: "Since hasWife is a subPropertyOf hasSpouse, John hasSpouse Mary is inferred. Since hasSpouse is symmetric, Mary hasSpouse John is also inferred. However, Mary hasHusband John is NOT inferred (that would require explicit inverse declaration).",
+                keyConcept: "SubProperty inheritance + property characteristics combine. But note: symmetry of the parent property doesn't make the child symmetric, and it doesn't create cross-inferences between siblings.",
+                hint: "Trace through: subPropertyOf gives you hasSpouse, then symmetric gives you the reverse hasSpouse."
+            },
+            
+            // ========== REASONING ==========
+            {
+                id: 33,
+                category: "reasoning",
+                difficulty: "medium",
+                type: "single",
+                question: "What does 'consistency checking' in OWL reasoning mean?",
+                options: [
+                    "Checking if the syntax is correct",
+                    "Checking if there are any logical contradictions in the ontology",
+                    "Checking if all data is complete",
+                    "Checking if the ontology follows naming conventions"
+                ],
+                correct: 1,
+                explanation: "Consistency checking verifies that there are no logical contradictions. For example, if Man and Woman are disjoint but John is declared as both, that's an inconsistency. A consistent ontology has no contradictions.",
+                keyConcept: "An inconsistent ontology is useless because from a contradiction, anything can be 'proven'. Always run consistency checking before using an ontology.",
+                hint: "Consistency = no contradictions/conflicts."
+            },
+            {
+                id: 34,
+                category: "reasoning",
+                difficulty: "medium",
+                type: "single",
+                question: "What does 'classification' in OWL reasoning mean?",
+                options: [
+                    "Assigning categories to documents",
+                    "Computing the complete class hierarchy by finding all subclass relationships",
+                    "Sorting classes alphabetically",
+                    "Removing duplicate classes"
+                ],
+                correct: 1,
+                explanation: "Classification computes the complete class hierarchy by inferring all subclass relationships, including those not explicitly stated. It builds the full inheritance tree based on class definitions.",
+                keyConcept: "Classification builds the complete hierarchy. If A ⊆ B and B ⊆ C are stated, classification infers A ⊆ C. It also discovers implied subclass relations from class definitions.",
+                hint: "Classification builds the full family tree of classes."
+            },
+            {
+                id: 35,
+                category: "reasoning",
+                difficulty: "hard",
+                type: "single",
+                question: "What does 'realisation' in OWL reasoning mean?",
+                options: [
+                    "Making the ontology real/practical",
+                    "Finding the most specific class(es) that each individual belongs to",
+                    "Converting abstract concepts to concrete ones",
+                    "Implementing the ontology in code"
+                ],
+                correct: 1,
+                explanation: "Realisation determines the most specific class(es) for each individual based on their properties. For example, if a Person has a hasChild property, they might be realised as a Parent class (if Parent is defined as 'Person with at least one child').",
+                keyConcept: "Realisation = 'what type IS this individual?'. It computes direct types based on an individual's properties matching class definitions.",
+                hint: "Realisation figures out what an individual really IS based on its properties."
+            },
+            {
+                id: 36,
+                category: "reasoning",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You have this OWL ontology:\n• <code>:Parent owl:equivalentClass [ rdf:type owl:Restriction ; owl:onProperty :hasChild ; owl:minCardinality 1 ]</code>\n• <code>:Mary :hasChild :John</code>\n• <code>:Mary rdf:type :Person</code>",
+                question: "After running a reasoner, what additional type will Mary have?",
+                options: [
+                    "None - she's just a Person",
+                    "Mary will be classified as a Parent",
+                    "Mary will become a Child",
+                    "Error - incomplete information"
+                ],
+                correct: 1,
+                explanation: "The ontology defines Parent as 'anything with at least 1 child' (minCardinality 1 on hasChild). Since Mary hasChild John, she satisfies the Parent definition. The reasoner will classify/realise Mary as a Parent.",
+                keyConcept: "This is the power of OWL reasoning - individuals are automatically classified into classes based on their properties matching class restrictions/definitions.",
+                hint: "If Mary has a child, does she match the definition of Parent?"
+            },
+            {
+                id: 37,
+                category: "reasoning",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You have these statements:\n• <code>:Man owl:disjointWith :Woman</code>\n• <code>:John rdf:type :Man</code>\n• <code>:John rdf:type :Woman</code>",
+                question: "What happens when you run the reasoner?",
+                options: [
+                    "John is classified as both Man and Woman",
+                    "The reasoner detects an inconsistency",
+                    "John is removed from the ontology",
+                    "The disjointness is ignored"
+                ],
+                correct: 1,
+                explanation: "Since Man and Woman are disjoint (no overlap allowed), and John is declared as both, this is a logical contradiction. The reasoner will detect and report an inconsistency.",
+                keyConcept: "Disjoint classes cannot share instances. Declaring an individual as a member of disjoint classes creates an inconsistency that reasoners will catch.",
+                hint: "Can John be in two non-overlapping sets simultaneously?"
+            },
+            
+            // ========== PRACTICAL SCENARIOS ==========
+            {
+                id: 38,
+                category: "practical",
+                difficulty: "hard",
+                type: "scenario",
+                scenario: "You're building an ontology for a hospital. You need to represent that every Patient must have exactly ONE primary physician, but can have multiple specialists.",
+                question: "How would you model the 'hasPrimaryPhysician' property?",
+                options: [
+                    "Just as owl:ObjectProperty",
+                    "As owl:ObjectProperty and owl:FunctionalProperty",
+                    "As owl:ObjectProperty with minCardinality 1 and maxCardinality 1",
+                    "Both B and C would work correctly"
+                ],
+                correct: 3,
+                explanation: "Both approaches work: FunctionalProperty means 'at most one', but you'd need to add that one is required separately. Using cardinality restrictions (min 1, max 1) explicitly says 'exactly one'. In practice, option C is more explicit.",
+                keyConcept: "FunctionalProperty = at most 1. For 'exactly 1', use cardinality restrictions OR combine Functional with a someValuesFrom restriction.",
+                hint: "FunctionalProperty says 'at most one' - is that enough?"
+            },
+            {
+                id: 39,
+                category: "practical",
+                difficulty: "hard",
+                type: "scenario",
+                scenario: "You're modeling a genealogy ontology. You want to represent that if someone is an ancestor of another person through any chain of parent relationships, the ancestor relationship should hold.",
+                question: "Which property characteristic should 'isAncestorOf' have?",
+                options: [
+                    "owl:SymmetricProperty",
+                    "owl:TransitiveProperty",
+                    "owl:FunctionalProperty",
+                    "owl:ReflexiveProperty"
+                ],
+                correct: 1,
+                explanation: "TransitiveProperty means if A isAncestorOf B and B isAncestorOf C, then A isAncestorOf C. This perfectly models ancestral chains - your grandparent is your ancestor because they're your parent's ancestor.",
+                keyConcept: "Transitive properties 'chain' through intermediate nodes. Perfect for: ancestor, descendant, partOf, locatedIn, greaterThan.",
+                hint: "If your grandparent is your parent's parent, are they your ancestor?"
+            },
+            {
+                id: 40,
+                category: "practical",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You're creating an ontology for an e-commerce site. You need to model that a Product can be reviewed by Users, and you want to automatically infer that if a User reviews a Product, that Product has been reviewed.",
+                question: "How should you model the relationship between 'reviews' and 'hasReview'?",
+                options: [
+                    "Make them both ObjectProperties with no relation",
+                    "Make hasReview owl:inverseOf reviews",
+                    "Make reviews rdfs:subPropertyOf hasReview",
+                    "Use SKOS broader/narrower"
+                ],
+                correct: 1,
+                explanation: "By declaring hasReview as the inverse of reviews, when 'User123 reviews Product456' is stated, the reasoner automatically infers 'Product456 hasReview User123' (or more precisely, has been reviewed by that user).",
+                keyConcept: "Inverse properties save you from stating redundant information. Define one relationship, get the reverse for free through reasoning.",
+                hint: "If User reviews Product, what's the inverse relationship?"
+            },
+            {
+                id: 41,
+                category: "practical",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You're building an ontology where you need to express:\n'A Mother is a Woman who has at least one Child'",
+                question: "Which OWL construct would you use?",
+                options: [
+                    "Mother rdfs:subClassOf Woman",
+                    "Mother owl:equivalentClass (Woman AND hasChild some Person)",
+                    "Mother owl:equivalentClass (Woman AND hasChild min 1)",
+                    "Both B and C are correct approaches"
+                ],
+                correct: 3,
+                explanation: "Both work: 'hasChild some Person' means at least one child exists. 'hasChild min 1' explicitly says minimum cardinality of 1. The intersection with Woman ensures only women qualify. Both correctly define Mother.",
+                keyConcept: "Class definitions using restrictions allow automatic classification. If a Woman is added with a hasChild property, reasoners automatically classify her as a Mother.",
+                hint: "Both approaches ensure 'at least one child' - just different syntax."
+            },
+            {
+                id: 42,
+                category: "practical",
+                difficulty: "expert",
+                type: "multi",
+                question: "You're integrating two ontologies. Ontology A uses 'Human' and Ontology B uses 'Person' for the same concept. Which OWL constructs could help? (Select ALL that apply)",
+                options: [
+                    "owl:equivalentClass to say Human = Person",
+                    "owl:sameAs to say Human = Person",
+                    "rdfs:subClassOf to say Human subClassOf Person AND Person subClassOf Human",
+                    "skos:exactMatch for vocabulary mapping"
+                ],
+                correct: [0, 2, 3],
+                explanation: "owl:equivalentClass directly states two classes are the same. Mutual subClassOf also works (if A⊆B and B⊆A, then A=B). skos:exactMatch is used for vocabulary alignment. owl:sameAs is for INDIVIDUALS, not classes.",
+                keyConcept: "For class equivalence: owl:equivalentClass or mutual subClassOf. For vocabulary alignment: skos:exactMatch. For individual identity: owl:sameAs.",
+                hint: "owl:sameAs is for individuals, not classes."
+            },
+            {
+                id: 43,
+                category: "owl",
+                difficulty: "expert",
+                type: "code",
+                question: "What does this OWL restriction define?",
+                code: `:Vegetarian owl:equivalentClass [
+    rdf:type owl:Class ;
+    owl:intersectionOf (
+        :Person
+        [ rdf:type owl:Restriction ;
+          owl:onProperty :eats ;
+          owl:allValuesFrom :Plant ]
+    )
+] .`,
+                options: [
+                    "A Vegetarian is a Person who eats at least one Plant",
+                    "A Vegetarian is a Person who ONLY eats Plants (all food must be Plants)",
+                    "A Vegetarian is a Plant that is eaten by Persons",
+                    "A Vegetarian is a Person who doesn't eat anything"
+                ],
+                correct: 1,
+                explanation: "owl:allValuesFrom means 'if they eat anything, it must be a Plant' - a universal restriction. This defines Vegetarian as a Person whose 'eats' property only connects to Plants.",
+                keyConcept: "allValuesFrom = 'ONLY these values allowed' (universal). someValuesFrom = 'at least one of these' (existential). Big difference!",
+                hint: "allValuesFrom is a universal restriction - ALL values must match."
+            },
+            {
+                id: 44,
+                category: "practical",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You have an ontology with:\n• <code>:teaches rdfs:domain :Professor</code>\n• <code>:teaches rdfs:range :Course</code>\n\nA user adds: <code>:RobotArm :teaches :Welding101</code>",
+                question: "What happens?",
+                options: [
+                    "Error - RobotArm cannot teach",
+                    "The statement is rejected",
+                    "RobotArm is inferred to be a Professor",
+                    "Nothing - domain/range are ignored"
+                ],
+                correct: 2,
+                explanation: "In OWL/RDFS, domain and range don't VALIDATE - they INFER. Since :teaches has domain :Professor, using it with RobotArm as subject causes the reasoner to INFER that RobotArm is a Professor! This is the Open World Assumption.",
+                keyConcept: "Critical concept! Domain/range are NOT constraints that reject data. They are inference rules that ADD type information. This surprises many people!",
+                hint: "RDFS/OWL doesn't reject - it infers."
+            },
+            {
+                id: 45,
+                category: "practical",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You need to model that a Person can have multiple nationalities, but a Passport belongs to exactly one Country and one Person. Each Person can have multiple Passports.",
+                question: "How would you model 'belongsToCountry' for Passport?",
+                options: [
+                    "owl:ObjectProperty only",
+                    "owl:ObjectProperty + owl:FunctionalProperty",
+                    "owl:ObjectProperty + owl:InverseFunctionalProperty",
+                    "owl:DatatypeProperty"
+                ],
+                correct: 1,
+                explanation: "FunctionalProperty means each Passport has at most one belongsToCountry value - which is correct (a passport is issued by one country). It's NOT InverseFunctional because multiple passports can belong to the same country.",
+                keyConcept: "Functional = at most one value per subject. InverseFunctional = at most one subject per value. Choose based on the cardinality constraints of your domain.",
+                hint: "Can multiple passports be from the same country? Can one passport be from multiple countries?"
+            },
+            
+            // ========== ADVANCED CONCEPTS ==========
+            {
+                id: 46,
+                category: "owl",
+                difficulty: "expert",
+                type: "single",
+                question: "What is the 'Open World Assumption' in OWL?",
+                options: [
+                    "Anyone can add to the ontology",
+                    "If something is not stated, it might still be true (we just don't know)",
+                    "The ontology is publicly accessible",
+                    "All data is assumed to be complete"
+                ],
+                correct: 1,
+                explanation: "The Open World Assumption means that the absence of information doesn't mean the information is false - we just don't know. This is opposite to databases where missing data is assumed false (Closed World).",
+                keyConcept: "Open World: 'Not stated' ≠ 'False'. Just means unknown. This affects reasoning - you can't infer something is false just because it's not stated.",
+                hint: "What does 'no information' mean?"
+            },
+            {
+                id: 47,
+                category: "owl",
+                difficulty: "expert",
+                type: "scenario",
+                scenario: "You have:\n• <code>:John rdf:type :Person</code>\n• No statement about John having children\n\nQuestion: Does John have children?",
+                question: "Under the Open World Assumption, what's the answer?",
+                options: [
+                    "No, John has no children",
+                    "Yes, John has children",
+                    "Unknown - we cannot conclude either way",
+                    "Error - incomplete data"
+                ],
+                correct: 2,
+                explanation: "Under OWA, the absence of a 'hasChild' statement for John doesn't mean he has no children - it just means we don't know. We cannot conclude either yes or no.",
+                keyConcept: "This is crucial for reasoning! You can't use absence of information as evidence. To say 'John has no children', you'd need a closed list or explicit negation.",
+                hint: "Not knowing ≠ knowing it's false."
+            },
+            {
+                id: 48,
+                category: "reasoning",
+                difficulty: "expert",
+                type: "single",
+                question: "Which of the following is a correct description of Description Logic (DL)?",
+                options: [
+                    "A programming language for ontologies",
+                    "The formal logic foundation underlying OWL that enables reasoning",
+                    "A way to describe logic in natural language",
+                    "A database query language"
+                ],
+                correct: 1,
+                explanation: "Description Logics are a family of formal knowledge representation languages that form the theoretical foundation of OWL. They define the semantics and enable decidable reasoning.",
+                keyConcept: "OWL is based on Description Logics. Different OWL profiles (EL, QL, RL, DL) correspond to different DL expressiveness levels, trading off between expressiveness and computational complexity.",
+                hint: "What mathematical foundation enables OWL reasoning?"
+            },
+            {
+                id: 49,
+                category: "owl",
+                difficulty: "expert",
+                type: "single",
+                question: "Why does OWL have different 'profiles' (OWL EL, OWL QL, OWL RL)?",
+                options: [
+                    "Different file formats",
+                    "Different tradeoffs between expressiveness and reasoning complexity",
+                    "Different programming languages",
+                    "Different version numbers"
+                ],
+                correct: 1,
+                explanation: "OWL profiles trade off expressiveness for computational efficiency. OWL EL is good for large ontologies with classification. OWL QL is good for query answering over large datasets. OWL RL is good for rule-based reasoning. Full OWL DL is most expressive but reasoning can be slow.",
+                keyConcept: "More expressive = more you can say, but slower/harder to reason. Profiles restrict OWL to enable efficient reasoning for specific use cases.",
+                hint: "Why would you want a less expressive language?"
+            },
+            {
+                id: 50,
+                category: "practical",
+                difficulty: "expert",
+                type: "multi",
+                question: "You're building a medical ontology. Which of these would be best practices? (Select ALL that apply)",
+                options: [
+                    "Reuse existing ontologies where possible (e.g., SNOMED, FHIR)",
+                    "Define clear domain and range for all properties",
+                    "Document all classes with rdfs:comment",
+                    "Use meaningful IRIs that hint at the concept",
+                    "Make all classes disjoint by default"
+                ],
+                correct: [0, 1, 2, 3],
+                explanation: "Best practices include: reuse (interoperability), domain/range (type safety), documentation (maintainability), and meaningful IRIs (readability). Making ALL classes disjoint by default is NOT recommended - it's too restrictive and should be done intentionally.",
+                keyConcept: "Good ontology design: reuse standards, document everything, use meaningful names, be intentional about constraints. Don't over-constrain.",
+                hint: "Think about maintainability, interoperability, and flexibility."
+            }
+        ];
+
+        // ==================== QUIZ STATE ====================
+        let currentMode = 'practice';
+        let selectedCategories = ['all'];
+        let filteredQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let streak = 0;
+        let maxStreak = 0;
+        let hintsUsed = 0;
+        let timerInterval = null;
+        let timeRemaining = 30 * 60; // 30 minutes in seconds
+
+        // ==================== INITIALIZATION ====================
+        function selectMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-mode="${mode}"]`).classList.add('selected');
+        }
+
+        function toggleCategory(category) {
+            if (category === 'all') {
+                selectedCategories = ['all'];
+                document.querySelectorAll('.category-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                });
+                document.querySelector('[data-category="all"]').classList.add('active');
+            } else {
+                const allChip = document.querySelector('[data-category="all"]');
+                allChip.classList.remove('active');
+                selectedCategories = selectedCategories.filter(c => c !== 'all');
+                
+                const chip = document.querySelector(`[data-category="${category}"]`);
+                if (selectedCategories.includes(category)) {
+                    selectedCategories = selectedCategories.filter(c => c !== category);
+                    chip.classList.remove('active');
+                } else {
+                    selectedCategories.push(category);
+                    chip.classList.add('active');
+                }
+                
+                if (selectedCategories.length === 0) {
+                    selectedCategories = ['all'];
+                    allChip.classList.add('active');
+                }
+            }
+        }
+
+        function startQuiz() {
+            // Filter questions
+            if (selectedCategories.includes('all')) {
+                filteredQuestions = [...questionBank];
+            } else {
+                filteredQuestions = questionBank.filter(q => selectedCategories.includes(q.category));
+            }
+            
+            // Filter by difficulty for expert mode
+            if (currentMode === 'expert') {
+                filteredQuestions = filteredQuestions.filter(q => q.difficulty === 'hard' || q.difficulty === 'expert');
+            }
+            
+            // Shuffle questions
+            filteredQuestions = shuffleArray(filteredQuestions);
+            
+            // Reset state
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            correctCount = 0;
+            incorrectCount = 0;
+            streak = 0;
+            maxStreak = 0;
+            hintsUsed = 0;
+            
+            // Show quiz screen
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            document.getElementById('resultsScreen').classList.add('hidden');
+            
+            // Start timer for timed mode
+            if (currentMode === 'timed') {
+                timeRemaining = 30 * 60;
+                document.getElementById('timer').classList.remove('hidden');
+                startTimer();
+            }
+            
+            // Show first question
+            showQuestion();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // ==================== TIMER ====================
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showResults();
+                }
+                
+                if (timeRemaining <= 60) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // ==================== QUESTION DISPLAY ====================
+        function showQuestion() {
+            const question = filteredQuestions[currentQuestionIndex];
+            const questionCard = document.getElementById('questionCard');
+            
+            // Update progress
+            const progress = ((currentQuestionIndex) / filteredQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressBar').textContent = `${Math.round(progress)}%`;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            // Build question HTML
+            let html = `
+                <div class="question-header">
+                    <span class="question-number">Question ${currentQuestionIndex + 1} of ${filteredQuestions.length}</span>
+                    <span class="difficulty-badge difficulty-${question.difficulty}">${question.difficulty.toUpperCase()}</span>
+                    <span class="category-badge">${question.category.toUpperCase()}</span>
+                </div>
+            `;
+            
+            // Add scenario if present
+            if (question.scenario) {
+                html += `
+                    <div class="scenario-box">
+                        <h4>📋 Scenario:</h4>
+                        <p>${question.scenario.replace(/\n/g, '<br>')}</p>
+                    </div>
+                `;
+            }
+            
+            // Add code block if present
+            if (question.code) {
+                html += `
+                    <div class="code-block">${escapeHtml(question.code)}</div>
+                `;
+            }
+            
+            // Question text
+            html += `<p class="question-text">${question.question}</p>`;
+            
+            // Multi-select hint
+            if (question.type === 'multi') {
+                html += `<div class="multi-select-hint">⚠️ This question has MULTIPLE correct answers. Select all that apply.</div>`;
+            }
+            
+            // Options
+            html += `<div class="options-container" id="optionsContainer">`;
+            const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+            question.options.forEach((option, index) => {
+                html += `
+                    <div class="option" data-index="${index}" onclick="selectOption(${index})">
+                        <span class="option-letter">${letters[index]}</span>
+                        <span class="option-text">${option}</span>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            
+            // Hint button (not in expert mode)
+            if (currentMode !== 'expert' && question.hint) {
+                html += `
+                    <button class="hint-button" onclick="showHint()" id="hintButton">💡 Show Hint</button>
+                    <div class="hint-box hidden" id="hintBox">${question.hint}</div>
+                `;
+            }
+            
+            // Explanation box (hidden initially)
+            html += `<div class="explanation-box hidden" id="explanationBox"></div>`;
+            
+            // Buttons
+            html += `
+                <div class="button-container">
+                    <button class="btn btn-secondary" onclick="skipQuestion()" id="skipBtn">Skip</button>
+                    <button class="btn btn-primary" onclick="submitAnswer()" id="submitBtn" disabled>Submit Answer</button>
+                </div>
+            `;
+            
+            questionCard.innerHTML = html;
+            
+            // Initialize selected answers for multi-select
+            if (question.type === 'multi') {
+                questionCard.dataset.selectedAnswers = JSON.stringify([]);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== ANSWER HANDLING ====================
+        let selectedAnswer = null;
+        let selectedAnswers = [];
+
+        function selectOption(index) {
+            const question = filteredQuestions[currentQuestionIndex];
+            
+            if (question.type === 'multi') {
+                // Multi-select
+                const option = document.querySelector(`.option[data-index="${index}"]`);
+                if (selectedAnswers.includes(index)) {
+                    selectedAnswers = selectedAnswers.filter(i => i !== index);
+                    option.classList.remove('selected');
+                } else {
+                    selectedAnswers.push(index);
+                    option.classList.add('selected');
+                }
+                document.getElementById('submitBtn').disabled = selectedAnswers.length === 0;
+            } else {
+                // Single select
+                document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelector(`.option[data-index="${index}"]`).classList.add('selected');
+                selectedAnswer = index;
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+
+        function showHint() {
+            document.getElementById('hintBox').classList.remove('hidden');
+            document.getElementById('hintButton').classList.add('hidden');
+            hintsUsed++;
+        }
+
+        function submitAnswer() {
+            const question = filteredQuestions[currentQuestionIndex];
+            let isCorrect = false;
+            
+            if (question.type === 'multi') {
+                // Check if arrays match
+                const correctAnswers = question.correct.sort();
+                const userSelection = selectedAnswers.sort();
+                isCorrect = JSON.stringify(correctAnswers) === JSON.stringify(userSelection);
+            } else {
+                isCorrect = selectedAnswer === question.correct;
+            }
+            
+            // Update stats
+            if (isCorrect) {
+                correctCount++;
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+            } else {
+                incorrectCount++;
+                streak = 0;
+            }
+            
+            // Update streak indicator
+            if (streak >= 3) {
+                document.getElementById('streakIndicator').classList.remove('hidden');
+                document.getElementById('streakCount').textContent = streak;
+            } else {
+                document.getElementById('streakIndicator').classList.add('hidden');
+            }
+            
+            // Update display
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+            const score = Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+            document.getElementById('scoreDisplay').textContent = score + '%';
+            
+            // Store answer
+            userAnswers.push({
+                questionId: question.id,
+                question: question.question,
+                userAnswer: question.type === 'multi' ? [...selectedAnswers] : selectedAnswer,
+                correctAnswer: question.correct,
+                isCorrect: isCorrect
+            });
+            
+            // Show feedback
+            showFeedback(question, isCorrect);
+            
+            // Disable options
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            // Update buttons
+            document.getElementById('submitBtn').classList.add('hidden');
+            document.getElementById('skipBtn').textContent = currentQuestionIndex < filteredQuestions.length - 1 ? 'Next Question →' : 'See Results';
+            document.getElementById('skipBtn').onclick = nextQuestion;
+        }
+
+        function showFeedback(question, isCorrect) {
+            // Highlight correct/incorrect options
+            if (question.type === 'multi') {
+                question.correct.forEach(idx => {
+                    document.querySelector(`.option[data-index="${idx}"]`).classList.add('correct');
+                });
+                selectedAnswers.forEach(idx => {
+                    if (!question.correct.includes(idx)) {
+                        document.querySelector(`.option[data-index="${idx}"]`).classList.add('incorrect');
+                    }
+                });
+            } else {
+                document.querySelector(`.option[data-index="${question.correct}"]`).classList.add('correct');
+                if (selectedAnswer !== question.correct) {
+                    document.querySelector(`.option[data-index="${selectedAnswer}"]`).classList.add('incorrect');
+                }
+            }
+            
+            // Show explanation
+            const explanationBox = document.getElementById('explanationBox');
+            explanationBox.classList.remove('hidden');
+            explanationBox.classList.add(isCorrect ? 'explanation-correct' : 'explanation-incorrect');
+            
+            explanationBox.innerHTML = `
+                <h4>${isCorrect ? '✅ Correct!' : '❌ Incorrect'}</h4>
+                <p>${question.explanation}</p>
+                <div class="key-concept">
+                    <h5>🔑 Key Concept to Remember:</h5>
+                    <p>${question.keyConcept}</p>
+                </div>
+            `;
+        }
+
+        function skipQuestion() {
+            // Record as skipped
+            const question = filteredQuestions[currentQuestionIndex];
+            userAnswers.push({
+                questionId: question.id,
+                question: question.question,
+                userAnswer: null,
+                correctAnswer: question.correct,
+                isCorrect: false,
+                skipped: true
+            });
+            
+            incorrectCount++;
+            streak = 0;
+            document.getElementById('streakIndicator').classList.add('hidden');
+            
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            selectedAnswer = null;
+            selectedAnswers = [];
+            
+            if (currentQuestionIndex >= filteredQuestions.length) {
+                showResults();
+            } else {
+                showQuestion();
+            }
+        }
+
+        // ==================== RESULTS ====================
+        function showResults() {
+            // Stop timer
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            document.getElementById('timer').classList.add('hidden');
+            document.getElementById('streakIndicator').classList.add('hidden');
+            
+            // Hide quiz, show results
+            document.getElementById('quizScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            
+            const totalQuestions = filteredQuestions.length;
+            const answered = userAnswers.filter(a => !a.skipped).length;
+            const percentage = Math.round((correctCount / totalQuestions) * 100);
+            
+            // Determine grade
+            let grade, gradeClass, message;
+            if (percentage >= 90) {
+                grade = 'A'; gradeClass = 'grade-a'; message = '🏆 Outstanding! You truly understand these concepts!';
+            } else if (percentage >= 75) {
+                grade = 'B'; gradeClass = 'grade-b'; message = '🌟 Great job! A few more reviews and you\'ll master it!';
+            } else if (percentage >= 60) {
+                grade = 'C'; gradeClass = 'grade-c'; message = '📚 Good effort! Focus on the concepts you missed.';
+            } else {
+                grade = 'D'; gradeClass = 'grade-d'; message = '💪 Keep studying! Review the explanations carefully.';
+            }
+            
+            // Category breakdown
+            const categoryStats = {};
+            userAnswers.forEach((answer, idx) => {
+                const question = filteredQuestions[idx];
+                if (!categoryStats[question.category]) {
+                    categoryStats[question.category] = { correct: 0, total: 0 };
+                }
+                categoryStats[question.category].total++;
+                if (answer.isCorrect) categoryStats[question.category].correct++;
+            });
+            
+            let categoryBreakdownHtml = '';
+            for (const [cat, stats] of Object.entries(categoryStats)) {
+                const catPercentage = Math.round((stats.correct / stats.total) * 100);
+                categoryBreakdownHtml += `
+                    <div class="breakdown-item">
+                        <span>${cat.toUpperCase()}</span>
+                        <span>${stats.correct}/${stats.total} (${catPercentage}%)</span>
+                    </div>
+                `;
+            }
+            
+            // Difficulty breakdown
+            const difficultyStats = {};
+            userAnswers.forEach((answer, idx) => {
+                const question = filteredQuestions[idx];
+                if (!difficultyStats[question.difficulty]) {
+                    difficultyStats[question.difficulty] = { correct: 0, total: 0 };
+                }
+                difficultyStats[question.difficulty].total++;
+                if (answer.isCorrect) difficultyStats[question.difficulty].correct++;
+            });
+            
+            let difficultyBreakdownHtml = '';
+            for (const [diff, stats] of Object.entries(difficultyStats)) {
+                const diffPercentage = Math.round((stats.correct / stats.total) * 100);
+                difficultyBreakdownHtml += `
+                    <div class="breakdown-item">
+                        <span>${diff.toUpperCase()}</span>
+                        <span>${stats.correct}/${stats.total} (${diffPercentage}%)</span>
+                    </div>
+                `;
+            }
+            
+            // Review section
+            let reviewHtml = '';
+            userAnswers.forEach((answer, idx) => {
+                const question = filteredQuestions[idx];
+                reviewHtml += `
+                    <div class="review-item ${answer.isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="question-preview">Q${idx + 1}: ${question.question.substring(0, 100)}...</div>
+                        <div class="answer-info">
+                            ${answer.skipped ? '⏭️ Skipped' : (answer.isCorrect ? '✅ Correct' : '❌ Incorrect')}
+                            ${!answer.isCorrect ? `<br>Correct answer: ${Array.isArray(question.correct) ? question.correct.map(i => question.options[i]).join(', ') : question.options[question.correct]}` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('resultsScreen').innerHTML = `
+                <h2 style="color: #2c3e50;">Quiz Complete!</h2>
+                
+                <div class="score-circle">
+                    <span class="percentage">${percentage}%</span>
+                    <span class="label">${correctCount}/${totalQuestions}</span>
+                </div>
+                
+                <div class="grade-badge ${gradeClass}">Grade: ${grade}</div>
+                <p style="font-size: 1.2em; margin: 20px 0;">${message}</p>
+                
+                <div class="results-breakdown">
+                    <div class="breakdown-card">
+                        <h4>📊 By Category</h4>
+                        ${categoryBreakdownHtml}
+                    </div>
+                    <div class="breakdown-card">
+                        <h4>📈 By Difficulty</h4>
+                        ${difficultyBreakdownHtml}
+                    </div>
+                    <div class="breakdown-card">
+                        <h4>🔥 Stats</h4>
+                        <div class="breakdown-item">
+                            <span>Max Streak</span>
+                            <span>${maxStreak}</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Hints Used</span>
+                            <span>${hintsUsed}</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Skipped</span>
+                            <span>${userAnswers.filter(a => a.skipped).length}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="review-section">
+                    <h3>📝 Question Review</h3>
+                    ${reviewHtml}
+                </div>
+                
+                <div class="button-container" style="justify-content: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="restartQuiz()">🔄 Try Again</button>
+                    <button class="btn btn-secondary" onclick="reviewMissed()">📖 Review Missed Questions</button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+        }
+
+        function reviewMissed() {
+            // Filter to only missed questions and restart
+            const missedIndices = userAnswers.map((a, i) => !a.isCorrect ? i : -1).filter(i => i !== -1);
+            if (missedIndices.length === 0) {
+                alert('You got all questions correct! 🎉');
+                return;
+            }
+            
+            filteredQuestions = missedIndices.map(i => filteredQuestions[i]);
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            correctCount = 0;
+            incorrectCount = 0;
+            streak = 0;
+            maxStreak = 0;
+            hintsUsed = 0;
+            
+            document.getElementById('resultsScreen').classList.add('hidden');
+            document.getElementById('quizScreen').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        // Initialize
+        selectMode('practice');
+    </script>
+</body>
+</html>
