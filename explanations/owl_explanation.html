@@ -1,1 +1,457 @@
-d
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #f0a500;
+            text-align: center;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        h2 {
+            color: white;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+        }
+        .owl-icon {
+            text-align: center;
+            font-size: 80px;
+            margin: 20px 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .feature-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        .property-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .property-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .property-card h5 {
+            color: #3498db;
+            margin: 0 0 10px 0;
+        }
+        .example-visual {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .reasoning-box {
+            background: linear-gradient(135deg, #f5af19, #f12711);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .reasoning-item {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .tbox-abox {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .box-section {
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .tbox { 
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .abox { 
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: white;
+        }
+        .protege-section {
+            background: #e8f5e9;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            padding: 0;
+        }
+        .step-list li {
+            counter-increment: step-counter;
+            padding: 15px 15px 15px 60px;
+            margin: 10px 0;
+            background: white;
+            border-radius: 10px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: #27ae60;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .comparison-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .vs-arrow {
+            font-size: 40px;
+            color: #7f8c8d;
+        }
+        .tech-box {
+            padding: 20px 30px;
+            border-radius: 15px;
+            text-align: center;
+            color: white;
+            min-width: 150px;
+        }
+        .highlight-box {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #ffc107;
+            margin: 15px 0;
+        }
+        .disjoint-visual {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        .circle-set {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦉 OWL - The Powerful Ontology Language</h1>
+        
+        <div class="card">
+            <div class="owl-icon">🦉</div>
+            <h2 style="color: #2c3e50;">What is OWL?</h2>
+            
+            <p style="font-size: 18px; text-align: center;">
+                <strong>OWL (Web Ontology Language)</strong> is the most powerful way to describe knowledge so that computers can understand AND reason about it!
+            </p>
+            
+            <div class="comparison-visual">
+                <div class="tech-box" style="background: #3498db;">
+                    <strong>RDF</strong><br>
+                    Store facts
+                </div>
+                <div class="vs-arrow">→</div>
+                <div class="tech-box" style="background: #9b59b6;">
+                    <strong>RDFS</strong><br>
+                    Add basic rules
+                </div>
+                <div class="vs-arrow">→</div>
+                <div class="tech-box" style="background: #e74c3c;">
+                    <strong>OWL</strong><br>
+                    Add POWERFUL rules!
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">🧩 What is an Ontology?</h2>
+            
+            <div class="highlight-box">
+                <h3>Simple Definition:</h3>
+                <p><strong>An ontology is a formal description of a topic/domain</strong></p>
+                <p>It includes:</p>
+                <ul>
+                    <li><strong>Classes:</strong> Categories of things (Person, Animal, Car)</li>
+                    <li><strong>Properties:</strong> Relationships (hasWife, owns, livesIn)</li>
+                    <li><strong>Constraints:</strong> Rules (a person can have only 2 biological parents)</li>
+                    <li><strong>Individuals:</strong> Actual examples (John, Mary, Dubai)</li>
+                </ul>
+            </div>
+            
+            <div class="tbox-abox">
+                <div class="box-section tbox">
+                    <h3>📦 TBox (Terminology Box)</h3>
+                    <p><strong>The Rules & Structure</strong></p>
+                    <p>Like a blueprint or dictionary</p>
+                    <p><em>"What types of things exist?"</em></p>
+                    <p>Example: Person, hasWife, hasAge</p>
+                </div>
+                <div class="box-section abox">
+                    <h3>📋 ABox (Assertion Box)</h3>
+                    <p><strong>The Actual Data</strong></p>
+                    <p>Like the filled-in form</p>
+                    <p><em>"What specific things do we know?"</em></p>
+                    <p>Example: John is a Man, John hasWife Mary</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">⚡ OWL Superpowers (What RDFS Can't Do)</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚫</div>
+                    <h3>Disjoint Classes</h3>
+                    <p>"Man and Woman cannot be the same person"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:disjointWith</code>
+                </div>
+                
+                <div class="feature-card" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Inverse Properties</h3>
+                    <p>"If John hasWife Mary, then Mary hasHusband John"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:inverseOf</code>
+                </div>
+                
+                <div class="feature-card" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                    <div class="feature-icon">⚖️</div>
+                    <h3>Symmetric Properties</h3>
+                    <p>"If A isFriendOf B, then B isFriendOf A"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:SymmetricProperty</code>
+                </div>
+                
+                <div class="feature-card" style="background: linear-gradient(135deg, #f5af19, #f12711);">
+                    <div class="feature-icon">🔗</div>
+                    <h3>Transitive Properties</h3>
+                    <p>"If A > B and B > C, then A > C"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:TransitiveProperty</code>
+                </div>
+                
+                <div class="feature-card" style="background: linear-gradient(135deg, #74b9ff, #0984e3);">
+                    <div class="feature-icon">1️⃣</div>
+                    <h3>Functional Properties</h3>
+                    <p>"Each person has exactly ONE SSN"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:FunctionalProperty</code>
+                </div>
+                
+                <div class="feature-card" style="background: linear-gradient(135deg, #fd79a8, #e84393);">
+                    <div class="feature-icon">=</div>
+                    <h3>Equivalent Classes</h3>
+                    <p>"Human and Person mean the same thing"</p>
+                    <code style="background: rgba(0,0,0,0.2); padding: 5px; border-radius: 5px;">owl:equivalentClass</code>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">🔍 Property Types Explained</h2>
+            
+            <div class="property-section">
+                <h3>Object Properties vs Data Properties</h3>
+                
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h5>🔗 Object Property</h5>
+                        <p>Links one THING to another THING</p>
+                        <div class="example-visual" style="font-size: 12px;">
+John → hasWife → Mary<br>
+(Both are "things" with their own identity)
+                        </div>
+                    </div>
+                    
+                    <div class="property-card" style="border-left-color: #27ae60;">
+                        <h5>📝 Data Property</h5>
+                        <p>Links a THING to a VALUE</p>
+                        <div class="example-visual" style="font-size: 12px;">
+John → hasAge → "45"<br>
+(45 is just a number, not a "thing")
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="property-section" style="background: #fff3cd;">
+                <h3>Property Characteristics</h3>
+                
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h5>Functional</h5>
+                        <p>Can only have ONE value</p>
+                        <p><em>hasSSN (one SSN per person)</em></p>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h5>Inverse Functional</h5>
+                        <p>Value points to only ONE thing</p>
+                        <p><em>hasSSN (one person per SSN)</em></p>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h5>Symmetric</h5>
+                        <p>Works both ways equally</p>
+                        <p><em>isSiblingOf, isFriendOf</em></p>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h5>Asymmetric</h5>
+                        <p>Only works one way</p>
+                        <p><em>isParentOf (parents aren't children)</em></p>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h5>Transitive</h5>
+                        <p>Chains together</p>
+                        <p><em>isAncestorOf, isTallerThan</em></p>
+                    </div>
+                    
+                    <div class="property-card">
+                        <h5>Reflexive</h5>
+                        <p>Applies to itself</p>
+                        <p><em>knows (I know myself)</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">🚫 Disjoint Classes - Visual Example</h2>
+            
+            <div class="disjoint-visual">
+                <div class="circle-set" style="background: #3498db;">
+                    👨 Man
+                </div>
+                <div style="font-size: 60px; display: flex; align-items: center;">✕</div>
+                <div class="circle-set" style="background: #e84393;">
+                    👩 Woman
+                </div>
+            </div>
+            
+            <div class="highlight-box">
+                <p><strong>Disjoint means:</strong> No individual can be BOTH a Man AND a Woman at the same time.</p>
+                <p>If you say "John is a Man" and "John is a Woman", the computer will detect an ERROR!</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">🧠 Reasoning - The Computer Thinks!</h2>
+            
+            <div class="reasoning-box">
+                <h3>What can a Reasoner do?</h3>
+                
+                <div class="reasoning-item">
+                    <strong>1. Consistency Checking</strong><br>
+                    "Is there any contradiction in the data?"<br>
+                    <em>Example: Finding if someone is both alive and dead</em>
+                </div>
+                
+                <div class="reasoning-item">
+                    <strong>2. Classification</strong><br>
+                    "Build the complete class hierarchy"<br>
+                    <em>Example: Figuring out all parent-child relationships between classes</em>
+                </div>
+                
+                <div class="reasoning-item">
+                    <strong>3. Realisation</strong><br>
+                    "What class does this individual belong to?"<br>
+                    <em>Example: "Mary" → discovered to be "Mother" because she has children</em>
+                </div>
+                
+                <div class="reasoning-item">
+                    <strong>4. Inference</strong><br>
+                    "What new facts can we discover?"<br>
+                    <em>Example: If John hasWife Mary → then Mary hasHusband John (inverse!)</em>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2 style="color: #2c3e50;">🛠️ Protégé - The Tool to Create Ontologies</h2>
+            
+            <div class="protege-section">
+                <p style="text-align: center; font-size: 18px;">
+                    <strong>Protégé</strong> is a free tool to create OWL ontologies visually!<br>
+                    Download: <code>https://protege.stanford.edu</code>
+                </p>
+                
+                <h3>Steps to Create an Ontology:</h3>
+                
+                <ol class="step-list">
+                    <li><strong>Create Ontology:</strong> Set IRI (unique web address), add metadata</li>
+                    <li><strong>Define Classes:</strong> Create your categories (Person, Animal...)</li>
+                    <li><strong>Create Hierarchy:</strong> Set parent-child relationships (Man subClassOf Person)</li>
+                    <li><strong>Add Object Properties:</strong> Define relationships (hasWife, teaches)</li>
+                    <li><strong>Add Data Properties:</strong> Define attributes (hasAge, hasName)</li>
+                    <li><strong>Set Characteristics:</strong> Make properties symmetric, transitive, etc.</li>
+                    <li><strong>Add Individuals:</strong> Create actual instances (John, Mary)</li>
+                    <li><strong>Run Reasoner:</strong> Let the computer discover new facts!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
