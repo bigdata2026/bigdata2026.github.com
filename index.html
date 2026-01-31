@@ -297,33 +297,125 @@
             color: #234e52;
         }
 
+        
+/* Module video section */
+.video-embed {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
 
-        /* Video embed (placeholder) */
-        .video-embed {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
+.media-title {
+    color: #2d3748;
+    font-size: 1.6em;
+    margin-bottom: 6px;
+}
 
-        .video-embed .video-wrapper {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 */
-            overflow: hidden;
-            border-radius: 8px;
-            background: #000;
-        }
+.media-subtitle {
+    color: #666;
+    margin-bottom: 15px;
+}
 
-        .video-embed .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 20px;
+}
+
+.video-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 5px solid #667eea;
+}
+
+.video-card.is-week2 {
+    border-left-color: #48bb78;
+}
+
+.video-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.video-week-badge {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.video-card.is-week2 .video-week-badge {
+    background: #48bb78;
+}
+
+.video-card-title {
+    color: #2d3748;
+    font-weight: bold;
+}
+
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 */
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+}
+
+.video-wrapper iframe,
+.video-wrapper video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.video-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    font-weight: bold;
+}
+
+.video-meta {
+    margin-top: 10px;
+    color: #555;
+    font-size: 0.9em;
+}
+
+/* Week header actions (notes + video link) */
+.week-header {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.week-title {
+    flex: 1 1 auto;
+}
+
+.week-actions {
+    margin-left: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
 
         @media (max-width: 768px) {
             .lectures-grid {
@@ -343,22 +435,66 @@
 <body>
     <div class="container">
 
-        <!-- VIDEO (placeholder) -->
-        <section class="video-embed" aria-label="Video">
-            <div class="video-wrapper">
-                <!-- Replace the src value with your local video path or embed URL later -->
-                <iframe
-                    src="videos/What_is_the_Semantic_Web_ (1) (1).mp4"
-                    title="Video placeholder"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    loading="lazy"
-                    referrerpolicy="no-referrer"
-                ></iframe>
-            </div>
-        </section>
 
-        <header>
+<!-- MODULE VIDEOS -->
+<section class="video-embed" aria-label="Module videos" id="module-videos">
+    <h2 class="media-title">🎥 Module Videos</h2>
+    <p class="media-subtitle">Weekly explainer videos aligned to the lecture modules.</p>
+
+    <div class="video-grid">
+        <!-- Week 1 -->
+        <div class="video-card" id="week1-video">
+            <div class="video-card-header">
+                <span class="video-week-badge">Week 1</span>
+                <span class="video-card-title">What is the Semantic Web? (Web Semantics)</span>
+            </div>
+
+            <div class="video-wrapper">
+                <video controls preload="metadata">
+                    <source src="videos/What_is_the_Semantic_Web_%20(1)%20(1).mp4" type="video/mp4" />
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <div class="video-meta">Week 1: Foundations of Semantic Web — watch before L12 &amp; L13.</div>
+        </div>
+
+        <!-- Week 2 placeholders (replace with your real videos later) -->
+        <div class="video-card is-week2" id="week2-video-1">
+            <div class="video-card-header">
+                <span class="video-week-badge">Week 2</span>
+                <span class="video-card-title">Placeholder — RDF Schema &amp; SKOS</span>
+            </div>
+
+            <div class="video-wrapper">
+                <div class="video-placeholder">
+                    Week 2 video coming soon<br />
+                    <small style="font-weight: 500; opacity: 0.9;">Add an .mp4 in /videos and update this card</small>
+                </div>
+            </div>
+
+            <div class="video-meta">Planned alignment: L21 (RDFS + SKOS).</div>
+        </div>
+
+        <div class="video-card is-week2" id="week2-video-2">
+            <div class="video-card-header">
+                <span class="video-week-badge">Week 2</span>
+                <span class="video-card-title">Placeholder — Introduction to OWL</span>
+            </div>
+
+            <div class="video-wrapper">
+                <div class="video-placeholder">
+                    Week 2 video coming soon<br />
+                    <small style="font-weight: 500; opacity: 0.9;">Add an .mp4 in /videos and update this card</small>
+                </div>
+            </div>
+
+            <div class="video-meta">Planned alignment: L22 (OWL + ontologies).</div>
+        </div>
+    </div>
+</section>
+
+<header>
             <h1>Big Data Management</h1>
             <p class="subtitle">Semantic Web & Knowledge Graphs</p>
             <p class="instructor">Dr. Radu Mihailescu | Associate Professor | Programme Director MSc AI</p>
@@ -369,7 +505,10 @@
             <div class="week-header">
                 <span class="week-badge">WEEK 1</span>
                 <span class="week-title">Foundations of Semantic Web</span>
-                <a href="notes/Week 1 Notes.pdf" class="btn">View Lecture Notes</a>
+                <div class="week-actions">
+                    <a href="notes/Week 1 Notes.pdf" class="btn">View Lecture Notes</a>
+                    <a href="#week1-video" class="btn btn-secondary">Watch Week 1 Video</a>
+                </div>
             </div>
 
             <div class="lectures-grid">
@@ -444,7 +583,10 @@
             <div class="week-header">
                 <span class="week-badge">WEEK 2</span>
                 <span class="week-title">Knowledge Representation & Ontologies</span>
-                <a href="notes/Week 2 Notes.pdf" class="btn">View Lecture Notes</a>
+                <div class="week-actions">
+                    <a href="notes/Week 2 Notes.pdf" class="btn">View Lecture Notes</a>
+                    <a href="#week2-video-1" class="btn">Week 2 Videos</a>
+                </div>
             </div>
 
             <div class="lectures-grid">
