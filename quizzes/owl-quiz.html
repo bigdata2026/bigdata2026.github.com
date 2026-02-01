@@ -127,6 +127,16 @@
             transform: translateX(8px);
         }
 
+        .option.correct:hover {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+
+        .option.incorrect:hover {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+
         .option.selected {
             border-color: #8b5cf6;
             background: #f3e8ff;
@@ -648,7 +658,6 @@
         let currentQuestion = 0;
         let answers = {};
         let showResults = false;
-        let showExplanation = {};
 
         // Render functions
         function render() {
@@ -692,18 +701,40 @@
                             <span class="question-type">${q.type.replace('-', ' ')}</span>
                         </div>
                         <div class="question-text">${q.question}</div>
+                        ${isAnswered ? `
+                            <div style="margin-top: 1rem; padding: 1rem; border-radius: 12px; background: ${selectedAnswer === q.correct ? '#d1fae5' : '#fee2e2'}; border: 2px solid ${selectedAnswer === q.correct ? '#10b981' : '#ef4444'};">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; color: ${selectedAnswer === q.correct ? '#065f46' : '#991b1b'}; font-weight: 600;">
+                                    ${selectedAnswer === q.correct ? '✓ Correct!' : '✗ Incorrect'}
+                                </div>
+                            </div>
+                        ` : ''}
                     </div>
 
                     <div class="options">
                         ${q.options.map((option, idx) => {
                             const isSelected = selectedAnswer === idx;
-                            const optionClass = isSelected ? 'option selected' : 'option';
-                            const letter = String.fromCharCode(65 + idx);
+                            const isCorrect = idx === q.correct;
+                            
+                            let optionClass = 'option';
+                            let indicatorContent = String.fromCharCode(65 + idx);
+                            
+                            // Show feedback only if answer has been selected
+                            if (isAnswered) {
+                                if (isCorrect) {
+                                    optionClass = 'option correct';
+                                    indicatorContent = '✓';
+                                } else if (isSelected && !isCorrect) {
+                                    optionClass = 'option incorrect';
+                                    indicatorContent = '✗';
+                                }
+                            } else if (isSelected) {
+                                optionClass = 'option selected';
+                            }
                             
                             return `
-                                <div class="${optionClass}" onclick="selectAnswer(${q.id}, ${idx})">
+                                <div class="${optionClass}" onclick="selectAnswer(${q.id}, ${idx})" style="cursor: pointer;">
                                     <div class="option-header">
-                                        <div class="option-indicator">${letter}</div>
+                                        <div class="option-indicator">${indicatorContent}</div>
                                         <div class="option-text">${option}</div>
                                     </div>
                                 </div>
@@ -711,7 +742,7 @@
                         }).join('')}
                     </div>
 
-                    ${isAnswered && showExplanation[q.id] ? `
+                    ${isAnswered ? `
                         <div class="explanation">
                             <div class="explanation-header">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -722,14 +753,6 @@
                                 Explanation
                             </div>
                             <div class="explanation-text">${q.explanation}</div>
-                        </div>
-                    ` : ''}
-
-                    ${isAnswered ? `
-                        <div style="margin-top: 1rem; text-align: center;">
-                            <button class="btn btn-secondary" onclick="toggleExplanation(${q.id})" style="display: inline-flex;">
-                                ${showExplanation[q.id] ? 'Hide' : 'Show'} Explanation
-                            </button>
                         </div>
                     ` : ''}
 
@@ -892,11 +915,6 @@
             render();
         }
 
-        function toggleExplanation(questionId) {
-            showExplanation[questionId] = !showExplanation[questionId];
-            render();
-        }
-
         function nextQuestion() {
             if (currentQuestion < questions.length - 1) {
                 currentQuestion++;
@@ -925,7 +943,6 @@
             currentQuestion = 0;
             answers = {};
             showResults = false;
-            showExplanation = {};
             render();
         }
 
