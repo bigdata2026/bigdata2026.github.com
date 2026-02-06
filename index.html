@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Semantic Web & Knowledge Graphs | Big Data Management</title>
-    <meta name="description" content="Professional learning platform for Semantic Web & Knowledge Graphs course - MSc Artificial Intelligence at Heriot-Watt University">
+    <meta name="description" content="Course hub for Semantic Web & Knowledge Graphs (F2xBD Big Data Management) — MSc AI at Heriot-Watt University">
     
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -50,137 +50,85 @@
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-cyan);
-        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-cyan); }
 
         /* Layout */
-        .main-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
+        .main-wrapper { display: flex; min-height: 100vh; }
 
-        /* Sidebar Navigation */
+        /* ======================== SIDEBAR ======================== */
         .sidebar {
             width: 280px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             height: 100vh;
             overflow-y: auto;
             z-index: 1000;
             transition: transform 0.3s ease;
         }
-
         .sidebar-header {
             padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
             background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
         }
-
         .sidebar-brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            text-decoration: none;
-            color: var(--text-primary);
+            display: flex; align-items: center; gap: 0.75rem;
+            text-decoration: none; color: var(--text-primary);
         }
-
         .sidebar-brand .logo-icon {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             background: var(--gradient-primary);
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.25rem;
         }
-
-        .sidebar-brand span {
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .sidebar-nav {
-            padding: 1rem 0;
-        }
-
+        .sidebar-brand span { font-weight: 700; font-size: 1rem; }
+        .sidebar-nav { padding: 1rem 0; }
         .nav-section-title {
             padding: 0.75rem 1.5rem 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.1em;
             color: var(--text-muted);
         }
-
         .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            display: flex; align-items: center; gap: 0.75rem;
             padding: 0.75rem 1.5rem;
-            color: var(--text-secondary);
-            text-decoration: none;
+            color: var(--text-secondary); text-decoration: none;
             transition: all 0.2s ease;
             border-left: 3px solid transparent;
             font-size: 0.9rem;
         }
-
         .nav-link:hover {
             background: var(--bg-card);
             color: var(--text-primary);
             border-left-color: var(--accent-cyan);
         }
-
         .nav-link.active {
             background: var(--bg-card);
             color: var(--accent-cyan);
             border-left-color: var(--accent-cyan);
         }
+        .nav-link i { font-size: 1.1rem; width: 20px; text-align: center; }
 
-        .nav-link i {
-            font-size: 1.1rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            min-height: 100vh;
-        }
+        /* ======================== MAIN CONTENT ======================== */
+        .main-content { flex: 1; margin-left: 280px; min-height: 100vh; }
 
         /* Top Bar */
         .top-bar {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(10, 14, 23, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10, 14, 23, 0.92) !important;
+            backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid var(--border-color) !important;
             padding: 1rem 2rem;
+            overflow: visible !important;
         }
+        .top-bar::before, .top-bar::after { display: none !important; }
 
-        .search-container {
-            position: relative;
-            max-width: 500px;
-        }
-
+        .search-container { position: relative; max-width: 500px; }
         .search-input {
             width: 100%;
             padding: 0.75rem 1rem 0.75rem 3rem;
@@ -191,754 +139,255 @@
             font-size: 0.9rem;
             transition: all 0.2s ease;
         }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-        }
-
-        .search-input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
+        .search-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+        .search-input::placeholder { color: var(--text-muted); }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
+            position: absolute; z-index: 2000;
+            top: 100%; left: 0; right: 0;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             margin-top: 0.5rem;
-            max-height: 400px;
-            overflow-y: auto;
+            max-height: 400px; overflow-y: auto;
             display: none;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
-
-        .search-results.active {
-            display: block;
-        }
-
+        .search-results.active { display: block; }
         .search-result-item {
             padding: 0.75rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            transition: background 0.2s ease;
+            display: flex; align-items: center; gap: 0.75rem;
+            cursor: pointer; transition: background 0.2s ease;
             border-bottom: 1px solid var(--border-color);
         }
-
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-
-        .search-result-item:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .search-result-item .badge {
-            font-size: 0.65rem;
-        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: var(--bg-card-hover); }
+        .search-result-item .badge { font-size: 0.65rem; }
 
         /* Page Content */
-        .page-content {
-            padding: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .page-content { padding: 2rem; max-width: 1400px; margin: 0 auto; }
 
-        /* Hero Section */
+        /* ======================== HERO ======================== */
         .hero-section {
             background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-            border-radius: 24px;
-            padding: 3rem;
-            margin-bottom: 2rem;
-            position: relative;
+            border-radius: 24px; padding: 3rem;
+            margin-bottom: 2rem; position: relative;
             overflow: hidden;
             border: 1px solid var(--border-color);
+            isolation: isolate;
         }
-
         .hero-section::before {
             content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
+            position: absolute; top: 0; right: 0;
+            width: 50%; height: 100%;
             background: radial-gradient(circle at 70% 30%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
-            pointer-events: none;
+            z-index: -1; pointer-events: none;
         }
-
+        .hero-section::after {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: url('banner.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transform: scale(1.03);
+            filter: brightness(0.35) saturate(1.1);
+            opacity: 0.35;
+            z-index: -2; pointer-events: none;
+        }
         .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.5rem 1rem;
             background: rgba(6, 182, 212, 0.1);
             border: 1px solid rgba(6, 182, 212, 0.3);
-            border-radius: 50px;
-            font-size: 0.8rem;
-            color: var(--accent-cyan);
-            margin-bottom: 1.5rem;
+            border-radius: 50px; font-size: 0.8rem;
+            color: var(--accent-cyan); margin-bottom: 1.5rem;
         }
-
         .hero-title {
-            font-size: 2.75rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+            font-size: 2.75rem; font-weight: 800; margin-bottom: 0.5rem;
             background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
-        .hero-subtitle {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: var(--text-secondary);
-            margin-bottom: 1.5rem;
-        }
-
-        .instructor-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
+        .hero-subtitle { font-size: 1.5rem; font-weight: 300; color: var(--text-secondary); margin-bottom: 1.5rem; }
+        .instructor-info { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
         .instructor-avatar {
-            width: 56px;
-            height: 56px;
-            background: var(--gradient-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 600;
+            width: 56px; height: 56px;
+            background: var(--gradient-purple); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: 600;
         }
-
-        .instructor-details h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .instructor-details p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin: 0;
-        }
-
-        .hero-stats {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
+        .instructor-details h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .instructor-details p { font-size: 0.85rem; color: var(--text-muted); margin: 0; }
+        .hero-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+        .stat-item { display: flex; align-items: center; gap: 0.75rem; }
         .stat-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--bg-primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 44px; height: 44px;
+            background: var(--bg-primary); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
             color: var(--accent-cyan);
         }
+        .stat-value { font-size: 1.25rem; font-weight: 700; }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); }
 
-        .stat-value {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
+        /* ======================== BOOKMARKS ======================== */
+        .bookmarks-section { margin-bottom: 2rem; display: none; }
+        .bookmarks-section.has-bookmarks { display: block; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+        .section-title { display: flex; align-items: center; gap: 0.75rem; font-size: 1.25rem; font-weight: 600; }
+        .section-title i { color: var(--accent-orange); }
 
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* Bookmarks Section */
-        .bookmarks-section {
-            margin-bottom: 2rem;
-            display: none;
-        }
-
-        .bookmarks-section.has-bookmarks {
-            display: block;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1.25rem;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .section-title i {
-            color: var(--accent-orange);
-        }
-
-        /* Content Cards */
+        /* ======================== CONTENT CARDS ======================== */
         .content-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 16px; padding: 1.5rem;
             transition: all 0.3s ease;
-            height: 100%;
-            position: relative;
+            height: 100%; position: relative;
         }
-
-        .content-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent-cyan);
-            box-shadow: var(--glow-cyan);
-        }
-
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
+        .content-card:hover { transform: translateY(-4px); border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+        .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; }
         .card-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.35rem 0.75rem; border-radius: 50px;
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
-
-        .badge-lecture {
-            background: rgba(59, 130, 246, 0.15);
-            color: var(--accent-blue);
-        }
-
-        .badge-quiz {
-            background: rgba(139, 92, 246, 0.15);
-            color: var(--accent-purple);
-        }
-
-        .badge-resource {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--accent-green);
-        }
-
-        .badge-video {
-            background: rgba(236, 72, 153, 0.15);
-            color: var(--accent-pink);
-        }
-
+        .badge-lecture { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .badge-quiz { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .badge-resource { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .badge-video { background: rgba(236, 72, 153, 0.15); color: var(--accent-pink); }
+        .badge-lab { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.35); }
         .bookmark-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 0.25rem;
+            background: none; border: none;
+            color: var(--text-muted); font-size: 1.25rem;
+            cursor: pointer; transition: all 0.2s ease; padding: 0.25rem;
         }
-
-        .bookmark-btn:hover {
-            color: var(--accent-orange);
-            transform: scale(1.1);
-        }
-
-        .bookmark-btn.active {
-            color: var(--accent-orange);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            line-height: 1.4;
-        }
-
-        .card-topics {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 1.25rem 0;
-        }
-
-        .card-topics li {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-            padding: 0.35rem 0;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .card-topics li i {
-            color: var(--accent-cyan);
-            font-size: 0.7rem;
-            margin-top: 0.35rem;
-        }
-
-        .card-materials {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: auto;
-        }
-
+        .bookmark-btn:hover { color: var(--accent-orange); transform: scale(1.1); }
+        .bookmark-btn.active { color: var(--accent-orange); }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.4; }
+        .card-topics { list-style: none; padding: 0; margin: 0 0 1.25rem 0; }
+        .card-topics li { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.35rem 0; font-size: 0.85rem; color: var(--text-secondary); }
+        .card-topics li i { color: var(--accent-cyan); font-size: 0.7rem; margin-top: 0.35rem; }
+        .card-materials { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: auto; }
         .material-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.5rem 0.875rem;
             background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            text-decoration: none;
+            border-radius: 8px; color: var(--text-secondary);
+            font-size: 0.8rem; text-decoration: none;
             transition: all 0.2s ease;
         }
+        .material-btn:hover { background: var(--bg-card-hover); border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .material-btn i { font-size: 0.9rem; }
 
-        .material-btn:hover {
-            background: var(--bg-card-hover);
-            border-color: var(--accent-cyan);
-            color: var(--accent-cyan);
-        }
-
-        .material-btn i {
-            font-size: 0.9rem;
-        }
-
-        /* Week Sections */
-        .week-section {
-            margin-bottom: 3rem;
-        }
-
-        .week-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
+        /* ======================== WEEKS ======================== */
+        .week-section { margin-bottom: 3rem; }
+        .week-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
         .week-number {
-            background: var(--gradient-primary);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            background: var(--gradient-primary); color: white;
+            font-size: 0.75rem; font-weight: 700;
+            padding: 0.5rem 1rem; border-radius: 50px;
+            text-transform: uppercase; letter-spacing: 0.05em;
         }
+        .week-title { font-size: 1.5rem; font-weight: 600; flex: 1; }
 
-        .week-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        /* Video Section */
-        .video-section {
-            margin-bottom: 3rem;
-        }
-
-        .video-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
+        /* ======================== VIDEO SECTION ======================== */
+        .video-section { margin-bottom: 3rem; }
+        .video-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
         .video-tab {
             padding: 0.75rem 1.25rem;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-            font-weight: 500;
+            border-radius: 10px; color: var(--text-secondary);
+            cursor: pointer; transition: all 0.2s ease;
+            font-size: 0.9rem; font-weight: 500;
         }
+        .video-tab:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .video-tab.active { background: var(--gradient-primary); color: white; border-color: transparent; }
+        .video-container { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+        .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-wrapper video, .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .video-info { padding: 1.25rem; border-top: 1px solid var(--border-color); }
+        .video-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .video-meta { display: flex; gap: 1.5rem; font-size: 0.85rem; color: var(--text-muted); }
+        .video-meta span { display: flex; align-items: center; gap: 0.5rem; }
 
-        .video-tab:hover {
-            background: var(--bg-card-hover);
-            color: var(--text-primary);
-        }
-
-        .video-tab.active {
-            background: var(--gradient-primary);
-            color: white;
-            border-color: transparent;
-        }
-
-        .video-container {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        .video-wrapper {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-        }
-
-        .video-wrapper video,
-        .video-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: var(--bg-secondary);
-            color: var(--text-muted);
-        }
-
-        .video-placeholder i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            color: var(--accent-cyan);
-        }
-
-        .video-info {
-            padding: 1.25rem;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .video-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .video-meta {
-            display: flex;
-            gap: 1.5rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .video-meta span {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Quiz Section */
-        .quiz-card {
-            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139, 92, 246, 0.05) 100%);
-            border-color: rgba(139, 92, 246, 0.3);
-        }
-
-        .quiz-card:hover {
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
-        }
-
-        .quiz-info {
-            display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .quiz-stat {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .quiz-stat i {
-            color: var(--accent-purple);
-        }
-
+        /* ======================== QUIZZES ======================== */
+        .quiz-card { background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139, 92, 246, 0.05) 100%); border-color: rgba(139, 92, 246, 0.3); }
+        .quiz-card:hover { border-color: var(--accent-purple); box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
+        .quiz-info { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+        .quiz-stat { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
+        .quiz-stat i { color: var(--accent-purple); }
         .quiz-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            display: inline-flex; align-items: center; gap: 0.5rem;
             padding: 0.75rem 1.5rem;
-            background: var(--gradient-purple);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            background: var(--gradient-purple); border: none;
+            border-radius: 10px; color: white;
+            font-size: 0.9rem; font-weight: 600;
+            text-decoration: none; transition: all 0.3s ease; cursor: pointer;
         }
+        .quiz-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4); color: white; }
 
-        .quiz-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
-            color: white;
-        }
-
-        /* Assessment Section */
-        .assessment-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .assessment-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .assessment-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .assessment-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .assessment-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-
+        /* ======================== ASSESSMENT ======================== */
+        .assessment-section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+        .assessment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        .assessment-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem; }
+        .assessment-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .assessment-title { font-size: 1.1rem; font-weight: 600; }
         .assessment-weight {
-            font-size: 1.75rem;
-            font-weight: 800;
+            font-size: 1.75rem; font-weight: 800;
             background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
         }
+        .assessment-progress { height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; margin-bottom: 1rem; }
+        .assessment-progress-bar { height: 100%; background: var(--gradient-primary); border-radius: 4px; transition: width 0.5s ease; }
+        .assessment-details { font-size: 0.85rem; color: var(--text-muted); }
+        .assessment-details strong { color: var(--text-primary); }
 
-        .assessment-progress {
-            height: 8px;
-            background: var(--bg-primary);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
+        /* ======================== FOOTER ======================== */
+        .footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 2rem; text-align: center; }
+        .footer-brand { display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .footer-brand img { height: 40px; }
+        .footer-text { color: var(--text-muted); font-size: 0.85rem; }
+        .footer-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1rem; }
+        .footer-links a { color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; transition: color 0.2s ease; }
+        .footer-links a:hover { color: var(--accent-cyan); }
 
-        .assessment-progress-bar {
-            height: 100%;
-            background: var(--gradient-primary);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .assessment-details {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-
-        .assessment-details strong {
-            color: var(--text-primary);
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-
-        .footer-brand img {
-            height: 40px;
-        }
-
-        .footer-text {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--accent-cyan);
-        }
-
-        /* Mobile Toggle */
+        /* ======================== MOBILE ======================== */
         .mobile-toggle {
-            display: none;
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 56px;
-            height: 56px;
-            background: var(--gradient-primary);
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            z-index: 1001;
+            display: none; position: fixed; bottom: 1.5rem; right: 1.5rem;
+            width: 56px; height: 56px;
+            background: var(--gradient-primary); border: none; border-radius: 50%;
+            color: white; font-size: 1.5rem; cursor: pointer; z-index: 1001;
             box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
         }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999; }
 
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        /* Responsive */
         @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .mobile-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .overlay.active {
-                display: block;
-            }
-
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.25rem;
-            }
-
-            .hero-stats {
-                gap: 1rem;
-            }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+            .overlay.active { display: block; }
+            .hero-title { font-size: 2rem; }
+            .hero-subtitle { font-size: 1.25rem; }
+            .hero-stats { gap: 1rem; }
         }
-
         @media (max-width: 768px) {
-            .page-content {
-                padding: 1rem;
-            }
-
-            .hero-section {
-                padding: 1.5rem;
-            }
-
-            .hero-title {
-                font-size: 1.75rem;
-            }
-
-            .hero-stats {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .top-bar {
-                padding: 1rem;
-            }
-
-            .search-container {
-                max-width: 100%;
-            }
+            .page-content { padding: 1rem; }
+            .hero-section { padding: 1.5rem; }
+            .hero-title { font-size: 1.75rem; }
+            .hero-stats { flex-direction: column; gap: 1rem; }
+            .top-bar { padding: 1rem; }
+            .search-container { max-width: 100%; }
         }
 
         /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-in {
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        /* Highlight for search */
-        .highlight {
-            background: rgba(6, 182, 212, 0.3);
-            padding: 0 2px;
-            border-radius: 2px;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-in { animation: fadeIn 0.4s ease forwards; }
+        .highlight { background: rgba(6, 182, 212, 0.3); padding: 0 2px; border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -951,13 +400,11 @@
     </button>
 
     <div class="main-wrapper">
-        <!-- Sidebar -->
+        <!-- ==================== SIDEBAR ==================== -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="#" class="sidebar-brand">
-                    <div class="logo-icon">
-                        <i class="bi bi-database"></i>
-                    </div>
+                    <div class="logo-icon"><i class="bi bi-database"></i></div>
                     <span>Big Data Management</span>
                 </a>
             </div>
@@ -969,70 +416,49 @@
                     <span class="badge bg-warning text-dark ms-auto" id="bookmarkCount">0</span>
                 </a>
                 <a href="#hero" class="nav-link active">
-                    <i class="bi bi-house"></i>
-                    Overview
+                    <i class="bi bi-house"></i> Overview
                 </a>
                 <a href="#videos" class="nav-link">
-                    <i class="bi bi-play-circle"></i>
-                    Video Lectures
+                    <i class="bi bi-play-circle"></i> Video Lectures
                 </a>
 
                 <div class="nav-section-title">Course Content</div>
                 <a href="#week1" class="nav-link">
-                    <i class="bi bi-1-circle"></i>
-                    Week 1 - Foundations
+                    <i class="bi bi-1-circle"></i> Week 1 — Foundations
                 </a>
                 <a href="#week2" class="nav-link">
-                    <i class="bi bi-2-circle"></i>
-                    Week 2 - Ontologies
+                    <i class="bi bi-2-circle"></i> Week 2 — Ontologies
                 </a>
                 <a href="#week3" class="nav-link">
-                    <i class="bi bi-3-circle"></i>
-                    Week 3 - Advanced OWL
+                    <i class="bi bi-3-circle"></i> Week 3 — Advanced OWL
                 </a>
 
-                <div class="nav-section-title">Practice & Test</div>
+                <div class="nav-section-title">Practice</div>
                 <a href="#quizzes" class="nav-link">
-                    <i class="bi bi-patch-question"></i>
-                    Quizzes
+                    <i class="bi bi-patch-question"></i> Quizzes
                 </a>
                 <a href="#assessment" class="nav-link">
-                    <i class="bi bi-clipboard-data"></i>
-                    Assessment Info
+                    <i class="bi bi-clipboard-data"></i> Assessment Info
                 </a>
 
                 <div class="nav-section-title">Resources</div>
-                <a href="notes/Week 1 (2)Notes.pdf" class="nav-link" target="_blank" rel="noopener">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Week 1 Notes
+                <a href="#notes" class="nav-link">
+                    <i class="bi bi-file-earmark-text"></i> Weekly Notes
                 </a>
-                <a href="notes/Week 2(1) Notes.pdf" class="nav-link" target="_blank" rel="noopener">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Week 2 Notes
-                </a>
-                <a href="notes/Week 3(2) Notes.pdf" class="nav-link" target="_blank" rel="noopener">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Week 3 Notes
-                </a>
-                <a href="#" class="nav-link" onclick="alert('Coming soon!')">
-                    <i class="bi bi-file-earmark-pdf"></i>
-                    All PDFs
-                </a>
-                <a href="#" class="nav-link" onclick="alert('Coming soon!')">
-                    <i class="bi bi-journal-code"></i>
-                    Revision Notes
+                <a href="#resources" class="nav-link">
+                    <i class="bi bi-folder2-open"></i> Guides & Tools
                 </a>
             </nav>
         </aside>
 
-        <!-- Main Content -->
+        <!-- ==================== MAIN CONTENT ==================== -->
         <main class="main-content">
             <!-- Top Bar with Search -->
             <div class="top-bar">
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="search-container flex-grow-1">
                         <i class="bi bi-search search-icon"></i>
-                        <input type="text" class="search-input" id="searchInput" placeholder="Search lectures, topics, quizzes...">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search lectures, labs, notes, quizzes...">
                         <div class="search-results" id="searchResults"></div>
                     </div>
                     <div class="d-flex align-items-center gap-3 ms-3">
@@ -1043,75 +469,65 @@
 
             <!-- Page Content -->
             <div class="page-content">
-                <!-- Hero Section -->
+
+                <!-- ==================== HERO ==================== -->
                 <section class="hero-section animate-in" id="hero">
                     <div class="hero-badge">
                         <i class="bi bi-mortarboard"></i>
-                        Heriot-Watt University
+                        Heriot-Watt University Dubai
                     </div>
                     <h1 class="hero-title">Semantic Web & Knowledge Graphs</h1>
-                    <p class="hero-subtitle">Big Data Management</p>
-                    
+                    <p class="hero-subtitle">Big Data Management — 2025–26 Course Hub</p>
                     <div class="instructor-info">
-                        <div class="instructor-avatar">RM</div>
-                        <!-- <div class="instructor-details">
-                            <h4>Dr. Radu Mihailescu</h4>
-                            <p>Associate Professor | Programme Director MSc AI</p>
-                        </div> -->
+                        <div class="instructor-avatar">BD</div>
+                        <div class="instructor-details">
+                            <h4>Materials organised by week</h4>
+                            <p>Lectures • Labs • Notes • Quizzes • Guides</p>
+                        </div>
                     </div>
-
                     <div class="hero-stats">
                         <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-calendar-week"></i>
-                            </div>
+                            <div class="stat-icon"><i class="bi bi-calendar-week"></i></div>
                             <div>
                                 <div class="stat-value">3</div>
                                 <div class="stat-label">Weeks</div>
                             </div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-play-btn"></i>
-                            </div>
+                            <div class="stat-icon"><i class="bi bi-easel2"></i></div>
                             <div>
                                 <div class="stat-value">6</div>
                                 <div class="stat-label">Lectures</div>
                             </div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-patch-question"></i>
+                            <div class="stat-icon"><i class="bi bi-terminal"></i></div>
+                            <div>
+                                <div class="stat-value">3</div>
+                                <div class="stat-label">Labs</div>
                             </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon"><i class="bi bi-patch-question"></i></div>
                             <div>
                                 <div class="stat-value">5</div>
                                 <div class="stat-label">Quizzes</div>
                             </div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">
-                                <i class="bi bi-file-earmark-pdf"></i>
-                            </div>
-                            <div>
-                                <div class="stat-value">8+</div>
-                                <div class="stat-label">Resources</div>
-                            </div>
-                        </div>
                     </div>
                 </section>
 
-                <!-- Bookmarks Section -->
+                <!-- ==================== BOOKMARKS ==================== -->
                 <section class="bookmarks-section" id="bookmarks">
                     <div class="section-header">
                         <h2 class="section-title">
-                            <i class="bi bi-bookmark-star-fill"></i>
-                            Your Bookmarks
+                            <i class="bi bi-bookmark-star-fill"></i> Your Bookmarks
                         </h2>
                     </div>
                     <div class="row g-4" id="bookmarksContainer"></div>
                 </section>
 
-                <!-- Video Section -->
+                <!-- ==================== VIDEO LECTURES ==================== -->
                 <section class="video-section" id="videos">
                     <div class="section-header">
                         <h2 class="section-title">
@@ -1119,32 +535,27 @@
                             Video Lectures
                         </h2>
                     </div>
-                    
                     <div class="video-tabs">
                         <button class="video-tab active" data-week="1">Week 1</button>
                         <button class="video-tab" data-week="2">Week 2</button>
                         <button class="video-tab" data-week="3">Week 3</button>
                     </div>
-
                     <div class="video-container">
                         <div class="video-wrapper" id="videoWrapper">
-                            <!-- Week 1 Video -->
                             <div class="video-content" data-week="1">
-                                <video controls>
+                                <video controls preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;">
                                     <source src="videos/What_is_the_Semantic_Web_%20(1)%20(1).mp4" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
                             </div>
-                            <!-- Week 2 Placeholder -->
                             <div class="video-content" data-week="2" style="display: none;">
-                                <video controls>
+                                <video controls preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;">
                                     <source src="videos/Data_to_Meaning__Ontologies.mp4" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
                             </div>
-                            <!-- Week 3 Placeholder -->
                             <div class="video-content" data-week="3" style="display: none;">
-                                <video controls>
+                                <video controls preload="metadata" style="width:100%; height:100%; object-fit:contain; background:#000;">
                                     <source src="videos/The_Logic_of_the_Web__OWL (1).mp4" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
@@ -1153,44 +564,50 @@
                         <div class="video-info">
                             <h3 class="video-title" id="videoTitle">Week 1 — Web Semantics</h3>
                             <div class="video-meta">
-                                <span><i class="bi bi-clock"></i> ~45 min</span>
-                                <span><i class="bi bi-eye"></i> Introduction to Semantic Web</span>
+                                <span id="videoMetaDuration"><i class="bi bi-clock"></i> ~45 min</span>
+                                <span id="videoMetaTopic"><i class="bi bi-eye"></i> Introduction to Semantic Web</span>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Week 1 Content -->
+                <!-- ==================== WEEK 1 ==================== -->
                 <section class="week-section" id="week1">
                     <div class="week-header">
                         <span class="week-number">Week 1</span>
-                        <h2 class="week-title">Foundations of Semantic Web</h2>
+                        <h2 class="week-title">Introduction, Knowledge Graphs, Semantic Web Technologies</h2>
                     </div>
-
                     <div class="card-materials mb-4">
                         <a href="notes/Week 1 (2)Notes.pdf" class="material-btn" target="_blank" rel="noopener">
                             <i class="bi bi-file-earmark-text"></i> Week 1 Notes (PDF)
                         </a>
+                        <a href="lectures/W1_L11_introduction.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L11 — Introduction (PDF)
+                        </a>
+                        <a href="lectures/W1_L12_knowledge_graph.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L12 — Knowledge Graphs (PDF)
+                        </a>
+                        <a href="lectures/W1_L13_sw_technologies.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L13 — SW Technologies (PDF)
+                        </a>
+                        <a href="#videos" class="material-btn">
+                            <i class="bi bi-play-btn"></i> Week 1 Video
+                        </a>
                     </div>
-
-                    
                     <div class="row g-4">
-                        <!-- Lecture 1 -->
+                        <!-- L11 Introduction -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="introduction big data management course overview structure information knowledge characteristics 5 vs data science process analytics">
+                            <div class="content-card" data-search="introduction big data management course overview structure information knowledge characteristics 5 vs data science process analytics W1_L11">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-1" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Introduction to Big Data Management</h3>
+                                <h3 class="card-title">L11 — Introduction to Big Data Management</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> Course Overview & Structure</li>
                                     <li><i class="bi bi-chevron-right"></i> Data, Information & Knowledge</li>
                                     <li><i class="bi bi-chevron-right"></i> Big Data Characteristics (5 V's)</li>
-                                    <li><i class="bi bi-chevron-right"></i> Data Science Process</li>
-                                    <li><i class="bi bi-chevron-right"></i> Big Data Analytics & Management</li>
+                                    <li><i class="bi bi-chevron-right"></i> Data Science Process & Analytics</li>
                                 </ul>
                                 <div class="card-materials">
                                     <a href="lectures/W1_L11_introduction.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lecture PDF</a>
@@ -1198,44 +615,37 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Lecture 2 -->
+                        <!-- L12 Knowledge Graphs -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="knowledge graphs web documents data semantic concepts structure linked open data lod 5 star deployment applications">
+                            <div class="content-card" data-search="knowledge graphs web documents data semantic concepts structure linked open data lod 5 star deployment W1_L12">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-2" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-2" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Knowledge Graphs</h3>
+                                <h3 class="card-title">L12 — Knowledge Graphs</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> Web of Documents → Web of Data</li>
                                     <li><i class="bi bi-chevron-right"></i> Semantic Web Concepts</li>
                                     <li><i class="bi bi-chevron-right"></i> Knowledge Graph Structure</li>
-                                    <li><i class="bi bi-chevron-right"></i> Linked Open Data (LOD)</li>
-                                    <li><i class="bi bi-chevron-right"></i> 5-Star Deployment Scheme</li>
+                                    <li><i class="bi bi-chevron-right"></i> Linked Open Data (LOD) & 5-Star Scheme</li>
                                 </ul>
                                 <div class="card-materials">
                                     <a href="lectures/W1_L12_knowledge_graph.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lecture PDF</a>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Lecture 3 -->
+                        <!-- L13 Semantic Web Technologies -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="semantic web technologies technology stack rdf framework triples serialization formats xml turtle json-ld namespaces iris open closed world assumption visualization tools">
+                            <div class="content-card" data-search="semantic web technologies stack rdf framework triples serialization formats xml turtle json-ld namespaces iris open closed world assumption W1_L13">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-3" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-3" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Semantic Web Technologies</h3>
+                                <h3 class="card-title">L13 — Semantic Web Technologies</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> Semantic Web Technology Stack</li>
                                     <li><i class="bi bi-chevron-right"></i> RDF Framework & Triples</li>
-                                    <li><i class="bi bi-chevron-right"></i> Serialization Formats (XML, Turtle, JSON-LD)</li>
+                                    <li><i class="bi bi-chevron-right"></i> Serialization (XML, Turtle, JSON-LD)</li>
                                     <li><i class="bi bi-chevron-right"></i> Namespaces & IRIs</li>
                                     <li><i class="bi bi-chevron-right"></i> Open vs Closed World Assumption</li>
                                 </ul>
@@ -1245,20 +655,36 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Week 1 Interactive Quiz -->
+                        <!-- Lab 1 — Knowledge Graph Lab -->
                         <div class="col-lg-6">
-                            <div class="content-card quiz-card" data-search="Week 1 Interactive Quiz ">
+                            <div class="content-card" data-search="lab 1 knowledge graph lab practical hands-on Lab1_KnowledgeGraphLab">
+                                <div class="card-header">
+                                    <span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
+                                    <button class="bookmark-btn" data-id="lab-1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Lab 1 — Knowledge Graph Lab</h3>
+                                <ul class="card-topics">
+                                    <li><i class="bi bi-chevron-right"></i> Hands-on knowledge graph construction</li>
+                                    <li><i class="bi bi-chevron-right"></i> RDF triple creation & exploration</li>
+                                    <li><i class="bi bi-chevron-right"></i> Practical exercises from Week 1 lectures</li>
+                                </ul>
+                                <div class="card-materials">
+                                    <a href="lectures/Lab1_KnowledgeGraphLab.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lab PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Week 1 Quiz -->
+                        <div class="col-lg-6">
+                            <div class="content-card quiz-card" data-search="week 1 interactive quiz foundations semantic web rdf">
                                 <div class="card-header">
                                     <span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-                                    <button class="bookmark-btn" data-id="quiz-owl" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="quiz-w1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Week 1 Interactive Quiz </h3>
+                                <h3 class="card-title">Week 1 Interactive Quiz</h3>
                                 <div class="quiz-info">
                                     <span class="quiz-stat"><i class="bi bi-clock"></i> ~60 min</span>
                                     <span class="quiz-stat"><i class="bi bi-list-check"></i> Interactive</span>
-                                    <span class="quiz-stat"><i class="bi bi-bar-chart"></i> Medium to Hard</span>
+                                    <span class="quiz-stat"><i class="bi bi-bar-chart"></i> Medium–Hard</span>
                                 </div>
                                 <a href="quizzes/bdm-quiz (1).html" class="quiz-btn">
                                     <i class="bi bi-play-fill"></i> Start Quiz
@@ -1268,31 +694,35 @@
                     </div>
                 </section>
 
-                <!-- Week 2 Content -->
+                <!-- ==================== WEEK 2 ==================== -->
                 <section class="week-section" id="week2">
                     <div class="week-header">
                         <span class="week-number">Week 2</span>
-                        <h2 class="week-title">Knowledge Representation & Ontologies</h2>
+                        <h2 class="week-title">Knowledge Representation (RDF/RDFS/SKOS) & Basic OWL</h2>
                     </div>
-
                     <div class="card-materials mb-4">
                         <a href="notes/Week 2(1) Notes.pdf" class="material-btn" target="_blank" rel="noopener">
                             <i class="bi bi-file-earmark-text"></i> Week 2 Notes (PDF)
                         </a>
+                        <a href="lectures/W2_L21_knowledge_representation.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L21 — Knowledge Rep. (PDF)
+                        </a>
+                        <a href="lectures/W2_L22-intro_OWL.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L22 — Intro OWL (PDF)
+                        </a>
+                        <a href="#videos" class="material-btn">
+                            <i class="bi bi-play-btn"></i> Week 2 Video
+                        </a>
                     </div>
-
-                    
                     <div class="row g-4">
-                        <!-- Lecture 4 -->
+                        <!-- L21 Knowledge Representation -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="rdf schema rdfs skos triple structure vocabularies classes properties domain range taxonomies thesauri inference reasoning linked open vocabularies">
+                            <div class="content-card" data-search="rdf schema rdfs skos triple structure vocabularies classes properties domain range taxonomies thesauri inference reasoning linked open vocabularies W2_L21">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-4" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-4" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">RDF Schema & SKOS</h3>
+                                <h3 class="card-title">L21 — RDF Schema & SKOS</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> RDF Triple Structure Deep Dive</li>
                                     <li><i class="bi bi-chevron-right"></i> RDF Schema (RDFS) Vocabularies</li>
@@ -1307,17 +737,14 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Lecture 5 -->
+                        <!-- L22 Intro OWL -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="owl web ontology language ontology definition purpose tbox abox terminology assertions classes properties individuals reasoning tasks inference protege editor">
+                            <div class="content-card" data-search="owl web ontology language ontology definition purpose tbox abox terminology assertions classes properties individuals reasoning protege W2_L22">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-5" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-5" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Introduction to OWL</h3>
+                                <h3 class="card-title">L22 — Introduction to OWL</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> Ontology Definition & Purpose</li>
                                     <li><i class="bi bi-chevron-right"></i> OWL (Web Ontology Language)</li>
@@ -1331,34 +758,53 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Lab 2 — Basic OWL -->
+                        <div class="col-lg-6">
+                            <div class="content-card" data-search="lab 2 basic owl ontology protege practical hands-on Lab2_basicOWL">
+                                <div class="card-header">
+                                    <span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
+                                    <button class="bookmark-btn" data-id="lab-2" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Lab 2 — Basic OWL</h3>
+                                <ul class="card-topics">
+                                    <li><i class="bi bi-chevron-right"></i> Building ontologies in Protégé</li>
+                                    <li><i class="bi bi-chevron-right"></i> Defining classes, properties & individuals</li>
+                                    <li><i class="bi bi-chevron-right"></i> Running a reasoner</li>
+                                </ul>
+                                <div class="card-materials">
+                                    <a href="lectures/Lab2_basicOWL.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lab PDF</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Week 3 Content -->
+                <!-- ==================== WEEK 3 ==================== -->
                 <section class="week-section" id="week3">
                     <div class="week-header">
                         <span class="week-number">Week 3</span>
                         <h2 class="week-title">Advanced OWL</h2>
                     </div>
-
                     <div class="card-materials mb-4">
                         <a href="notes/Week 3(2) Notes.pdf" class="material-btn" target="_blank" rel="noopener">
                             <i class="bi bi-file-earmark-text"></i> Week 3 Notes (PDF)
                         </a>
+                        <a href="lectures/W3_L31_Advanced_owl_my.pdf" class="material-btn" target="_blank" rel="noopener">
+                            <i class="bi bi-file-earmark-pdf"></i> L31 — Advanced OWL (PDF)
+                        </a>
+                        <a href="#videos" class="material-btn">
+                            <i class="bi bi-play-btn"></i> Week 3 Video
+                        </a>
                     </div>
-
-                    
                     <div class="row g-4">
-                        <!-- Lecture 6 -->
+                        <!-- L31 Advanced OWL -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="advanced owl property restrictions cardinality existential universal qualified class descriptions complex ontologies reasoning inference patterns">
+                            <div class="content-card" data-search="advanced owl property restrictions cardinality existential universal qualified class descriptions complex ontologies reasoning inference W3_L31">
                                 <div class="card-header">
-                                    <span class="card-badge badge-lecture"><i class="bi bi-book"></i> Lecture</span>
-                                    <button class="bookmark-btn" data-id="lecture-6" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <span class="card-badge badge-lecture"><i class="bi bi-easel2"></i> Lecture</span>
+                                    <button class="bookmark-btn" data-id="lecture-6" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
-                                <h3 class="card-title">Advanced OWL</h3>
+                                <h3 class="card-title">L31 — Advanced OWL</h3>
                                 <ul class="card-topics">
                                     <li><i class="bi bi-chevron-right"></i> Property Restrictions</li>
                                     <li><i class="bi bi-chevron-right"></i> Cardinality Constraints</li>
@@ -1367,19 +813,34 @@
                                     <li><i class="bi bi-chevron-right"></i> Complex Class Descriptions</li>
                                 </ul>
                                 <div class="card-materials">
-                                    <a href="lectures/W3_L31_Advanced_owl_my.pdf" class="material-btn"><i class="bi bi-file-earmark-slides"></i> Lecture PPTX</a>
+                                    <a href="lectures/W3_L31_Advanced_owl_my.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lecture PDF</a>
                                 </div>
                             </div>
                         </div>
-
+                        <!-- Lab 3 — Advanced OWL -->
+                        <div class="col-lg-6">
+                            <div class="content-card" data-search="lab 3 advanced owl restrictions cardinality practical hands-on Lab3-advancedOWL">
+                                <div class="card-header">
+                                    <span class="card-badge badge-lab"><i class="bi bi-terminal"></i> Lab</span>
+                                    <button class="bookmark-btn" data-id="lab-3" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Lab 3 — Advanced OWL</h3>
+                                <ul class="card-topics">
+                                    <li><i class="bi bi-chevron-right"></i> Property restrictions in Protégé</li>
+                                    <li><i class="bi bi-chevron-right"></i> Cardinality & quantification exercises</li>
+                                    <li><i class="bi bi-chevron-right"></i> Complex ontology modelling</li>
+                                </ul>
+                                <div class="card-materials">
+                                    <a href="lectures/Lab3-advancedOWL.pdf" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Lab PDF</a>
+                                </div>
+                            </div>
+                        </div>
                         <!-- OWL Quiz -->
                         <div class="col-lg-6">
-                            <div class="content-card quiz-card" data-search="owl quiz advanced ontology practice test property restrictions">
+                            <div class="content-card quiz-card" data-search="owl quiz advanced ontology practice test property restrictions week 3">
                                 <div class="card-header">
                                     <span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-                                    <button class="bookmark-btn" data-id="quiz-owl" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="quiz-owl" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
                                 <h3 class="card-title">Advanced OWL Quiz</h3>
                                 <div class="quiz-info">
@@ -1395,27 +856,68 @@
                     </div>
                 </section>
 
-                <!-- Quiz Section -->
+                <!-- ==================== WEEKLY NOTES ==================== -->
+                <section class="week-section" id="notes">
+                    <div class="week-header">
+                        <span class="week-number" style="background: var(--gradient-purple);">Notes</span>
+                        <h2 class="week-title">Weekly Notes</h2>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="week 1 notes pdf semantic web">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
+                                    <button class="bookmark-btn" data-id="notes-w1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Week 1 Notes</h3>
+                                <div class="card-materials">
+                                    <a href="notes/Week 1 (2)Notes.pdf" class="material-btn" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="week 2 notes pdf ontologies rdfs owl">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
+                                    <button class="bookmark-btn" data-id="notes-w2" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Week 2 Notes</h3>
+                                <div class="card-materials">
+                                    <a href="notes/Week 2(1) Notes.pdf" class="material-btn" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="week 3 notes pdf advanced owl">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-file-earmark-text"></i> Notes</span>
+                                    <button class="bookmark-btn" data-id="notes-w3" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">Week 3 Notes</h3>
+                                <div class="card-materials">
+                                    <a href="notes/Week 3(2) Notes.pdf" class="material-btn" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf"></i> Open PDF</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== QUIZZES ==================== -->
                 <section class="week-section" id="quizzes">
                     <div class="week-header">
                         <span class="week-number" style="background: var(--gradient-purple);">Practice</span>
-                        <h2 class="week-title">Quizzes & Practice Resources</h2>
+                        <h2 class="week-title">Quizzes & Practice</h2>
                     </div>
-                    
                     <div class="alert" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
                         <i class="bi bi-info-circle me-2" style="color: var(--accent-cyan);"></i>
-                        <span style="color: var(--text-secondary);">These quizzes cover content from Weeks 1, and 2. Use them to test your understanding of all Semantic Web topics.</span>
+                        <span style="color: var(--text-secondary);">These quizzes cover content from Weeks 1–3. Use them to test your understanding of all Semantic Web topics.</span>
                     </div>
-                    
                     <div class="row g-4">
-                        <!-- Quiz 1 -->
                         <div class="col-lg-6">
                             <div class="content-card quiz-card" data-search="semantic web mastery quiz practice test knowledge">
                                 <div class="card-header">
                                     <span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-                                    <button class="bookmark-btn" data-id="quiz-1" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="quiz-1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
                                 <h3 class="card-title">Semantic Web Mastery Quiz</h3>
                                 <div class="quiz-info">
@@ -1428,15 +930,11 @@
                                 </a>
                             </div>
                         </div>
-
-                        <!-- Quiz 2 -->
                         <div class="col-lg-6">
                             <div class="content-card quiz-card" data-search="ultimate quiz comprehensive test all topics">
                                 <div class="card-header">
                                     <span class="card-badge badge-quiz"><i class="bi bi-patch-question"></i> Quiz</span>
-                                    <button class="bookmark-btn" data-id="quiz-2" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="quiz-2" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
                                 <h3 class="card-title">Ultimate Quiz</h3>
                                 <div class="quiz-info">
@@ -1449,15 +947,11 @@
                                 </a>
                             </div>
                         </div>
-
-                        <!-- Practice 1 -->
                         <div class="col-lg-6">
-                            <div class="content-card" data-search="interactive exam practice exercises hands-on">
+                            <div class="content-card" data-search="interactive exam practice exercises hands-on sparql rdf ontology">
                                 <div class="card-header">
                                     <span class="card-badge badge-resource"><i class="bi bi-lightning"></i> Practice</span>
-                                    <button class="bookmark-btn" data-id="practice-1" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="practice-1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
                                 <h3 class="card-title">Interactive Exam Practice</h3>
                                 <ul class="card-topics">
@@ -1470,15 +964,11 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Revision Notes -->
                         <div class="col-lg-6">
                             <div class="content-card" data-search="revision notes summary study guide exam preparation">
                                 <div class="card-header">
                                     <span class="card-badge badge-resource"><i class="bi bi-journal-text"></i> Resource</span>
-                                    <button class="bookmark-btn" data-id="revision-1" title="Bookmark this">
-                                        <i class="bi bi-bookmark"></i>
-                                    </button>
+                                    <button class="bookmark-btn" data-id="revision-1" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
                                 </div>
                                 <h3 class="card-title">Revision Notes</h3>
                                 <ul class="card-topics">
@@ -1487,14 +977,86 @@
                                     <li><i class="bi bi-chevron-right"></i> Quick reference diagrams</li>
                                 </ul>
                                 <div class="card-materials">
-                                    <a href="revision/revision_notes.html" class="material-btn"><i class="bi bi-file-earmark-pdf"></i> Download PDF</a>
+                                    <a href="revision/revision_notes.html" class="material-btn"><i class="bi bi-file-earmark-text"></i> Open Revision Notes</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- Assessment Section -->
+                <!-- ==================== GUIDES & TOOLS ==================== -->
+                <section class="week-section" id="resources">
+                    <div class="section-header">
+                        <h2 class="section-title">
+                            <i class="bi bi-folder2-open" style="color: var(--accent-green);"></i>
+                            Guides & Tools
+                        </h2>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="rdf explanation guide resource description framework triples turtle">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-journal-code"></i> Guide</span>
+                                    <button class="bookmark-btn" data-id="guide-rdf" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">RDF Explained</h3>
+                                <div class="card-materials">
+                                    <a href="explanations/rdf_explanation.html" class="material-btn"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="rdfs explanation guide rdf schema classes properties">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-journal-code"></i> Guide</span>
+                                    <button class="bookmark-btn" data-id="guide-rdfs" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">RDFS Explained</h3>
+                                <div class="card-materials">
+                                    <a href="explanations/rdfs_explanation.html" class="material-btn"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="skos explanation guide taxonomies thesauri concepts">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-journal-code"></i> Guide</span>
+                                    <button class="bookmark-btn" data-id="guide-skos" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">SKOS Explained</h3>
+                                <div class="card-materials">
+                                    <a href="explanations/skos_explanation.html" class="material-btn"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="owl explanation guide web ontology language classes properties">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-journal-code"></i> Guide</span>
+                                    <button class="bookmark-btn" data-id="guide-owl" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">OWL Explained</h3>
+                                <div class="card-materials">
+                                    <a href="explanations/owl_explanation.html" class="material-btn"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="content-card" data-search="knowledge graph example interactive visualisation">
+                                <div class="card-header">
+                                    <span class="card-badge badge-resource"><i class="bi bi-lightning"></i> Interactive</span>
+                                    <button class="bookmark-btn" data-id="example-kg" title="Bookmark this"><i class="bi bi-bookmark"></i></button>
+                                </div>
+                                <h3 class="card-title">KG Interactive Example</h3>
+                                <div class="card-materials">
+                                    <a href="examples/knowledge_graph_example.html" class="material-btn"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== ASSESSMENT ==================== -->
                 <section class="assessment-section" id="assessment">
                     <div class="section-header">
                         <h2 class="section-title">
@@ -1502,7 +1064,6 @@
                             Course Assessment
                         </h2>
                     </div>
-                    
                     <div class="assessment-grid">
                         <div class="assessment-card">
                             <div class="assessment-header">
@@ -1513,11 +1074,10 @@
                                 <div class="assessment-progress-bar" style="width: 20%;"></div>
                             </div>
                             <div class="assessment-details">
-                                <p><strong>Week 7</strong> — Covers Weeks 1-4</p>
+                                <p><strong>Week 7</strong> — Covers Weeks 1–4</p>
                                 <p>Topics: Ontologies, OWL, SPARQL Queries, RDF/RDFS, Data Integration</p>
                             </div>
                         </div>
-
                         <div class="assessment-card">
                             <div class="assessment-header">
                                 <h3 class="assessment-title">Final Exam</h3>
@@ -1541,7 +1101,7 @@
                     <i class="bi bi-mortarboard" style="font-size: 1.5rem; color: var(--accent-cyan);"></i>
                     <span style="font-weight: 600;">Heriot-Watt University</span>
                 </div>
-                <p class="footer-text">MSc Artificial Intelligence</p>
+                <p class="footer-text">Big Data Management • 2025–26</p>
                 <div class="footer-links">
                     <a href="#">University Portal</a>
                     <a href="#">Canvas</a>
@@ -1554,7 +1114,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // ============================================
         // MOBILE SIDEBAR TOGGLE
@@ -1580,17 +1140,20 @@
         // ============================================
         // SMOOTH SCROLL & ACTIVE NAV HIGHLIGHTING
         // ============================================
-        document.querySelectorAll('.nav-link[href^="#"]').forEach(link => {
+        document.querySelectorAll('.nav-link[href^="#"]:not([href="#"])').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 const targetId = link.getAttribute('href');
                 const target = document.querySelector(targetId);
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // Close mobile sidebar
-                    sidebar.classList.remove('active');
-                    overlay.classList.remove('active');
                 }
+                // Close mobile sidebar
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                icon.classList.add('bi-list');
+                icon.classList.remove('bi-x');
                 // Update active state
                 document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
@@ -1603,40 +1166,36 @@
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
 
-        // Search data from all content
         const searchableItems = [];
         document.querySelectorAll('.content-card').forEach((card, index) => {
             const title = card.querySelector('.card-title')?.textContent || '';
             const searchData = card.getAttribute('data-search') || '';
             const topics = Array.from(card.querySelectorAll('.card-topics li')).map(li => li.textContent).join(' ');
             const badge = card.querySelector('.card-badge')?.textContent || '';
-            
+
             searchableItems.push({
                 id: index,
                 title: title,
                 keywords: `${title} ${searchData} ${topics}`.toLowerCase(),
-                type: badge.includes('Quiz') ? 'quiz' : badge.includes('Lecture') ? 'lecture' : 'resource',
+                type: badge.includes('Quiz') ? 'quiz' : badge.includes('Lecture') ? 'lecture' : badge.includes('Lab') ? 'lab' : 'resource',
                 element: card
             });
         });
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            
-            if (query.length < 2) {
-                searchResults.classList.remove('active');
-                return;
-            }
+            if (query.length < 2) { searchResults.classList.remove('active'); return; }
 
             const matches = searchableItems.filter(item => item.keywords.includes(query));
-            
             if (matches.length > 0) {
                 searchResults.innerHTML = matches.map(item => `
                     <div class="search-result-item" data-id="${item.id}">
-                        <span class="badge ${item.type === 'quiz' ? 'bg-purple' : item.type === 'lecture' ? 'bg-primary' : 'bg-success'}" 
-                              style="background: ${item.type === 'quiz' ? 'var(--accent-purple)' : item.type === 'lecture' ? 'var(--accent-blue)' : 'var(--accent-green)'} !important;">
-                            ${item.type}
-                        </span>
+                        <span class="badge" style="background: ${
+                            item.type === 'quiz' ? 'var(--accent-purple)' :
+                            item.type === 'lecture' ? 'var(--accent-blue)' :
+                            item.type === 'lab' ? 'var(--accent-green)' :
+                            'var(--accent-green)'
+                        } !important;">${item.type}</span>
                         <span>${item.title}</span>
                     </div>
                 `).join('');
@@ -1647,7 +1206,6 @@
             }
         });
 
-        // Click on search result
         searchResults.addEventListener('click', (e) => {
             const item = e.target.closest('.search-result-item');
             if (item && item.dataset.id !== undefined) {
@@ -1655,20 +1213,15 @@
                 if (match && match.element) {
                     match.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     match.element.style.boxShadow = '0 0 0 3px var(--accent-cyan)';
-                    setTimeout(() => {
-                        match.element.style.boxShadow = '';
-                    }, 2000);
+                    setTimeout(() => { match.element.style.boxShadow = ''; }, 2000);
                 }
                 searchResults.classList.remove('active');
                 searchInput.value = '';
             }
         });
 
-        // Close search results when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container')) {
-                searchResults.classList.remove('active');
-            }
+            if (!e.target.closest('.search-container')) { searchResults.classList.remove('active'); }
         });
 
         // ============================================
@@ -1676,17 +1229,8 @@
         // ============================================
         const BOOKMARKS_KEY = 'semantic-web-bookmarks';
 
-        function getBookmarks() {
-            try {
-                return JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
-            } catch {
-                return [];
-            }
-        }
-
-        function saveBookmarks(bookmarks) {
-            localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
-        }
+        function getBookmarks() { try { return JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || []; } catch { return []; } }
+        function saveBookmarks(bookmarks) { localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks)); }
 
         function updateBookmarkUI() {
             const bookmarks = getBookmarks();
@@ -1695,7 +1239,6 @@
             const bookmarksNavLink = document.getElementById('bookmarksNavLink');
             const bookmarkCount = document.getElementById('bookmarkCount');
 
-            // Update bookmark buttons
             document.querySelectorAll('.bookmark-btn').forEach(btn => {
                 const id = btn.dataset.id;
                 const icon = btn.querySelector('i');
@@ -1710,13 +1253,10 @@
                 }
             });
 
-            // Update bookmarks section visibility
             if (bookmarks.length > 0) {
                 bookmarksSection.classList.add('has-bookmarks');
                 bookmarksNavLink.style.display = 'flex';
                 bookmarkCount.textContent = bookmarks.length;
-
-                // Populate bookmarks
                 bookmarksContainer.innerHTML = '';
                 bookmarks.forEach(id => {
                     const originalBtn = document.querySelector(`.bookmark-btn[data-id="${id}"]`);
@@ -1728,8 +1268,6 @@
                             wrapper.className = 'col-lg-6';
                             wrapper.appendChild(clone);
                             bookmarksContainer.appendChild(wrapper);
-                            
-                            // Re-attach event listener to cloned bookmark button
                             const clonedBtn = clone.querySelector('.bookmark-btn');
                             clonedBtn.addEventListener('click', () => toggleBookmark(id));
                         }
@@ -1744,64 +1282,61 @@
         function toggleBookmark(id) {
             const bookmarks = getBookmarks();
             const index = bookmarks.indexOf(id);
-            
-            if (index > -1) {
-                bookmarks.splice(index, 1);
-            } else {
-                bookmarks.push(id);
-            }
-            
+            if (index > -1) { bookmarks.splice(index, 1); } else { bookmarks.push(id); }
             saveBookmarks(bookmarks);
             updateBookmarkUI();
         }
 
-        // Attach event listeners to bookmark buttons
         document.querySelectorAll('.bookmark-btn').forEach(btn => {
             btn.addEventListener('click', () => toggleBookmark(btn.dataset.id));
         });
-
-        // Initialize bookmarks on page load
         updateBookmarkUI();
 
         // ============================================
-        // VIDEO TABS
+        // VIDEO TABS (improved — pauses hidden videos, updates meta)
         // ============================================
         const videoTabs = document.querySelectorAll('.video-tab');
         const videoContents = document.querySelectorAll('.video-content');
         const videoTitle = document.getElementById('videoTitle');
+        const videoMetaDuration = document.getElementById('videoMetaDuration');
+        const videoMetaTopic = document.getElementById('videoMetaTopic');
 
-        const videoTitles = {
-            '1': 'Week 1 — Web Semantics',
-            '2': 'Week 2 — Data To Meaning:Ontologies',
-            '3': 'Week 3 — The Logic Of The Web:OWL'
+        const videoDetails = {
+            '1': { title: 'Week 1 — Web Semantics', duration: '~45 min', topic: 'Introduction to Semantic Web' },
+            '2': { title: 'Week 2 — Data To Meaning: Ontologies', duration: '~40 min', topic: 'RDF/RDFS, SKOS, and OWL basics' },
+            '3': { title: 'Week 3 — The Logic Of The Web: OWL', duration: '~35 min', topic: 'Advanced OWL restrictions & reasoning' }
+        };
+
+        const setActiveVideoWeek = (week) => {
+            videoTabs.forEach(t => t.classList.remove('active'));
+            const activeTab = Array.from(videoTabs).find(t => t.dataset.week === week);
+            if (activeTab) activeTab.classList.add('active');
+
+            videoContents.forEach(content => {
+                const isActive = content.dataset.week === week;
+                content.style.display = isActive ? 'block' : 'none';
+                if (!isActive) {
+                    content.querySelectorAll('video').forEach(v => {
+                        try { v.pause(); } catch (_) {}
+                        try { v.currentTime = 0; } catch (_) {}
+                    });
+                }
+            });
+
+            const d = videoDetails[week] || { title: 'Video', duration: 'TBD', topic: '' };
+            videoTitle.textContent = d.title;
+            if (videoMetaDuration) videoMetaDuration.innerHTML = '<i class="bi bi-clock"></i> ' + d.duration;
+            if (videoMetaTopic) videoMetaTopic.innerHTML = '<i class="bi bi-eye"></i> ' + d.topic;
         };
 
         videoTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                const week = tab.dataset.week;
-                
-                // Update active tab
-                videoTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // Show corresponding video
-                videoContents.forEach(content => {
-                    content.style.display = content.dataset.week === week ? 'block' : 'none';
-                });
-                
-                // Update title
-                videoTitle.textContent = videoTitles[week];
-            });
+            tab.addEventListener('click', () => setActiveVideoWeek(tab.dataset.week));
         });
+        setActiveVideoWeek('1');
 
         // ============================================
         // ANIMATE ON SCROLL
         // ============================================
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1809,7 +1344,7 @@
                     observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
         document.querySelectorAll('.content-card, .assessment-card').forEach(card => {
             observer.observe(card);
