@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F21BD — Big Data & CAP/NoSQL Drill</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e14;--surface:#13161f;--card:#181c28;--border:#252a3a;
+  --text:#e2e4eb;--muted:#7a8099;--accent:#6ee7b7;--accent2:#34d399;
+  --wrong:#f87171;--wrong-bg:rgba(248,113,113,.08);--correct-bg:rgba(110,231,183,.08);
+  --gold:#fbbf24;--blue:#60a5fa;--purple:#a78bfa;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(110,231,183,.06),transparent),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(96,165,250,.04),transparent);pointer-events:none;z-index:0}
+
+.app{max-width:800px;margin:0 auto;padding:24px 20px 60px;position:relative;z-index:1}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:36px}
+.header .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.15);padding:4px 14px;border-radius:99px;margin-bottom:14px}
+.header h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header p{color:var(--muted);font-size:.92rem;margin-top:6px}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.progress-stats{display:flex;gap:20px;width:100%;font-size:.82rem;font-family:'JetBrains Mono',monospace}
+.progress-stats span{color:var(--muted)}
+.progress-stats .val{color:var(--text);font-weight:600}
+.progress-stats .correct-count .val{color:var(--accent)}
+.progress-stats .wrong-count .val{color:var(--wrong)}
+.progress-bar-outer{width:100%;height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-bar-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+
+/* ── TOPIC LABEL ── */
+.topic-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+
+/* ── QUESTION CARD ── */
+.question-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 26px;margin-bottom:20px;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.q-number{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.q-type{display:inline-block;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px;margin-left:8px}
+.q-type.mc{background:rgba(96,165,250,.12);color:var(--blue)}
+.q-type.tf{background:rgba(167,139,250,.12);color:var(--purple)}
+.q-type.spot{background:rgba(251,191,36,.12);color:var(--gold)}
+.q-text{font-size:1.08rem;font-weight:600;margin:10px 0 20px;line-height:1.55}
+.q-text code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:rgba(110,231,183,.07);padding:2px 6px;border-radius:4px;color:var(--accent)}
+
+/* ── OPTIONS ── */
+.options{display:flex;flex-direction:column;gap:10px}
+.option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:13px 18px;font-size:.94rem;color:var(--text);cursor:pointer;text-align:left;transition:all .2s;font-family:'Outfit',sans-serif;line-height:1.5}
+.option-btn:hover:not(.disabled){border-color:var(--accent);background:rgba(110,231,183,.04)}
+.option-btn.disabled{cursor:default;opacity:.7}
+.option-btn.selected-correct{border-color:var(--accent);background:var(--correct-bg);opacity:1!important}
+.option-btn.selected-wrong{border-color:var(--wrong);background:var(--wrong-bg);opacity:1!important}
+.option-btn.reveal-correct{border-color:var(--accent);opacity:1!important}
+.opt-letter{font-family:'JetBrains Mono',monospace;font-weight:700;margin-right:10px;font-size:.85rem}
+.option-btn.selected-correct .opt-letter{color:var(--accent)}
+.option-btn.selected-wrong .opt-letter{color:var(--wrong)}
+
+/* ── FEEDBACK ── */
+.feedback{margin-top:18px;padding:16px 18px;border-radius:10px;font-size:.88rem;line-height:1.65;display:none;animation:fadeUp .3s ease}
+.feedback.correct{background:var(--correct-bg);border:1px solid rgba(110,231,183,.2)}
+.feedback.correct .fb-title{color:var(--accent)}
+.feedback.wrong{background:var(--wrong-bg);border:1px solid rgba(248,113,113,.2)}
+.feedback.wrong .fb-title{color:var(--wrong)}
+.fb-title{font-weight:700;font-size:.92rem;margin-bottom:4px}
+.feedback p{color:var(--muted)}
+
+/* ── NAV ── */
+.nav-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--bg);font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;padding:12px 28px;border:none;border-radius:10px;cursor:pointer;margin-top:18px;transition:all .2s}
+.nav-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.nav-btn:disabled{opacity:.3;cursor:default;transform:none}
+
+/* ── RESULTS ── */
+.results-screen{display:none;animation:fadeUp .5s ease}
+.results-header{text-align:center;margin-bottom:32px}
+.results-header .score-circle{width:140px;height:140px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 20px;border:3px solid var(--accent);background:rgba(110,231,183,.04)}
+.score-circle .big{font-size:2.2rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.score-circle .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.results-header h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.results-header p{color:var(--muted);font-size:.9rem}
+.grade-msg{text-align:center;font-size:1rem;margin-bottom:30px;padding:14px;border-radius:10px}
+.grade-msg.great{background:var(--correct-bg);color:var(--accent);border:1px solid rgba(110,231,183,.2)}
+.grade-msg.ok{background:rgba(251,191,36,.06);color:var(--gold);border:1px solid rgba(251,191,36,.15)}
+.grade-msg.needs-work{background:var(--wrong-bg);color:var(--wrong);border:1px solid rgba(248,113,113,.2)}
+.topic-breakdown{margin-bottom:28px}
+.topic-breakdown h3{font-size:.95rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+.topic-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);font-size:.85rem}
+.topic-row .t-name{color:var(--text)}
+.topic-row .t-score{font-family:'JetBrains Mono',monospace;font-weight:600}
+.topic-row .t-score.perfect{color:var(--accent)}
+.topic-row .t-score.partial{color:var(--gold)}
+.topic-row .t-score.low{color:var(--wrong)}
+.review-section{margin-bottom:24px}
+.review-section h3{font-size:.95rem;font-weight:700;margin-bottom:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;font-size:.84rem;color:var(--muted);line-height:1.5}
+.review-item strong{color:var(--wrong);font-weight:600}
+
+.restart-btn{display:block;margin:20px auto 0;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;padding:12px 32px;border-radius:10px;cursor:pointer;transition:all .2s}
+.restart-btn:hover{background:rgba(110,231,183,.06)}
+
+/* ── START SCREEN ── */
+.start-screen{text-align:center;padding:40px 20px}
+.start-screen .icon{font-size:3rem;margin-bottom:16px}
+.start-screen h2{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.start-screen p{color:var(--muted);font-size:.9rem;max-width:500px;margin:0 auto 12px}
+.start-screen .stat-row{display:flex;justify-content:center;gap:24px;margin:20px 0}
+.start-screen .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;min-width:100px}
+.start-screen .stat .n{font-size:1.4rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.start-screen .stat .l{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+@media(max-width:600px){
+  .app{padding:16px 14px 40px}
+  .question-card{padding:20px 16px}
+  .progress-stats{gap:12px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const QUESTIONS = [
+  // ═══════════════════ TOPIC: Big Data History ═══════════════════
+  {
+    topic:"Big Data History",
+    type:"mc",
+    text:"Who is credited with being the first to use statistical data analysis to deal with huge amounts of data, specifically to study bubonic plague?",
+    options:["Herman Hollerith","John Graunt","Fritz Pfleumer","Roger Magoulas"],
+    correct:1,
+    explanation:"John Graunt pioneered this in 1663 — the earliest recorded use of statistical data analysis on large datasets. Hollerith created the tabulating machine (1880), Pfleumer invented magnetic tape (1927), and Magoulas coined the term 'big data' (2005)."
+  },
+  {
+    topic:"Big Data History",
+    type:"mc",
+    text:"In 1880, the US Census Bureau estimated it would take how long to process its data?",
+    options:["3 months","2 years","8 years","15 years"],
+    correct:2,
+    explanation:"The Census Bureau estimated 8 years to process the data. This problem motivated Herman Hollerith to create the Hollerith tabulating machine, which reduced processing time to just 3 months."
+  },
+  {
+    topic:"Big Data History",
+    type:"tf",
+    text:"True or False: The term 'big data' was coined by Tim Berners-Lee in 2005 when traditional Business Intelligence software could not handle the data.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. The term 'big data' was coined by Roger Magoulas in 2005, not Tim Berners-Lee. Tim Berners-Lee created the World Wide Web in 1989 — a separate but important milestone."
+  },
+  {
+    topic:"Big Data History",
+    type:"mc",
+    text:"Hadoop was created in 2005. It was based on which two technologies?",
+    options:["Apache Spark and Hive","Nutch and Google MapReduce","Google BigTable and DynamoDB","HDFS and Apache Kafka"],
+    correct:1,
+    explanation:"Hadoop was based on Nutch (an open-source web crawler) and merged with Google's MapReduce programming model. Spark, Hive, Kafka etc. came later as parts of the broader Hadoop ecosystem."
+  },
+  {
+    topic:"Big Data History",
+    type:"mc",
+    text:"According to SINTEF, what percentage of the world's data was created in the previous two years as of 2013?",
+    options:["50%","70%","80%","90%"],
+    correct:3,
+    explanation:"90% of the world's data was created in the previous 2 years (as of 2013, source SINTEF). This highlights the exponential growth of data in the modern era driven by IoT, mobile sensors, and systematic data collection."
+  },
+  {
+    topic:"Big Data History",
+    type:"tf",
+    text:"True or False: IoT was invented in 1999 and became generalized by 2005.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. IoT was invented in 1999 but became generalized in 2013, not 2005. The year 2005 is when Hadoop was created and the term 'big data' was coined."
+  },
+
+  // ═══════════════════ TOPIC: Data Production & Metrics ═══════════════════
+  {
+    topic:"Data Production & Metrics",
+    type:"mc",
+    text:"According to statista.com projections, approximately how much data is expected to be produced by 2035?",
+    options:["2,537 Zettabytes","149 Zettabytes","19,267 Zettabytes","1,000 Exabytes"],
+    correct:2,
+    explanation:"By 2035, data production is projected at 19,267 ZB. The 2,537 ZB figure is the 2030 projection. The 149 ZB figure corresponds to 2024. These numbers show the accelerating pace of global data creation."
+  },
+  {
+    topic:"Data Production & Metrics",
+    type:"mc",
+    text:"Which is the correct order from smallest to largest unit of data?",
+    options:["KB → GB → MB → TB → PB","KB → MB → GB → TB → PB → EB → ZB → YB","MB → KB → GB → TB → ZB","KB → MB → TB → GB → PB → EB"],
+    correct:1,
+    explanation:"The correct hierarchy: kB (10³) → MB (10⁶) → GB (10⁹) → TB (10¹²) → PB (10¹⁵) → EB (10¹⁸) → ZB (10²¹) → YB (10²⁴). Each step is 1000× the previous."
+  },
+  {
+    topic:"Data Production & Metrics",
+    type:"mc",
+    text:"According to the data value chain in the lecture, what is the progression from low value to high value?",
+    options:[
+      "Raw Data → Analytics → Data Capture → Decision Management",
+      "IT Tools → Data Capture → Data Quality → Data Enrichment → Analytics",
+      "Analytics → Data Enrichment → Data Quality → Data Capture → IT Tools",
+      "Data Capture → IT Tools → Analytics → Data Enrichment"
+    ],
+    correct:1,
+    explanation:"The value chain progresses: IT Tools (Raw Data) → Data Capture (Integrated/Enriched Data) → Data Quality & Integration (Analyzed Info) → Data Enrichment (Analytical Tools → Decision Mgmt) → Analytics (Customer Facing). Each stage adds more business value."
+  },
+  {
+    topic:"Data Production & Metrics",
+    type:"mc",
+    text:"According to the engineering sources slide, how much data does a connected factory generate per day?",
+    options:["40 TB","5 TB","1 PB","50 PB"],
+    correct:2,
+    explanation:"A connected factory generates 1 PB per day (0.2% transmitted). A connected plane generates 40 TB/day, a smart hospital 5 TB/day, and public safety systems generate 50 PB/day."
+  },
+
+  // ═══════════════════ TOPIC: 5 Vs of Big Data ═══════════════════
+  {
+    topic:"5 Vs of Big Data",
+    type:"mc",
+    text:"Which V of Big Data is concerned with consistency, noise, uncertainty, completeness, and timeliness of data?",
+    options:["Volume","Velocity","Veracity","Value"],
+    correct:2,
+    explanation:"Veracity deals with data trustworthiness — including consistency, noise, uncertainty, completeness, and timeliness. It also encompasses authenticity, origin/reputation, availability, and accountability. Volume = size, Velocity = speed, Value = insights."
+  },
+  {
+    topic:"5 Vs of Big Data",
+    type:"mc",
+    text:"The 'Velocity' property of big data is specifically about:",
+    options:["The speed at which queries return results","The high rate of data accumulation","How fast data loses value","Network transfer speed"],
+    correct:1,
+    explanation:"Velocity refers to the high rate of data accumulation — how fast data is generated and needs to be processed. It includes batch, real/near-time, processes, and streams. It's about data generation speed, not query speed or network speed."
+  },
+  {
+    topic:"5 Vs of Big Data",
+    type:"tf",
+    text:"True or False: The 'Variety' property means that big data comes in different formats including structured, unstructured, multi-factor, probabilistic, linked, and dynamic data.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. Variety means data comes in many different formats. The lecture explicitly lists: Structured, Unstructured, Multi-factor, Probabilistic, Linked, and Dynamic as examples under the Variety property."
+  },
+  {
+    topic:"5 Vs of Big Data",
+    type:"mc",
+    text:"Under 'Value' in the 5 Vs, which of these is NOT listed as an aspect?",
+    options:["Statistical","Events","Correlations","Trustworthiness"],
+    correct:3,
+    explanation:"Trustworthiness falls under Veracity, not Value. The Value property encompasses: Statistical, Events, Correlations, and Hypothetical — all related to extracting meaning and insights from data."
+  },
+
+  // ═══════════════════ TOPIC: Data-Driven Research & Warnings ═══════════════════
+  {
+    topic:"Data-Driven Research",
+    type:"mc",
+    text:"What are the four steps of data-driven research presented in the lecture?",
+    options:[
+      "Collect → Store → Query → Visualize",
+      "Experiment → Acquire data → Analyse data → Elaborate models/theories",
+      "Hypothesize → Test → Publish → Replicate",
+      "Observe → Record → Correlate → Predict"
+    ],
+    correct:1,
+    explanation:"The four steps are: (1) Experiment, (2) Acquire data, (3) Analyse data, (4) Elaborate models/theories. This cycle applies across domains — genomics, astronomy (astroML), hydrology, medicine, etc."
+  },
+  {
+    topic:"Data-Driven Research",
+    type:"tf",
+    text:"True or False: The lecture warns that correlation always implies causation when working with big data.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False — the exact opposite! The lecture includes a dedicated 'Warning!' slide emphasizing: Correlation ≠ Causation. It uses humorous examples from tylervigen.com (e.g., Nicolas Cage films correlating with pool drownings) to drive this point home."
+  },
+
+  // ═══════════════════ TOPIC: Scalability ═══════════════════
+  {
+    topic:"Scalability & Challenges",
+    type:"mc",
+    text:"What is the difference between vertical scaling (scale up) and horizontal scaling (scale out)?",
+    options:[
+      "Vertical = more computers; Horizontal = better hardware",
+      "Vertical = more resources (CPU, memory); Horizontal = multiple computers, distributed processing",
+      "They are the same concept with different names",
+      "Vertical = adding storage; Horizontal = adding RAM"
+    ],
+    correct:1,
+    explanation:"Vertical scaling (scale up) means adding more resources to a single machine (CPU, memory, etc.). Horizontal scaling (scale out) means adding more machines and distributing the processing. Big data typically requires horizontal scaling because vertical has physical limits."
+  },
+  {
+    topic:"Scalability & Challenges",
+    type:"tf",
+    text:"True or False: Relational databases are ideal for distributed horizontal scaling.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. The lecture explicitly states that RDBs have limitations: low response time with massive data, expensive scale-up, limited analytical capabilities, and difficult distribution. This is why distributed databases and NoSQL systems emerged."
+  },
+
+  // ═══════════════════ TOPIC: RDBMS & ACID ═══════════════════
+  {
+    topic:"RDBMS & ACID",
+    type:"mc",
+    text:"Relational database technology was invented in which decade?",
+    options:["1960s","1970s","1980s","1990s"],
+    correct:1,
+    explanation:"Relational database technology was invented in the 1970s, well-founded in relational algebra. Despite its age, it still dominates with ~58% market share (Relational SQL) vs. NoSQL variants."
+  },
+  {
+    topic:"RDBMS & ACID",
+    type:"mc",
+    text:"In the ACID properties, what does the 'I' (Isolation) guarantee?",
+    options:[
+      "The entire transaction takes place at once or not at all",
+      "Data must be consistent before and after a transaction",
+      "Multiple transactions occur independently without interference",
+      "Changes persist even if the system fails"
+    ],
+    correct:2,
+    explanation:"Isolation = Multiple transactions occur independently without interference. A = Atomicity (all or nothing), C = Consistency (valid before/after), D = Durability (changes persist after commit, even on failure)."
+  },
+  {
+    topic:"RDBMS & ACID",
+    type:"mc",
+    text:"Which ACID property ensures that once a transaction is committed, its changes survive a system crash?",
+    options:["Atomicity","Consistency","Isolation","Durability"],
+    correct:3,
+    explanation:"Durability guarantees that committed changes persist even if the system fails. Atomicity handles all-or-nothing execution, Consistency ensures valid states, and Isolation prevents transaction interference."
+  },
+  {
+    topic:"RDBMS & ACID",
+    type:"spot",
+    text:"Spot the error: 'RDBMS capabilities include BLOB storage, document store, text search, GIS extensions, and are excellent for <code>distributed storage</code> across multiple nodes.'",
+    options:[
+      "BLOB storage is not an RDBMS capability",
+      "GIS extensions are not supported by RDBMS",
+      "RDBMS is excellent for centralised storage, not distributed storage",
+      "Text search is only available in NoSQL databases"
+    ],
+    correct:2,
+    explanation:"The slide explicitly says RDBMS is 'Excellent to cope with centralised storage' — NOT distributed storage. This is a key limitation that led to the development of distributed databases and NoSQL. All other capabilities listed (BLOB, document store, text search, GIS) are correct."
+  },
+
+  // ═══════════════════ TOPIC: Distributed Databases ═══════════════════
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"In a distributed database system, fragmentation (partitioning) can be of which types?",
+    options:[
+      "Primary and Secondary",
+      "Horizontal, Vertical, and Hybrid",
+      "Sequential and Parallel",
+      "Static and Dynamic only"
+    ],
+    correct:1,
+    explanation:"Fragmentation types are Horizontal (splitting rows), Vertical (splitting columns), and Hybrid (combination). The lecture also distinguishes Primary and Derived horizontal fragmentation. Static/Dynamic relate to allocation, not fragmentation."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"In horizontal partitioning, how is a table split?",
+    options:[
+      "By dividing columns across different nodes",
+      "By dividing rows across different nodes",
+      "By duplicating the entire table to all nodes",
+      "By removing redundant data"
+    ],
+    correct:1,
+    explanation:"Horizontal partitioning splits by rows — e.g., rows 1-3 go to one shard, rows 4-5 to another. Vertical partitioning splits by columns (e.g., separating ID+Name from Avatar binary data). The example in the lecture demonstrates both with the ID/Name/Avatar table."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"What is database sharding?",
+    options:[
+      "A technique for encrypting database tables",
+      "Another name for partitioning where shards are stored on different computers",
+      "A method to compress database records",
+      "A way to merge multiple databases into one"
+    ],
+    correct:1,
+    explanation:"Sharding is another way of naming partitioning. Tables are split into shards that are necessarily stored on different computers, and queries run on separate shards. The lecture notes that in 2011, Facebook split its MySQL database into 4,000 shards."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"The three dimensions of distributed database systems are:",
+    options:[
+      "Speed, Storage, Security",
+      "Distribution, Heterogeneity, Autonomy",
+      "Consistency, Availability, Partition Tolerance",
+      "Fragmentation, Allocation, Replication"
+    ],
+    correct:1,
+    explanation:"The three dimensions are: Distribution (D0 none, D1 client-server, D2 peer-to-peer), Heterogeneity (H0 homogeneous, H1 heterogeneous), and Autonomy (A0 tight integration, A1 semi-autonomous, A2 independent). CAP is a different concept (theorem about properties)."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"In the autonomy dimension, what does A2 mean?",
+    options:[
+      "Tight integration with a single coordinator",
+      "Semi-autonomous nodes that implement sharing",
+      "Independent nodes where sharing is done by another software layer",
+      "No distribution at all"
+    ],
+    correct:2,
+    explanation:"A2 = independent, sharing done by another software layer. A0 = tight integration with a single coordinator. A1 = semi-autonomous but implement sharing. D0 (not A) = no distribution."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"tf",
+    text:"True or False: In a distributed database, users are aware of how data is fragmented and replicated, and must specify queries on fragments rather than original relations.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. The lecture states that users are UNAWARE of fragments and their replication. Queries are specified on the relations (original schema) and not on fragments — this is called distribution transparency."
+  },
+  {
+    topic:"Distributed Databases",
+    type:"mc",
+    text:"In the taxonomy of distributed databases, what distinguishes a 'federated' system from an 'unfederated' one?",
+    options:[
+      "Federated systems are homogeneous; unfederated are heterogeneous",
+      "Federated systems are heterogeneous multi-DB (A2, Dx, Hy); unfederated have no coordination",
+      "Federated only use NoSQL; unfederated only use SQL",
+      "There is no real difference"
+    ],
+    correct:1,
+    explanation:"Federated systems are heterogeneous multi-DB systems (A2, Dx, Hy) which can be loosely coupled (interoperate using export schema) or tightly coupled (interoperation with global schema). Unfederated heterogeneous systems lack this coordination layer."
+  },
+
+  // ═══════════════════ TOPIC: CAP Theorem ═══════════════════
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"The CAP theorem states that a distributed system can only guarantee at most how many of the three properties (Consistency, Availability, Partition Tolerance)?",
+    options:["One","Two","Three","All three with enough resources"],
+    correct:1,
+    explanation:"The CAP theorem states a distributed system can only have at most TWO of the three properties simultaneously: CA, CP, or AP. This was initially a conjecture by Brewer (2000) and formally proven as a theorem by Gilbert and Lynch (2002)."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"In the CAP theorem, 'Consistency' specifically means:",
+    options:[
+      "The database schema never changes",
+      "A read is guaranteed to return the most recent write",
+      "All nodes store the same software version",
+      "Transactions always complete successfully"
+    ],
+    correct:1,
+    explanation:"In CAP, Consistency means a read is guaranteed to return the most recent write — all nodes see the same data simultaneously. This is different from ACID consistency, which is about database state validity."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"In the CAP theorem, what does 'Partition Tolerance' mean?",
+    options:[
+      "The system can be split into separate databases",
+      "The system is resilient to message losses between nodes",
+      "The system tolerates slow queries",
+      "The system handles disk partitioning correctly"
+    ],
+    correct:1,
+    explanation:"Partition tolerance means the system continues to function despite arbitrary message loss or network splits between nodes. Partition = any arbitrary split resulting in message loss. The system must handle this gracefully — either by sacrificing C or A."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"RDBMS systems follow which CAP model?",
+    options:["CP","AP","CA","All three"],
+    correct:2,
+    explanation:"RDBMS follow the CA model — they provide consistency and availability but do NOT tolerate partitions. They use replication for high availability and transaction protocols (e.g., two-phase commit) for consistency, but partitions lead to conflicting replicas."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"In a CA system, when a network partition occurs, what happens?",
+    options:[
+      "The system maintains perfect consistency and availability",
+      "The system becomes inconsistent — it cannot handle partitions",
+      "The system shuts down completely",
+      "The system automatically switches to CP mode"
+    ],
+    correct:1,
+    explanation:"CA systems do not tolerate partitions. When a partition occurs, the system becomes inconsistent — replicas can conflict. To recover, the system must choose: favour consistency (CP → no answer until consensus) or favour availability (AP → possibly stale data)."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"CP systems sacrifice which property to maintain consistency during a partition?",
+    options:["Partition Tolerance","Availability","Consistency","None — they maintain all three"],
+    correct:1,
+    explanation:"CP systems sacrifice Availability. They use quorum/majority decision algorithms (e.g., Paxos protocol) and when a partition occurs, consensus is delayed, meaning no answer is possible until nodes agree. This ensures data is always correct but potentially unavailable."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"mc",
+    text:"AP systems use which concept to eventually reach a consistent state?",
+    options:["Two-phase commit","ACID transactions","Eventual consistency","Paxos protocol"],
+    correct:2,
+    explanation:"AP systems use eventual consistency — unreachable nodes hold temporarily inconsistent data, but the system converges to full consistency over time. Two-phase commit and Paxos are used in CA/CP systems respectively for strong consistency."
+  },
+  {
+    topic:"CAP Theorem",
+    type:"tf",
+    text:"True or False: The CAP theorem was initially proposed as a conjecture by Gilbert and Lynch in 2000, then proven by Brewer in 2002.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False — it's the other way around! Brewer proposed it as a conjecture in 2000, and Gilbert and Lynch formally proved it as a theorem in 2002."
+  },
+
+  // ═══════════════════ TOPIC: NoSQL History & Characteristics ═══════════════════
+  {
+    topic:"NoSQL",
+    type:"mc",
+    text:"The term 'noSQL' was first used by which person and in what context?",
+    options:[
+      "Brewer in 2000, for distributed databases",
+      "Carlo Strozzi in 1998, for querying a relational database without SQL",
+      "Rackspace in 2009, at a conference about non-relational databases",
+      "Google in 2004, for BigTable"
+    ],
+    correct:1,
+    explanation:"Carlo Strozzi first used 'noSQL' in 1998 to name a system for querying a relational database without SQL. The term was later co-opted in 2009 as the name of a conference hosted by Rackspace presenting distributed non-relational databases."
+  },
+  {
+    topic:"NoSQL",
+    type:"mc",
+    text:"NoSQL started as 'no more SQL' and later evolved to mean:",
+    options:[
+      "No Standard Query Language","Not only SQL","New Online SQL","Non-Optimized SQL"
+    ],
+    correct:1,
+    explanation:"NoSQL initially was an anti-SQL movement ('no more SQL') but evolved into the gentler definition 'Not only SQL', acknowledging that SQL still has its place while recognizing the need for alternative database paradigms."
+  },
+  {
+    topic:"NoSQL",
+    type:"mc",
+    text:"Which of these is NOT a characteristic of NoSQL databases?",
+    options:[
+      "They do not respect ACID principles",
+      "They have a predefined, rigid schema",
+      "They are built to scale horizontally",
+      "They have no standard declarative query language"
+    ],
+    correct:1,
+    explanation:"NoSQL databases do NOT have predefined schemas — they rely on dynamic schemas. This is a key differentiator from RDBMS. The other three statements are all correct characteristics of NoSQL systems."
+  },
+
+  // ═══════════════════ TOPIC: BASE Principles ═══════════════════
+  {
+    topic:"BASE Principles",
+    type:"mc",
+    text:"What does BASE stand for in the context of NoSQL databases?",
+    options:[
+      "Basic Allocation, Soft Execution, Eventual Cleanup",
+      "Basically Available, Soft State, Eventually Consistent",
+      "Binary Access, Secure Encryption, Elastic Compute",
+      "Broad Availability, Static Encoding, Eventual Convergence"
+    ],
+    correct:1,
+    explanation:"BASE = Basically Available (highly distributed with replication), Soft State (consistency is the developer's responsibility, not the DBMS), Eventually Consistent (database converges to a consistent state without requiring operations to wait for prior consistency)."
+  },
+  {
+    topic:"BASE Principles",
+    type:"mc",
+    text:"In the BASE model, 'Soft State' means:",
+    options:[
+      "The database hardware can be replaced easily",
+      "Consistency is the problem of the developer, not the DBMS",
+      "The system is in a low-power mode",
+      "Data is stored in volatile memory"
+    ],
+    correct:1,
+    explanation:"Soft State means consistency is the developer's responsibility, not the DBMS's. The DBMS makes no guarantees about state consistency at any given moment — developers must design their applications to handle potentially stale data."
+  },
+  {
+    topic:"BASE Principles",
+    type:"spot",
+    text:"Spot the error in this ACID vs BASE comparison: 'ACID provides strong consistency and focuses on commit with less availability; BASE provides weak consistency, is <code>pessimistic</code>, simpler, faster, and easier to evolve.'",
+    options:[
+      "ACID does not focus on commit",
+      "BASE is described as aggressive/optimistic, not pessimistic",
+      "ACID is not about strong consistency",
+      "BASE does not provide weak consistency"
+    ],
+    correct:1,
+    explanation:"ACID is conservative (pessimistic), while BASE is aggressive (optimistic). The lecture's comparison table clearly shows: ACID = Conservative (pessimistic), BASE = Aggressive (optimistic). The statement incorrectly labels BASE as pessimistic."
+  },
+
+  // ═══════════════════ TOPIC: NoSQL Data Models ═══════════════════
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"Which of the four NoSQL data models stores data in a hashtable (dictionary/map) structure where objects are opaque to the database?",
+    options:["Document","Wide-column","Key-Value","Graph"],
+    correct:2,
+    explanation:"Key-Value stores use hashtable data structures. Objects are opaque to the database (can only be read/written as a whole), indexed by a key, schema-less, and mostly in-memory. Examples: Redis, Riak KV, Oracle NoSQL."
+  },
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"What is the key difference between a Key-Value store and a Document store?",
+    options:[
+      "Document stores are slower",
+      "Key-Value stores support JSON; Document stores don't",
+      "In Document stores, the database has access to the internal structure of documents and can query fields",
+      "Key-Value stores support horizontal scaling; Document stores don't"
+    ],
+    correct:2,
+    explanation:"The critical difference: in Key-Value stores, values are opaque (the DB can only read/write the whole object). In Document stores, the DB has access to the internal structure of documents (stored as JSON/XML), enabling field-level queries, indexes, and search patterns."
+  },
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"Wide-column databases (column family databases) have which distinctive feature?",
+    options:[
+      "All rows must have the same columns with values",
+      "Column names and formats can vary from row to row, creating a sparse data matrix",
+      "They only support numeric data types",
+      "They cannot be sharded"
+    ],
+    correct:1,
+    explanation:"Wide-column databases use 'flexible' tables where column names/formats can vary between rows (sparse data matrix). They support both vertical sharding (column families on separate machines) and horizontal sharding (rows within a column family on different machines)."
+  },
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"Which NoSQL data model focuses on relationships between entities, using nodes and edges?",
+    options:["Key-Value","Document","Wide-column","Graph"],
+    correct:3,
+    explanation:"Graph databases focus on relationships. Nodes represent entities, edges represent relations/properties. They're widely used by social networks. Examples: Neo4j, InfiniteGraph."
+  },
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"Which of these are examples of Document store databases?",
+    options:[
+      "Redis and Riak KV",
+      "MongoDB, CouchDB, and DynamoDB",
+      "Cassandra, HBase, and Google BigTable",
+      "Neo4j and InfiniteGraph"
+    ],
+    correct:1,
+    explanation:"MongoDB, CouchDB, and DynamoDB are Document stores. Redis/Riak = Key-Value. Cassandra/HBase/BigTable = Wide-column. Neo4j/InfiniteGraph = Graph. Note: DynamoDB and Azure Cosmos DB are listed as both key-value AND document stores."
+  },
+  {
+    topic:"NoSQL Data Models",
+    type:"mc",
+    text:"Which database was open-sourced by Facebook in 2008?",
+    options:["MongoDB","CouchDB","Cassandra","Neo4j"],
+    correct:2,
+    explanation:"Cassandra was open-sourced by Facebook in 2008. The NoSQL timeline: Neo4j (2000), Google BigTable (2004), CouchDB (2005), Amazon DynamoDB research paper (2007), Cassandra (2008, Facebook open source)."
+  },
+
+  // ═══════════════════ TOPIC: NoSQL & CAP Mapping ═══════════════════
+  {
+    topic:"NoSQL & CAP Mapping",
+    type:"mc",
+    text:"According to the lecture's CAP Venn diagram, which databases fall under the CP model?",
+    options:[
+      "CouchDB, Cassandra, DynamoDB, Riak",
+      "MongoDB, HBase, Redis",
+      "All RDBMS systems",
+      "CouchDB and MongoDB only"
+    ],
+    correct:1,
+    explanation:"CP (Consistency + Partition Tolerance) includes: MongoDB, HBase, Redis. AP (Availability + Partition Tolerance) includes: CouchDB, Cassandra, DynamoDB, Riak. CA includes RDBMS. CP systems sacrifice availability for consistency during partitions."
+  },
+  {
+    topic:"NoSQL & CAP Mapping",
+    type:"mc",
+    text:"CouchDB, Cassandra, DynamoDB, and Riak all fall under which CAP category?",
+    options:["CA","CP","AP","All three"],
+    correct:2,
+    explanation:"They all fall under AP (Availability + Partition Tolerance). They sacrifice consistency for availability during partitions, using eventual consistency to converge to a correct state over time."
+  },
+  {
+    topic:"NoSQL & CAP Mapping",
+    type:"tf",
+    text:"True or False: According to the lecture, NoSQL database systems are the answer to providing CP or AP models since RDBMS can only provide CA.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. The lecture explicitly poses the question: 'Since RDMS have CA model... which database systems can be designed according to CP or AP models?' and answers: NoSQL database systems."
+  },
+
+  // ═══════════════════ TOPIC: PACELEC Theorem ═══════════════════
+  {
+    topic:"PACELEC Theorem",
+    type:"mc",
+    text:"The PACELEC theorem extends CAP by adding what additional tradeoff during normal operations (no partition)?",
+    options:[
+      "Speed vs Security",
+      "Latency vs Consistency",
+      "Throughput vs Durability",
+      "Schema vs Flexibility"
+    ],
+    correct:1,
+    explanation:"PACELEC: on Partition → tradeoff between Availability and Consistency (like CAP). Else (normal operations) → tradeoff between Latency and Consistency. This addresses a criticism that CAP only considers partition scenarios."
+  },
+  {
+    topic:"PACELEC Theorem",
+    type:"mc",
+    text:"According to the PACELEC table, Cassandra favours PA (partition-availability) and EL (else-latency). What does this mean?",
+    options:[
+      "Cassandra is always consistent",
+      "During partitions Cassandra favours availability, and during normal ops it favours low latency over consistency",
+      "Cassandra shuts down during partitions",
+      "Cassandra always favours consistency over everything"
+    ],
+    correct:1,
+    explanation:"PA/EL means: during partitions, Cassandra prioritizes Availability (may serve stale data). During normal operations (Else), it favors Latency over Consistency (fast responses, eventually consistent). This matches its AP classification in CAP."
+  },
+  {
+    topic:"PACELEC Theorem",
+    type:"mc",
+    text:"According to PACELEC, which database uses PC/EC (partition-consistency, else-consistency)?",
+    options:["Cassandra","MongoDB","BigTable/HBase","Riak"],
+    correct:2,
+    explanation:"BigTable/HBase uses PC/EC — meaning it favors consistency both during partitions AND during normal operations. MongoDB also uses PC/EC. This aligns with their CP classification. Cassandra and Riak use PA/EL (availability + latency favored)."
+  },
+
+  // ═══════════════════ TOPIC: RDB vs NoSQL Comparison ═══════════════════
+  {
+    topic:"RDB vs NoSQL",
+    type:"mc",
+    text:"Which of these is a correct statement about RDB vs NoSQL tradeoffs?",
+    options:[
+      "NoSQL databases always outperform RDBMS in every scenario",
+      "SQL and ACID add overhead; NoSQL trades efficiency against guarantees",
+      "RDBMS is always the wrong choice for modern applications",
+      "NoSQL provides stronger consistency than RDBMS"
+    ],
+    correct:1,
+    explanation:"The lecture states: 'SQL and ACID add overhead' and 'NoSQL: what if you don't need SQL or ACID? Something simpler, something more scalable. Trade efficiency against guarantees.' Each has its place — RDBMS for strong consistency, NoSQL for scale and flexibility."
+  },
+  {
+    topic:"RDB vs NoSQL",
+    type:"mc",
+    text:"Which of these is NOT listed as a limitation of relational databases in the lecture?",
+    options:[
+      "Low response time with massive amounts of data",
+      "Expensive scale up",
+      "Limited analytical capabilities (need OLAP schemas)",
+      "Cannot store structured data"
+    ],
+    correct:3,
+    explanation:"RDBMS absolutely CAN store structured data — that's their core purpose! The actual limitations listed are: low response time with massive data, fast querying difficult, expensive scale-up, and limited analytical capabilities (needing OLAP-like schemas)."
+  },
+  {
+    topic:"RDB vs NoSQL",
+    type:"mc",
+    text:"In the lecture's database market share pie chart, approximately what percentage does Relational (SQL) hold?",
+    options:["20%","38%","58%","78%"],
+    correct:2,
+    explanation:"Relational SQL holds ~58% of the market. Document (NoSQL) has ~20%, Key-Value/In-memory ~10%, Wide-column ~7%, Graph/Other ~5%. Despite the NoSQL movement, relational databases still dominate."
+  },
+
+  // ═══════════════════ TOPIC: Distributed System Challenges ═══════════════════
+  {
+    topic:"Distributed System Challenges",
+    type:"mc",
+    text:"According to the lecture, large-scale internet applications require all EXCEPT:",
+    options:[
+      "Increasable data capacity",
+      "Growing read/write throughput",
+      "Handling highly concurrent access",
+      "Guaranteed ACID compliance across all nodes"
+    ],
+    correct:3,
+    explanation:"The lecture lists: increasable data capacity, growing read/write throughput, handling highly concurrent access, and the need for horizontal scaling. ACID compliance across all distributed nodes is specifically what these systems struggle to maintain — that's the whole point of the CAP theorem."
+  },
+  {
+    topic:"Distributed System Challenges",
+    type:"mc",
+    text:"The lecture mentions that high availability in distributed systems requires replication. When data updates are sent to all replicas simultaneously without a pre-processing layer, what is the result?",
+    options:["Consistency","Latency","Security issues","Data loss"],
+    correct:1,
+    explanation:"Without a pre-processing layer, sending updates to all replicas simultaneously results in Latency (network delays). With a pre-processing layer, you get consistency but potentially more overhead. This is part of the PACELEC latency vs consistency tradeoff."
+  },
+
+  // ═══════════════════ TOPIC: Specific Systems ═══════════════════
+  {
+    topic:"Specific Database Systems",
+    type:"mc",
+    text:"Google Flu Trends is presented in the lecture as an example of:",
+    options:[
+      "A NoSQL database application",
+      "A large-scale application of big data analytics",
+      "A successful causation study",
+      "A distributed database system"
+    ],
+    correct:1,
+    explanation:"Google Flu Trends is presented as a large-scale application of big data — using search query patterns to predict flu outbreaks. However, the lecture also shows it diverged from CDC data, connecting to the 'correlation ≠ causation' warning."
+  },
+  {
+    topic:"Specific Database Systems",
+    type:"mc",
+    text:"According to the DB-Engines ranking chart in the lecture, which database has consistently ranked #1?",
+    options:["MySQL","PostgreSQL","MongoDB","Oracle"],
+    correct:3,
+    explanation:"Oracle has consistently ranked #1 on the DB-Engines popularity ranking. MySQL is #2, followed by Microsoft SQL Server, PostgreSQL, and MongoDB (the highest-ranked NoSQL database)."
+  },
+  {
+    topic:"NoSQL",
+    type:"mc",
+    text:"Which of these NoSQL databases uses CQL (Cassandra Query Language)?",
+    options:["MongoDB","Redis","Cassandra","CouchDB"],
+    correct:2,
+    explanation:"Cassandra uses CQL (Cassandra Query Language), which is a SQL-like query language. The lecture notes that most NoSQL databases use variations of SQL. Couchbase uses N1QL, MongoDB has its own query language, and Redis uses simple commands."
+  },
+  {
+    topic:"NoSQL",
+    type:"tf",
+    text:"True or False: NoSQL databases support standard SQL as their query language.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. NoSQL databases have NO standard declarative query language. Most use variations of SQL (CQL for Cassandra, N1QL for Couchbase, etc.) but there is no universal standard. This is listed as a key characteristic of NoSQL."
+  },
+  {
+    topic:"NoSQL",
+    type:"mc",
+    text:"The lecture lists NewSQL databases like SAP HANA, Google Spanner, and VoltDB. What distinguishes NewSQL from NoSQL?",
+    options:[
+      "NewSQL doesn't support SQL",
+      "NewSQL aims to provide NoSQL scalability while maintaining ACID/SQL guarantees",
+      "NewSQL is just another name for NoSQL",
+      "NewSQL only supports graph data models"
+    ],
+    correct:1,
+    explanation:"NewSQL systems (SAP HANA, Google Spanner, Clustrix, VoltDB, MemSQL, NuoDB) aim to combine the horizontal scalability of NoSQL with the strong consistency and SQL interface of traditional RDBMS — essentially the best of both worlds."
+  }
+];
+
+// ── Shuffle utility ──
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+// ── State ──
+let questions, current, score, answered, userAnswers;
+
+function init(){
+  questions=shuffle(QUESTIONS);
+  current=0; score=0; answered=false; userAnswers=[];
+  renderStart();
+}
+
+function renderStart(){
+  const topics=[...new Set(QUESTIONS.map(q=>q.topic))];
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+      <p>Big Data Recap + CAP Theorem & NoSQL</p>
+    </div>
+    <div class="start-screen">
+      <div class="icon">⚡</div>
+      <h2>Ready to Master It All?</h2>
+      <p>This quiz covers every concept from both lectures — history, 5 Vs, ACID, distributed databases, CAP theorem, PACELEC, NoSQL models, BASE, and more.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="n">${questions.length}</div><div class="l">Questions</div></div>
+        <div class="stat"><div class="n">${topics.length}</div><div class="l">Topics</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">Types</div></div>
+      </div>
+      <button class="nav-btn" onclick="startQuiz()">Begin Drill →</button>
+    </div>`;
+}
+
+function startQuiz(){renderQuestion()}
+
+function renderQuestion(){
+  answered=false;
+  const q=questions[current];
+  const pct=((current)/questions.length*100).toFixed(0);
+  const letters='ABCD';
+  const typeLabel=q.type==='mc'?'Multiple Choice':q.type==='tf'?'True / False':'Spot the Error';
+  const typeCls=q.type;
+
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-stats">
+        <span>Question <span class="val">${current+1}/${questions.length}</span></span>
+        <span class="correct-count">Correct <span class="val">${score}</span></span>
+        <span class="wrong-count">Wrong <span class="val">${current-score}</span></span>
+      </div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="q-number">Question ${current+1} <span class="q-type ${typeCls}">${typeLabel}</span></div>
+      <div class="topic-label">${q.topic}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options" id="opts">
+        ${q.options.map((o,i)=>`<button class="option-btn" data-idx="${i}" onclick="selectAnswer(${i})"><span class="opt-letter">${letters[i]}</span>${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <button class="nav-btn" id="nextBtn" disabled onclick="nextQuestion()">${current<questions.length-1?'Next Question →':'See Results →'}</button>
+    </div>`;
+}
+
+function selectAnswer(idx){
+  if(answered) return;
+  answered=true;
+  const q=questions[current];
+  const isCorrect=idx===q.correct;
+  if(isCorrect) score++;
+  userAnswers.push({q,chosen:idx,correct:isCorrect});
+
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach((b,i)=>{
+    b.classList.add('disabled');
+    if(i===idx && isCorrect) b.classList.add('selected-correct');
+    else if(i===idx && !isCorrect) b.classList.add('selected-wrong');
+    if(i===q.correct && !isCorrect) b.classList.add('reveal-correct');
+  });
+
+  const fb=document.getElementById('feedback');
+  fb.className=`feedback ${isCorrect?'correct':'wrong'}`;
+  fb.style.display='block';
+  fb.innerHTML=`<div class="fb-title">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div><p>${q.explanation}</p>`;
+
+  document.getElementById('nextBtn').disabled=false;
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=questions.length) renderResults();
+  else renderQuestion();
+}
+
+function renderResults(){
+  const pct=Math.round(score/questions.length*100);
+  const topicMap={};
+  userAnswers.forEach(a=>{
+    if(!topicMap[a.q.topic]) topicMap[a.q.topic]={total:0,correct:0};
+    topicMap[a.q.topic].total++;
+    if(a.correct) topicMap[a.q.topic].correct++;
+  });
+
+  let gradeClass,gradeMsg;
+  if(pct>=85){gradeClass='great';gradeMsg='🏆 Outstanding — exam-ready mastery!';}
+  else if(pct>=60){gradeClass='ok';gradeMsg='📝 Solid foundation, but review the weak spots below.';}
+  else{gradeClass='needs-work';gradeMsg='🔁 Needs more drilling — revisit the lecture notes on weak topics.';}
+
+  const wrongItems=userAnswers.filter(a=>!a.correct);
+  const letters='ABCD';
+
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+    </div>
+    <div class="results-screen" style="display:block">
+      <div class="results-header">
+        <div class="score-circle"><span class="big">${pct}%</span><span class="lbl">${score}/${questions.length}</span></div>
+        <h2>Quiz Complete</h2>
+        <p>Here's your performance breakdown</p>
+      </div>
+      <div class="grade-msg ${gradeClass}">${gradeMsg}</div>
+      <div class="topic-breakdown">
+        <h3>Topic Breakdown</h3>
+        ${Object.entries(topicMap).map(([t,d])=>{
+          const tp=Math.round(d.correct/d.total*100);
+          const cls=tp===100?'perfect':tp>=60?'partial':'low';
+          return `<div class="topic-row"><span class="t-name">${t}</span><span class="t-score ${cls}">${d.correct}/${d.total} (${tp}%)</span></div>`;
+        }).join('')}
+      </div>
+      ${wrongItems.length?`
+      <div class="review-section">
+        <h3>Questions to Review (${wrongItems.length})</h3>
+        ${wrongItems.map(a=>`<div class="review-item"><strong>Q:</strong> ${a.q.text.replace(/<[^>]*>/g,'')}<br><strong>Your answer:</strong> ${a.q.options[a.chosen]}<br><strong>Correct:</strong> ${a.q.options[a.q.correct]}<br>${a.q.explanation}</div>`).join('')}
+      </div>`:''}
+      <button class="restart-btn" onclick="init()">↻ Retake Quiz</button>
+    </div>`;
+}
+
+const app=document.getElementById('app');
+init();
+</script>
+</body>
+</html>
