@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Week 5: CAP Theorem &amp; NoSQL — Ultimate Class Test Prep</title>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#23263a;--border:#2e3250;
+  --accent:#6c63ff;--accent2:#00d4aa;--correct:#00c97b;--wrong:#ff4f6d;
+  --warn:#ffb347;--text:#e8eaf6;--muted:#8b8fa8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:24px 16px;
+}
+header{text-align:center;margin-bottom:28px;}
+header h1{
+  font-size:1.9rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+header p{color:var(--muted);margin-top:6px;font-size:.9rem;}
+#prog-wrap{width:100%;max-width:780px;background:var(--surface2);
+  border-radius:999px;height:7px;margin-bottom:8px;overflow:hidden;}
+#prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:999px;transition:width .4s;width:0%;}
+#prog-label{width:100%;max-width:780px;text-align:right;color:var(--muted);
+  font-size:.8rem;margin-bottom:16px;}
+.card{background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:28px 32px;width:100%;max-width:780px;}
+.q-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;padding:3px 10px;border-radius:999px;}
+.b-mc {background:#6c63ff22;color:var(--accent); border:1px solid #6c63ff55;}
+.b-ms {background:#ff4f6d22;color:var(--wrong);  border:1px solid #ff4f6d55;}
+.b-tf {background:#00d4aa22;color:var(--accent2);border:1px solid #00d4aa55;}
+.b-ste{background:#ffb34722;color:var(--warn);   border:1px solid #ffb34755;}
+.pts-badge{font-size:.75rem;font-weight:700;color:var(--warn);padding:3px 10px;
+  background:#ffb34711;border:1px solid #ffb34733;border-radius:999px;}
+.topic-badge{font-size:.7rem;color:var(--muted);padding:3px 10px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:999px;}
+.qnum{color:var(--muted);font-size:.8rem;margin-left:auto;}
+#qtext{font-size:1.05rem;font-weight:600;line-height:1.65;margin-bottom:20px;
+  color:var(--text);white-space:pre-wrap;}
+#qhint{font-size:.82rem;color:var(--muted);font-style:italic;
+  margin-bottom:10px;display:none;padding:8px 12px;
+  background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);}
+#qopts{display:flex;flex-direction:column;gap:9px;}
+.opt{background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);cursor:pointer;font-size:.95rem;
+  padding:12px 16px;text-align:left;
+  display:flex;align-items:flex-start;gap:11px;
+  transition:border-color .2s,background .2s;}
+.opt:hover:not([disabled]){border-color:var(--accent);background:#2a2d42;}
+.ltr{background:var(--border);border-radius:5px;min-width:27px;height:27px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.78rem;flex-shrink:0;transition:background .2s,color .2s;}
+.opt-text{line-height:1.45;padding-top:1px;}
+.opt.correct{border-color:var(--correct)!important;background:#00c97b18;}
+.opt.correct .ltr{background:var(--correct);color:#000;}
+.opt.wrong{border-color:var(--wrong)!important;background:#ff4f6d18;}
+.opt.wrong .ltr{background:var(--wrong);color:#fff;}
+.opt.reveal{border-color:var(--correct)!important;background:#00c97b0d;}
+.opt.reveal .ltr{background:#00c97b55;color:var(--correct);}
+.opt.sel{border-color:var(--accent)!important;background:#6c63ff18;}
+.opt.sel .ltr{background:var(--accent);color:#fff;}
+#submit-btn{
+  display:none;margin-top:14px;padding:10px 26px;
+  background:var(--accent);border:none;border-radius:9px;
+  color:#fff;font-weight:700;font-size:.93rem;cursor:pointer;
+}
+#submit-btn:hover{opacity:.85;}
+#fb{display:none;margin-top:20px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  font-size:.93rem;line-height:1.65;}
+.fb-title{font-weight:800;font-size:1rem;margin-bottom:8px;}
+.fb-ok .fb-title{color:var(--correct);}
+.fb-bad .fb-title{color:var(--wrong);}
+.fb-body{color:var(--text);white-space:pre-wrap;line-height:1.7;}
+#nav-row{display:flex;justify-content:flex-end;margin-top:22px;}
+#next-btn{
+  display:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:11px 28px;
+}
+#next-btn:hover{opacity:.9;}
+/* Results */
+#results-screen{display:none;width:100%;max-width:780px;}
+.rcard{background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:32px;text-align:center;}
+.score-ring{width:130px;height:130px;margin:0 auto 22px;
+  position:relative;display:flex;align-items:center;justify-content:center;}
+.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.score-ring circle{fill:none;stroke-width:9;}
+.trk{stroke:var(--surface2);}
+.fil{stroke:var(--accent2);stroke-linecap:round;
+  stroke-dasharray:377;stroke-dashoffset:377;
+  transition:stroke-dashoffset 1.2s ease;}
+.pct-text{position:relative;font-size:1.8rem;font-weight:900;color:var(--accent2);}
+.rcard h2{font-size:1.45rem;margin-bottom:7px;}
+.r-sub{color:var(--muted);margin-bottom:24px;font-size:.93rem;}
+.pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:22px;}
+.pill{font-size:.76rem;padding:3px 11px;border-radius:999px;font-weight:600;}
+.pill.weak{background:#ff4f6d22;color:var(--wrong);border:1px solid #ff4f6d55;}
+.pill.ok  {background:#ffb34722;color:var(--warn); border:1px solid #ffb34755;}
+.pill.str {background:#00c97b22;color:var(--correct);border:1px solid #00c97b55;}
+.r-sect{color:var(--muted);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.07em;margin:16px 0 8px;text-align:left;}
+.r-item{background:var(--surface2);border:1px solid var(--border);
+  border-radius:9px;padding:11px 15px;margin-bottom:7px;
+  display:flex;gap:11px;align-items:flex-start;text-align:left;}
+.r-ico{font-size:1rem;flex-shrink:0;margin-top:2px;}
+.r-txt{font-size:.87rem;line-height:1.5;}
+.r-topic{font-weight:700;color:var(--accent2);font-size:.74rem;
+  text-transform:uppercase;display:block;margin-bottom:2px;}
+.r-q{color:var(--text);}
+.r-wrong{color:var(--wrong);font-size:.81rem;margin-top:4px;display:block;}
+.retry-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:13px 36px;margin-top:26px;
+}
+.retry-btn:hover{opacity:.9;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Week 5: CAP Theorem &amp; NoSQL</h1>
+  <p>60 questions &middot; Every slide covered &middot; Class test tailored &middot; Deep explanations</p>
+</header>
+<div id="quiz-screen">
+  <div id="prog-wrap"><div id="prog-bar"></div></div>
+  <div id="prog-label"></div>
+  <div class="card">
+    <div class="q-meta">
+      <span class="badge b-mc" id="qbadge">MC</span>
+      <span class="pts-badge" id="qpts">2 pts</span>
+      <span class="topic-badge" id="qtopic">Topic</span>
+      <span class="qnum" id="qnum">1/60</span>
+    </div>
+    <div id="qtext"></div>
+    <div id="qhint"></div>
+    <div id="qopts"></div>
+    <button id="submit-btn" onclick="submitMulti()">Submit Answer</button>
+    <div id="fb">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <div id="nav-row">
+      <button id="next-btn" onclick="nextQ()">Next Question</button>
+    </div>
+  </div>
+</div>
+<div id="results-screen">
+  <div class="rcard">
+    <div class="score-ring">
+      <svg viewBox="0 0 120 120" width="130" height="130">
+        <circle class="trk" cx="60" cy="60" r="60"/>
+        <circle class="fil" id="ring-fil" cx="60" cy="60" r="60"/>
+      </svg>
+      <span class="pct-text" id="r-pct"></span>
+    </div>
+    <h2 id="r-title"></h2>
+    <p class="r-sub" id="r-sub"></p>
+    <div class="pills" id="r-pills"></div>
+    <div id="r-list"></div>
+    <button class="retry-btn" onclick="initQuiz()">Retry Quiz</button>
+  </div>
+</div>
+
+<script>
+var QS=[
+// ═══════════════════════════════════════════════════════════
+// RELATIONAL DATABASE TECHNOLOGY (Slides 1-2)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-01","pts":2,"type":"MC","topic":"Relational Databases",
+  "q":"When was relational database technology invented?",
+  "opts":["1950s","1970s","1990s","2005"],
+  "ans":1,
+  "exp":"Relational databases were invented in the 1970s, pioneered by Edgar F. Codd's 1970 paper on the relational model. They are well-founded theoretically on relational algebra and provide high consistency. The 1950s saw early mainframe computing. 1990s brought the web era. 2005 is when Hadoop and the term 'Big Data' emerged."
+},
+{
+  "id":"W5-02","pts":2,"type":"MC","topic":"Relational Databases",
+  "q":"Which theoretical foundation underpins relational databases?",
+  "opts":["Graph theory","Relational algebra","Quantum computing","Neural network theory"],
+  "ans":1,
+  "exp":"Relational databases are well-founded theoretically on RELATIONAL ALGEBRA — a formal system of operations (select, project, join, union, etc.) on relations (tables). This mathematical basis is why SQL is so powerful and predictable. Graph theory underlies graph databases like Neo4j. The other options have no connection to RDBMS theory."
+},
+{
+  "id":"W5-03","pts":2,"type":"MS","topic":"Relational Databases",
+  "q":"Which of the following are listed in the lecture as added capabilities of relational databases? (Select ALL that apply)",
+  "opts":["BLOB storage","GIS extensions","Automatic horizontal sharding","Data warehousing (star schema)"],
+  "ans":[0,1,3],
+  "exp":"The lecture explicitly lists these RDBMS capabilities: BLOB storage, document store, text search, in-database code execution, data warehousing (star schema), and GIS extensions. Automatic horizontal sharding is a NoSQL feature — RDBMS are excellent for CENTRALISED storage but were never designed for automatic distribution across servers."
+},
+{
+  "id":"W5-04","pts":2,"type":"TF","topic":"Relational Databases",
+  "q":"True or False: Relational databases are excellent at coping with centralised storage.",
+  "opts":["True","False"],
+  "ans":0,
+  "exp":"TRUE. The lecture explicitly states RDBs are 'excellent to cope with centralised storage.' This is their strength — a single powerful server running a well-tuned RDBMS handles structured data brilliantly. The problem arises when you need DISTRIBUTED storage across many servers at internet scale — that's where RDBMS struggle and NoSQL steps in."
+},
+// ═══════════════════════════════════════════════════════════
+// ACID PROPERTIES (Slide 3)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-05","pts":2,"type":"MC","topic":"ACID Properties",
+  "q":"What does ACID stand for in database systems?",
+  "opts":["Atomicity, Consistency, Isolation, Durability","Availability, Consistency, Integrity, Distribution","Aggregation, Consistency, Isolation, Data","Atomicity, Concurrency, Indexing, Distribution"],
+  "ans":0,
+  "exp":"ACID = Atomicity (all-or-nothing transactions), Consistency (data valid before AND after transaction), Isolation (concurrent transactions don't interfere), Durability (committed changes survive crashes). These four properties together guarantee reliable transaction processing in relational databases. All other options are fabricated acronyms."
+},
+{
+  "id":"W5-06","pts":2,"type":"MC","topic":"ACID Properties",
+  "q":"In ACID, 'Atomicity' means:",
+  "opts":["Data must be consistent before and after a transaction","The entire transaction takes place at once or doesn't happen at all","Multiple transactions occur independently","Committed changes persist even after failure"],
+  "ans":1,
+  "exp":"Atomicity = the entire transaction takes place at once OR doesn't happen at all. There is NO partial execution. Think bank transfer: BOTH the debit from Account A AND credit to Account B happen, or NEITHER does. You never end up with money deducted but not credited. Option A = Consistency. Option C = Isolation. Option D = Durability."
+},
+{
+  "id":"W5-07","pts":2,"type":"MC","topic":"ACID Properties",
+  "q":"Which ACID property states: 'The data must be consistent before and after the transaction'?",
+  "opts":["Atomicity","Consistency","Isolation","Durability"],
+  "ans":1,
+  "exp":"Consistency ensures the database transitions from one VALID state to another valid state. Every transaction must leave the database in a correct state that satisfies all defined rules and constraints. If a transaction would violate a constraint, it is rolled back entirely (thanks to Atomicity). The database is never left in a corrupted or invalid state."
+},
+{
+  "id":"W5-08","pts":2,"type":"MC","topic":"ACID Properties",
+  "q":"In ACID, 'Isolation' guarantees that:",
+  "opts":["The transaction happens all at once","Data stays valid","Multiple transactions occur independently without interference","Changes survive system crashes"],
+  "ans":2,
+  "exp":"Isolation means multiple transactions can occur CONCURRENTLY but they execute INDEPENDENTLY without interfering with each other. Each transaction appears to run as if it's the only one accessing the database. This prevents dirty reads, phantom reads, and other concurrency problems. It does NOT mean only one transaction runs at a time — that would be far too slow."
+},
+{
+  "id":"W5-09","pts":2,"type":"MC","topic":"ACID Properties",
+  "q":"Which ACID property ensures committed changes survive even if the entire system crashes?",
+  "opts":["Atomicity","Consistency","Isolation","Durability"],
+  "ans":3,
+  "exp":"Durability guarantees that once a transaction has been committed, it PERSISTS even if the system fails — power loss, hardware crash, software error. Data is written to non-volatile storage (disk). Like carving something in stone — once it's committed, it's permanent. Atomicity = all-or-nothing. Consistency = valid states. Isolation = independence."
+},
+// ═══════════════════════════════════════════════════════════
+// RDBMS LIMITATIONS & INTERNET (Slides 4-5)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-10","pts":2,"type":"MC","topic":"RDBMS Limitations",
+  "q":"What does intensive online access to data (internet-scale applications) require?",
+  "opts":["Only consistency","Availability, scalability, and speed","Only durability","Only isolation"],
+  "ans":1,
+  "exp":"The lecture states that intensive online access to data requires: Availability (always respond), Scalability (handle growing load), and Speed (fast responses). It also notes that 'consistency cannot be ensured at all times' — this is the fundamental tension that leads to CAP theorem and the need for NoSQL databases."
+},
+{
+  "id":"W5-11","pts":3,"type":"MS","topic":"RDBMS Limitations",
+  "q":"Which are limitations of relational databases according to the lecture? (Select ALL that apply)",
+  "opts":["Low response time with massive amounts of data","Expensive scale-up (adding memory, CPU)","Limited analytical capabilities (need OLAP schemas)","Cannot store structured data"],
+  "ans":[0,1,2],
+  "exp":"The lecture lists three specific RDBMS limitations: (1) Low response time with massive data / fast querying becomes difficult, (2) Expensive scale-up — adding memory and CPU to a single machine is costly, (3) Limited analytical capabilities requiring special OLAP-like schemas. Option D is WRONG — RDBMS are EXCELLENT at structured data. That's their core strength."
+},
+// ═══════════════════════════════════════════════════════════
+// DISTRIBUTED DATABASES (Slides 6-8)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-12","pts":2,"type":"MC","topic":"Distributed Databases",
+  "q":"What is a Distributed Database Management System (DDBMS)?",
+  "opts":["A database stored on one powerful server","A system where data is stored in different nodes interconnected by a computer network","A database that only stores JSON","A type of graph database"],
+  "ans":1,
+  "exp":"A DDBMS has data stored in different NODES that are interconnected by a computer network. The nodes are databases themselves, and DDBMS software manages the distributed database, handling access and transparent distribution. A single-server DB is centralised. JSON storage is a document store feature. Graph databases are a NoSQL type."
+},
+{
+  "id":"W5-13","pts":2,"type":"TF","topic":"Distributed Databases",
+  "q":"True or False: In a DDBMS, users are aware of which fragments store their data and must query specific fragments directly.",
+  "opts":["True","False"],
+  "ans":1,
+  "exp":"FALSE. The lecture explicitly states: 'User unaware of fragments and their replication. Queries specified on the relations (original schema) and not on fragments.' This distribution TRANSPARENCY is a key feature — the DDBMS software handles routing queries to correct fragments behind the scenes. Users interact with the database as if it were a single system."
+},
+// ═══════════════════════════════════════════════════════════
+// FRAGMENTATION, SHARDING, REPLICATION (Slides 6-8)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-14","pts":3,"type":"MC","topic":"Fragmentation & Sharding",
+  "q":"In horizontal partitioning (fragmentation), a table is split by:",
+  "opts":["Splitting columns across servers","Splitting rows into separate subsets on different servers","Duplicating the entire table","Converting to a graph structure"],
+  "ans":1,
+  "exp":"Horizontal partitioning splits a table BY ROWS. Different subsets of rows go to different servers. Example: Users 1-1000 on Server A, Users 1001-2000 on Server B. Splitting by COLUMNS is vertical partitioning. Duplicating everywhere is replication. Converting to graphs is a completely different data model."
+},
+{
+  "id":"W5-15","pts":3,"type":"MC","topic":"Fragmentation & Sharding",
+  "q":"In vertical partitioning (fragmentation), a table is split by:",
+  "opts":["Splitting rows into subsets","Splitting columns into separate tables, keeping the key in each fragment","Time-based ranges","Hash-based distribution"],
+  "ans":1,
+  "exp":"Vertical partitioning splits a table BY COLUMNS. Each fragment contains a subset of columns plus the primary key (so fragments can be reassembled). Example: (ID, Name) on Server A and (ID, Avatar, Bio) on Server B. Splitting by rows is horizontal. Time-based and hash-based are specific distribution strategies."
+},
+{
+  "id":"W5-16","pts":2,"type":"MC","topic":"Fragmentation & Sharding",
+  "q":"What is 'database sharding'?",
+  "opts":["A backup strategy","Another name for partitioning where shards are stored on different computers","An encryption technique","A type of indexing"],
+  "ans":1,
+  "exp":"The lecture defines sharding as 'another way of naming partitioning' where the table is partitioned into shards that are NECESSARILY stored on different computers, and queries run on separate shards. It is specifically distributed partitioning. Not a backup strategy, encryption technique, or indexing method."
+},
+{
+  "id":"W5-17","pts":2,"type":"MC","topic":"Fragmentation & Sharding",
+  "q":"In 2011, Facebook split its MySQL database into how many shards?",
+  "opts":["400","4,000","40,000","400,000"],
+  "ans":1,
+  "exp":"Facebook split its MySQL database into 4,000 shards in 2011 to handle the site's massive data volume. This is a key fact from the lecture illustrating that even relational databases like MySQL can be sharded at scale, though it requires enormous engineering effort — which is one reason NoSQL databases with built-in sharding became popular."
+},
+// ═══════════════════════════════════════════════════════════
+// DIMENSIONS OF DISTRIBUTED DB SYSTEMS (Slide 9-10)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-18","pts":3,"type":"MC","topic":"Distributed DB Dimensions",
+  "q":"What are the three dimensions used to characterise distributed database systems?",
+  "opts":["Speed, Storage, Security","Distribution, Heterogeneity, Autonomy","Consistency, Availability, Partition Tolerance","Volume, Velocity, Variety"],
+  "ans":1,
+  "exp":"The three dimensions are: Distribution (D0=none, D1=client-server, D2=peer-to-peer), Heterogeneity (H0=same tech, H1=different tech), and Autonomy (A0=tight integration, A1=semi-autonomous, A2=fully independent). CAP (C, A, P) describes properties, not dimensions. The 3 Vs describe Big Data characteristics, not database architecture."
+},
+{
+  "id":"W5-19","pts":2,"type":"MC","topic":"Distributed DB Dimensions",
+  "q":"In the Distribution dimension, D2 refers to:",
+  "opts":["No distribution","Client-server architecture","Peer-to-peer distribution","Cloud-only distribution"],
+  "ans":2,
+  "exp":"D0 = no distribution (single machine), D1 = client-server (clients query a central server), D2 = peer-to-peer (all nodes are equal, no central authority). Peer-to-peer is the most distributed mode — like Cassandra where every node can accept reads and writes. Cloud-only is not a defined distribution level."
+},
+{
+  "id":"W5-20","pts":2,"type":"MC","topic":"Distributed DB Dimensions",
+  "q":"In the Autonomy dimension, what does A0 mean?",
+  "opts":["Fully independent nodes","Semi-autonomous nodes that implement sharing","Tight integration with a single coordinator","No database exists"],
+  "ans":2,
+  "exp":"A0 = tight integration with a single coordinator controlling all nodes. A1 = semi-autonomous (nodes implement some sharing capabilities). A2 = fully independent (sharing is done by separate software). The scale goes from most centrally controlled (A0) to most independent (A2). 'No database' is not a valid autonomy level."
+},
+{
+  "id":"W5-21","pts":3,"type":"MC","topic":"Distributed DB Dimensions",
+  "q":"In the taxonomy slide, a homogeneous distributed database has which dimension values?",
+  "opts":["A0, D2, H0","A2, D0, H1","A1, D1, H0","A2, D2, H1"],
+  "ans":0,
+  "exp":"A homogeneous distributed database is classified as A0 (tight integration), D2 (peer-to-peer distribution), H0 (homogeneous — same technology everywhere). This means all nodes use the same DBMS software under centralised coordination. A heterogeneous (multi-DB) system, by contrast, uses different technologies (H1) with varying autonomy levels."
+},
+{
+  "id":"W5-22","pts":2,"type":"MC","topic":"Distributed DB Dimensions",
+  "q":"What is a 'federated' database system?",
+  "opts":["A single centralised database","A heterogeneous distributed system where independent databases interoperate","A graph database","A key-value store"],
+  "ans":1,
+  "exp":"A federated database system is a heterogeneous (multi-DB) system classified as A2 (fully independent), Dx (any distribution), Hy (heterogeneous). Independent databases interoperate — either loosely coupled (using export schemas) or tightly coupled (using a global schema). It's about making different, independent databases work together."
+},
+// ═══════════════════════════════════════════════════════════
+// CHALLENGES OF DISTRIBUTED SYSTEMS (Slide 11)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-23","pts":3,"type":"MS","topic":"Distributed DB Challenges",
+  "q":"What does the lecture say large-scale internet applications require from storage? (Select ALL that apply)",
+  "opts":["Increasable data capacity","Growing read/write throughput","Handle highly concurrent access","Strong schema enforcement"],
+  "ans":[0,1,2],
+  "exp":"The lecture lists three requirements: (1) Increasable data capacity, (2) Growing read/write throughput, (3) Handle highly concurrent access. These all require HORIZONTAL scaling. Strong schema enforcement is an RDBMS feature that actually makes scaling harder — NoSQL drops fixed schemas specifically to enable these three requirements."
+},
+// ═══════════════════════════════════════════════════════════
+// CAP THEOREM — PROPERTIES (Slides 12-13)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-24","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"In the CAP theorem, 'Consistency' means:",
+  "opts":["The system always responds to requests","A read is guaranteed to return the most recent write — all nodes see the same data","The system works despite network splits","Data is stored in a consistent file format"],
+  "ans":1,
+  "exp":"CAP Consistency: 'The system assures that operations are atomic, and changes are disseminated simultaneously to all nodes, with same results. A read is guaranteed to return the most recent write.' If you write data on Node 1, reading from Node 3 must immediately return that updated data. Option A = Availability. Option C = Partition Tolerance. Option D is nonsense."
+},
+{
+  "id":"W5-25","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"In the CAP theorem, 'Availability' means:",
+  "opts":["All nodes always have identical data","A non-failing node returns a reasonable response within a reasonable time, without guarantee of the latest write","The system can split into partitions","Data is always backed up"],
+  "ans":1,
+  "exp":"CAP Availability: 'The system must answer every request, even in case of failures. A non-failing node returns a reasonable response within a reasonable time, without guarantee of being the latest write.' The key phrase is 'without guarantee of being the latest write' — you always get AN answer, but it might be slightly outdated. Option A = Consistency."
+},
+{
+  "id":"W5-26","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"In the CAP theorem, 'Partition Tolerance' means:",
+  "opts":["The system can be partitioned into tables","The system is resilient to message losses between nodes","The system tolerates slow queries","Data can be split into files"],
+  "ans":1,
+  "exp":"The lecture defines it precisely: 'Partition is any arbitrary split between nodes resulting in message loss in between.' Partition Tolerance means: the system must be resilient to message losses between nodes. Consistency mechanisms must cope with message losses. Availability requires any partition to be able to answer a request. It's about NETWORK resilience, not data partitioning or query performance."
+},
+{
+  "id":"W5-27","pts":2,"type":"MC","topic":"CAP Theorem",
+  "q":"The CAP theorem states that a distributed system can guarantee at most how many of the three properties?",
+  "opts":["One","Two","Three","All can always be guaranteed with enough hardware"],
+  "ans":1,
+  "exp":"A distributed system can guarantee at most TWO of three: Consistency, Availability, Partition Tolerance. This is not a matter of hardware budget — it's a mathematical impossibility proven as a theorem. You MUST sacrifice at least one. The three combinations are CA, CP, and AP."
+},
+// ═══════════════════════════════════════════════════════════
+// CAP THEOREM — HISTORY (Slide 13)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-28","pts":2,"type":"MC","topic":"CAP Theorem",
+  "q":"The CAP theorem was originally proposed as a conjecture by whom, and when?",
+  "opts":["Gilbert and Lynch in 2002","Eric Brewer in 2000","Edgar Codd in 1970","Carlo Strozzi in 1998"],
+  "ans":1,
+  "exp":"Eric Brewer proposed the CAP CONJECTURE in 2000. It was later demonstrated as a formal THEOREM by Gilbert and Lynch in 2002. The distinction matters: Brewer hypothesised it (conjecture), Gilbert and Lynch mathematically PROVED it (theorem). Codd invented the relational model (1970). Strozzi named an unrelated database 'noSQL' (1998)."
+},
+{
+  "id":"W5-29","pts":2,"type":"MC","topic":"CAP Theorem",
+  "q":"Who formally proved the CAP theorem, and when?",
+  "opts":["Eric Brewer in 2000","Carlo Strozzi in 1998","Gilbert and Lynch in 2002","Tim Berners-Lee in 1989"],
+  "ans":2,
+  "exp":"Gilbert and Lynch formally demonstrated (proved) the CAP theorem in 2002, two years after Brewer proposed it as a conjecture. This mathematical proof elevated it from a hypothesis to a proven theorem — meaning it's not just a good idea, it's an impossibility result. Brewer proposed it. Strozzi named a database. Berners-Lee invented the Web."
+},
+{
+  "id":"W5-30","pts":3,"type":"TF","topic":"CAP Theorem",
+  "q":"True or False: The CAP theorem was always a proven theorem from the moment Eric Brewer first presented it.",
+  "opts":["True","False"],
+  "ans":1,
+  "exp":"FALSE. It was initially a CONJECTURE (educated guess) by Brewer in 2000. It was only proven as a formal THEOREM by Gilbert and Lynch in 2002. This two-year gap between conjecture and proof is important — the lecture uses both terms deliberately: 'initially a Conjecture by Brewer 2000' then 'demonstrated as a Theorem by Gilbert and Lynch 2002.'"
+},
+// ═══════════════════════════════════════════════════════════
+// CA SYSTEMS (Slide 14)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-31","pts":3,"type":"MC","topic":"CA Systems",
+  "q":"Which type of database follows the CA (Consistency + Availability) model?",
+  "opts":["Cassandra","MongoDB","Traditional RDBMS (MySQL, PostgreSQL, Oracle)","CouchDB"],
+  "ans":2,
+  "exp":"RDBMS follow the CA model — they provide consistent AND available services but do NOT tolerate network partitions well. They use replication for high availability and transaction protocols like two-phase commit for consistency. When partitions occur, they become inconsistent. MongoDB = CP. Cassandra = AP. CouchDB = AP."
+},
+{
+  "id":"W5-32","pts":3,"type":"MC","topic":"CA Systems",
+  "q":"What happens to a CA system when a network partition occurs?",
+  "opts":["Nothing — it works perfectly","The system becomes inconsistent, leading to conflicting replicas","It automatically upgrades to CAP compliance","It permanently shuts down"],
+  "ans":1,
+  "exp":"The lecture states: 'In case of partition, systems become inconsistent' and 'partitions lead to conflicting replicas.' A CA system cannot handle partitions — different replicas may have conflicting data. From this situation, there are two recovery options: favour Consistency (becoming CP) or favour Availability (becoming AP)."
+},
+{
+  "id":"W5-33","pts":2,"type":"MC","topic":"CA Systems",
+  "q":"CA systems use which mechanism to ensure consistency?",
+  "opts":["Eventual consistency","Transaction protocols such as two-phase commit","Gossip protocols","No mechanism — consistency is automatic"],
+  "ans":1,
+  "exp":"The lecture states CA systems use 'transaction protocols (e.g. two-phase commit) to ensure consistency' and 'replication to achieve high availability.' Two-phase commit coordinates transactions across nodes: first all nodes prepare (phase 1), then all commit or all rollback (phase 2). Eventual consistency is an AP concept. Gossip protocols are used in systems like Cassandra."
+},
+// ═══════════════════════════════════════════════════════════
+// CP SYSTEMS (Slide 15)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-34","pts":3,"type":"MC","topic":"CP Systems",
+  "q":"In a CP system, which CAP property is sacrificed?",
+  "opts":["Consistency","Availability","Partition Tolerance","Durability"],
+  "ans":1,
+  "exp":"CP systems sacrifice AVAILABILITY to maintain Consistency and Partition Tolerance. During a partition, nodes must AGREE before responding (consensus). If consensus cannot be reached, the system returns NO answer rather than potentially stale data. Think: 'I'd rather give you nothing than give you something wrong.' Durability is an ACID concept, not CAP."
+},
+{
+  "id":"W5-35","pts":3,"type":"MC","topic":"CP Systems",
+  "q":"CP systems ensure consistency using which type of algorithms?",
+  "opts":["Round-robin load balancing","Quorum and majority decision algorithms (e.g. Paxos protocol)","Random selection","First-come-first-served"],
+  "ans":1,
+  "exp":"The lecture states CP systems 'use quorum and majority decision algorithms (e.g. Paxos protocol).' In a quorum system, a majority of nodes must agree on a value before it's accepted. If a partition prevents reaching a majority, the system delays its response — sacrificing availability for correctness. Round-robin is load balancing, not consensus."
+},
+{
+  "id":"W5-36","pts":2,"type":"TF","topic":"CP Systems",
+  "q":"True or False: In a CP system during a network partition, nodes may return no answer at all rather than return potentially incorrect data.",
+  "opts":["True","False"],
+  "ans":0,
+  "exp":"TRUE. The lecture states: 'In case of partition, consensus is delayed, therefore affecting availability (no answer possible).' CP systems would rather give NO response than risk giving incorrect or outdated data. This is the core trade-off — sacrificing availability to guarantee that any data you DO receive is definitely correct and up-to-date."
+},
+// ═══════════════════════════════════════════════════════════
+// AP SYSTEMS (Slide 16)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-37","pts":3,"type":"MC","topic":"AP Systems",
+  "q":"In an AP system, which CAP property is sacrificed?",
+  "opts":["Availability","Partition Tolerance","Consistency","Durability"],
+  "ans":2,
+  "exp":"AP systems sacrifice CONSISTENCY to maintain Availability and Partition Tolerance. During a partition, unreachable nodes hold temporarily inconsistent data, but the system ALWAYS responds. It uses eventual consistency — the system converges to full consistency over time. The trade-off: 'I'll always give you an answer, but it might be slightly outdated.'"
+},
+{
+  "id":"W5-38","pts":3,"type":"MC","topic":"AP Systems",
+  "q":"What is 'eventual consistency' as used in AP systems?",
+  "opts":["Data is always perfectly consistent at every moment","The system converges to full consistency over time — temporarily stale data is possible","The system eventually stops working","Consistency is never achieved under any circumstance"],
+  "ans":1,
+  "exp":"The lecture defines eventual consistency as 'ensuring the system converges to full consistency.' Data may be temporarily stale during partitions, but all nodes will eventually synchronise. It's NOT 'always consistent' (that's strong consistency). It's NOT 'never consistent' — it does achieve consistency eventually. Think: likes on a social media post — different users might see slightly different counts momentarily."
+},
+{
+  "id":"W5-39","pts":2,"type":"MC","topic":"AP Systems",
+  "q":"In an AP system during a partition, what happens to unreachable nodes?",
+  "opts":["They are deleted from the cluster","They hold temporarily inconsistent data","They stop storing data entirely","They switch to relational mode"],
+  "ans":1,
+  "exp":"The lecture states: 'Unreachable nodes hold temporarily inconsistent data.' They keep operating and serving requests with whatever data they have — even if it's slightly outdated. Once the partition heals, nodes synchronise and converge. They are NOT deleted, they DON'T stop storing data, and they certainly don't switch to relational mode."
+},
+// ═══════════════════════════════════════════════════════════
+// CAP COMBINATIONS — SCENARIO QUESTIONS
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-40","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"A banking system requires that every read always returns the latest balance and must handle network splits. Which CAP model is most appropriate?",
+  "opts":["CA — Consistency + Availability","CP — Consistency + Partition Tolerance","AP — Availability + Partition Tolerance","All three are possible simultaneously"],
+  "ans":1,
+  "exp":"A bank needs CONSISTENCY (you must see the correct balance — no stale reads) and PARTITION TOLERANCE (the network between data centres may split). This is CP. It sacrifices availability — during a partition, the system may refuse to respond rather than show a wrong balance. AP would risk showing incorrect balances. CA cannot handle network splits. All three cannot be guaranteed simultaneously."
+},
+{
+  "id":"W5-41","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"A social media platform wants every user to always see their feed (even slightly outdated) and must tolerate network issues. Which CAP model?",
+  "opts":["CA","CP","AP","All three"],
+  "ans":2,
+  "exp":"Social media prioritises AVAILABILITY (users must always see something — not an error page) and PARTITION TOLERANCE (global network issues happen). This is AP. It sacrifices strong consistency — your feed might be a few seconds behind, but you always get a response. CP would mean showing error pages during partitions. CA cannot handle partitions."
+},
+{
+  "id":"W5-42","pts":3,"type":"MC","topic":"CAP Theorem",
+  "q":"The lecture asks: 'Since RDBMS have a CA model and cannot provide availability or consistency in the presence of partition, which database systems can be designed according to CP or AP models?'  The answer is:",
+  "opts":["More powerful RDBMS","NoSQL database systems","File storage systems","Spreadsheet applications"],
+  "ans":1,
+  "exp":"This is a direct quote from the lecture slide. The answer is NoSQL database systems. Since RDBMS are CA (can't handle partitions), we need a different approach for distributed systems that must tolerate partitions — and that's NoSQL. NoSQL systems are designed from the ground up to handle CP or AP trade-offs in distributed environments."
+},
+// ═══════════════════════════════════════════════════════════
+// NoSQL AND CAP MAPPING (Slide 22)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-43","pts":3,"type":"MS","topic":"NoSQL CAP Mapping",
+  "q":"According to the lecture's CAP diagram, which databases are classified as AP (Availability + Partition Tolerance)? (Select ALL that apply)",
+  "opts":["CouchDB","Cassandra","DynamoDB","MongoDB"],
+  "ans":[0,1,2],
+  "exp":"The lecture's NoSQL CAP properties diagram shows CouchDB, Cassandra, DynamoDB (and Riak) as AP systems. MongoDB is CP — it favours consistency and partition tolerance, sacrificing availability during partitions. This is an extremely likely test question — memorise which databases go where in the CAP triangle."
+},
+{
+  "id":"W5-44","pts":3,"type":"MS","topic":"NoSQL CAP Mapping",
+  "q":"According to the lecture's CAP diagram, which databases are classified as CP (Consistency + Partition Tolerance)? (Select ALL that apply)",
+  "opts":["MongoDB","HBase","Redis","Cassandra"],
+  "ans":[0,1,2],
+  "exp":"MongoDB, HBase, and Redis are CP systems — they prioritise consistency and partition tolerance. During a network partition, they may become temporarily unavailable rather than return stale data. Cassandra is AP — it always responds, even with potentially stale data. This CP/AP classification is a core exam topic."
+},
+{
+  "id":"W5-45","pts":2,"type":"MC","topic":"NoSQL CAP Mapping",
+  "q":"Which CAP model does Cassandra follow?",
+  "opts":["CA — Consistency + Availability","CP — Consistency + Partition Tolerance","AP — Availability + Partition Tolerance","All three simultaneously"],
+  "ans":2,
+  "exp":"Cassandra is an AP system — it prioritises Availability and Partition Tolerance, sacrificing strong Consistency. It uses eventual consistency: nodes may temporarily hold different values but will converge over time. Cassandra's design philosophy is 'always answer, even if slightly stale.' MongoDB and HBase are CP. RDBMS are CA."
+},
+{
+  "id":"W5-46","pts":2,"type":"MC","topic":"NoSQL CAP Mapping",
+  "q":"Which CAP model does MongoDB follow?",
+  "opts":["CA","CP","AP","None — MongoDB is not distributed"],
+  "ans":1,
+  "exp":"MongoDB is a CP system — it prioritises Consistency and Partition Tolerance. During a network partition, MongoDB may become temporarily unavailable (the primary might be unreachable) rather than return stale data. It uses a single-primary write model where all writes go through one primary node. MongoDB IS distributed (it supports sharding and replica sets)."
+},
+// ═══════════════════════════════════════════════════════════
+// NoSQL HISTORY (Slide 19)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-47","pts":2,"type":"MC","topic":"NoSQL History",
+  "q":"Who first used the term 'noSQL' and in what year?",
+  "opts":["Eric Brewer in 2000","Carlo Strozzi in 1998","Facebook in 2008","Rackspace in 2009"],
+  "ans":1,
+  "exp":"Carlo Strozzi first used 'noSQL' in 1998 to name a relational database that he queried WITHOUT SQL. Ironically, it WAS a relational database — just one that didn't use SQL as its query language. The modern NoSQL movement is completely different — it refers to distributed non-relational databases. Don't confuse Strozzi's 1998 noSQL with the 2009 NoSQL movement."
+},
+{
+  "id":"W5-48","pts":2,"type":"MC","topic":"NoSQL History",
+  "q":"The name 'NoSQL' was used as an arbitrary conference name hosted by which company in 2009?",
+  "opts":["Google","Facebook","Amazon","Rackspace"],
+  "ans":3,
+  "exp":"Rackspace hosted a 2009 conference where 'NoSQL' was used as an arbitrary name. This conference gave birth to the modern NoSQL movement — presenting a collection of distributed non-relational databases. Google created BigTable (2004). Facebook open-sourced Cassandra (2008). Amazon published the DynamoDB paper (2007)."
+},
+{
+  "id":"W5-49","pts":2,"type":"MC","topic":"NoSQL History",
+  "q":"The NoSQL movement initially started as 'no more SQL' and later softened to:",
+  "opts":["Never SQL","Not Only SQL","New SQL","No Schema Query Language"],
+  "ans":1,
+  "exp":"Started as 'no more SQL' — an anti-SQL movement. Later softened to 'Not Only SQL' — a gentler definition acknowledging SQL is still useful, but other approaches exist for different use cases. NewSQL is actually a SEPARATE movement (systems like Google Spanner, VoltDB) that tries to combine SQL with horizontal scalability."
+},
+{
+  "id":"W5-50","pts":3,"type":"STE","topic":"NoSQL History",
+  "q":"A student writes in their notes: 'The NoSQL timeline: Neo4j created in 2000, Google BigTable in 2004, CouchDB in 2005, Amazon DynamoDB research paper in 2007, Cassandra open-sourced by Google in 2008.' Find the error.",
+  "opts":["Neo4j was created in 2005, not 2000","Google BigTable was 2007, not 2004","CouchDB was 2008, not 2005","Cassandra was open-sourced by Facebook, not Google"],
+  "ans":3,
+  "exp":"Cassandra was developed and open-sourced by FACEBOOK in 2008, not Google. The rest of the timeline is correct: Neo4j (2000), Google BigTable (2004), CouchDB (2005), Amazon DynamoDB research paper (2007). Google created BigTable. Amazon published DynamoDB. Facebook open-sourced Cassandra. Getting the companies right is critical for the test."
+},
+// ═══════════════════════════════════════════════════════════
+// NoSQL CHARACTERISTICS (Slides 20-21)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-51","pts":2,"type":"TF","topic":"NoSQL Characteristics",
+  "q":"True or False: NoSQL databases respect the ACID principles just like relational databases.",
+  "opts":["True","False"],
+  "ans":1,
+  "exp":"FALSE. The lecture states explicitly: 'Do not respect the ACID principles. Consistency cannot be achieved while targeting high availability. Substituted by eventual consistency (in a parallel environment).' NoSQL intentionally drops ACID guarantees in favour of BASE principles to achieve high availability and horizontal scalability."
+},
+{
+  "id":"W5-52","pts":2,"type":"TF","topic":"NoSQL Characteristics",
+  "q":"True or False: NoSQL databases have a standard declarative query language used by all NoSQL systems.",
+  "opts":["True","False"],
+  "ans":1,
+  "exp":"FALSE. The lecture states: 'No standard declarative query language. Most use variations of SQL.' Each system has its own: Cassandra uses CQL, Couchbase uses N1QL (SQL-like), MongoDB uses MQL, Elasticsearch has its own query DSL. This lack of standardisation contrasts with relational databases which ALL share SQL."
+},
+{
+  "id":"W5-53","pts":2,"type":"MC","topic":"NoSQL Characteristics",
+  "q":"NoSQL databases rely on what type of schema?",
+  "opts":["Fixed predefined schema","Dynamic schema (no predefined schema)","Star schema","Snowflake schema"],
+  "ans":1,
+  "exp":"The lecture states NoSQL databases 'do not have predefined schema — rely on dynamic schema.' Documents can have different fields, column families can vary per row, etc. This flexibility is a core NoSQL design principle. Fixed/predefined schemas are RDBMS. Star and snowflake schemas are data warehouse designs used in RDBMS."
+},
+{
+  "id":"W5-54","pts":2,"type":"MC","topic":"NoSQL Characteristics",
+  "q":"NoSQL databases are built to scale in which direction?",
+  "opts":["Vertically (scale up)","Horizontally (scale out)","They cannot scale","Diagonally"],
+  "ans":1,
+  "exp":"The lecture states: 'Built to scale horizontally (vs. vertical scalability of RDBMS).' Horizontal scaling = adding more cheap commodity machines. Vertical scaling = making one machine more powerful (RDBMS approach). Horizontal scaling is cheaper, has no upper limit, and is the fundamental architecture of all NoSQL systems."
+},
+// ═══════════════════════════════════════════════════════════
+// BASE PRINCIPLES (Slide 21)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-55","pts":3,"type":"MC","topic":"BASE Principles",
+  "q":"What does BASE stand for?",
+  "opts":["Basic Availability, Soft State, Eventual Consistency","Binary Access, Secure Encoding, Encrypted Storage","Batch Analytics, Stream Events, Elastic Compute","Basic Atomicity, Strong Encoding, Explicit Consistency"],
+  "ans":0,
+  "exp":"BASE = Basic Availability (system always up through replication), Soft State (consistency is the developer's problem, not the DBMS), Eventual Consistency (database converges to consistent state over time). BASE is the NoSQL alternative to ACID — intentionally trading strong guarantees for availability and scalability. All other options are fabricated."
+},
+{
+  "id":"W5-56","pts":3,"type":"MC","topic":"BASE Principles",
+  "q":"In BASE, 'Basic Availability' means:",
+  "opts":["The system is available 50% of the time","A highly distributed DBMS with replication that provides availability even with failures","The system only works during business hours","Each node works independently with no communication"],
+  "ans":1,
+  "exp":"The lecture defines Basic Availability as: 'Highly distributed DBM, with replication, to provide availability even with failures.' Through distributed architecture and data replication across nodes, the system remains available even when individual nodes fail. It's NOT partial availability — it's high availability through redundancy."
+},
+{
+  "id":"W5-57","pts":3,"type":"MC","topic":"BASE Principles",
+  "q":"In BASE, 'Soft State' means:",
+  "opts":["The hardware is soft (flexible)","The software can be easily updated","Consistency is the problem of the developer, not the DBMS","The system state is encrypted"],
+  "ans":2,
+  "exp":"The lecture states Soft State means: 'Consistency is the problem of the developer not the DBMS.' Unlike ACID where the database management system AUTOMATICALLY guarantees consistency, in BASE the PROGRAMMER must design their application to handle temporary inconsistencies. The state is 'soft' because it may change over time without explicit input as replicas synchronise."
+},
+{
+  "id":"W5-58","pts":3,"type":"MC","topic":"BASE Principles",
+  "q":"In BASE, 'Eventual Consistency' means:",
+  "opts":["The database is always consistent","The database should converge to a consistent state in the future — operations execute without waiting for prior consistency","Consistency is never achieved","The developer must manually sync all nodes"],
+  "ans":1,
+  "exp":"The lecture defines it precisely: 'Database should converge to consistent state in the future (operations can be executed without waiting for prior consistency).' Key insight: operations DON'T WAIT for the system to be consistent first — they execute immediately, and consistency catches up later. It's NOT 'never consistent' — it DOES converge eventually."
+},
+// ═══════════════════════════════════════════════════════════
+// ACID vs BASE COMPARISON
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-59","pts":3,"type":"MC","topic":"ACID vs BASE",
+  "q":"Which correctly describes the difference between ACID and BASE approaches?",
+  "opts":["ACID = strong consistency, less availability, conservative. BASE = weak/eventual consistency, availability first, aggressive.","ACID = weak consistency. BASE = strong consistency.","Both provide identical guarantees.","ACID is for NoSQL. BASE is for relational databases."],
+  "ans":0,
+  "exp":"ACID is conservative/pessimistic: strong consistency, transaction isolation, but less availability. BASE is aggressive/optimistic: weak/eventual consistency, availability first, simpler and faster. ACID belongs to RDBMS. BASE belongs to NoSQL. They represent fundamentally opposite philosophies — guaranteed correctness vs guaranteed responsiveness."
+},
+{
+  "id":"W5-60","pts":2,"type":"TF","topic":"ACID vs BASE",
+  "q":"True or False: In BASE systems, the database management system (DBMS) automatically guarantees consistency, just like in ACID systems.",
+  "opts":["True","False"],
+  "ans":1,
+  "exp":"FALSE. In ACID, the DBMS automatically guarantees consistency. In BASE, consistency is the DEVELOPER'S responsibility (Soft State). The programmer must write application logic to handle temporary inconsistencies, resolve conflicts, and ensure data eventually converges. This shifts a significant burden from the database to the application code."
+},
+// ═══════════════════════════════════════════════════════════
+// FOUR NoSQL DATA MODELS (Slides 24-28)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-61","pts":2,"type":"MC","topic":"NoSQL Data Models",
+  "q":"How many NoSQL data models does the lecture present?",
+  "opts":["Two","Three","Four","Five"],
+  "ans":2,
+  "exp":"The lecture presents FOUR NoSQL data models: (1) Key-Value stores, (2) Document stores, (3) Wide-Column (Column Family) stores, and (4) Graph databases. Each model is optimised for different use cases and has different CAP trade-offs. Memorise all four — this is a guaranteed exam topic."
+},
+{
+  "id":"W5-62","pts":3,"type":"MC","topic":"Key-Value Stores",
+  "q":"In a key-value store, objects (values) are described as 'opaque' to the database. This means:",
+  "opts":["The database can search inside the value's structure","The database CANNOT see or query the internal structure — it only stores and retrieves by key","Values must be encrypted","Values are always in JSON format"],
+  "ans":1,
+  "exp":"'Opaque' means the database treats values as black boxes. The lecture states: 'Objects are opaque to the database (uniquely read written).' The DB can ONLY store a value and retrieve it by its exact key — it cannot look inside, filter by fields, or query the value's contents. This is the simplest NoSQL model. If you need to query inside values, you need a document store."
+},
+{
+  "id":"W5-63","pts":2,"type":"MS","topic":"Key-Value Stores",
+  "q":"Which are characteristics of key-value stores according to the lecture? (Select ALL that apply)",
+  "opts":["Based on hashtable (dictionary/map) data structure","Schema-less","Mostly in-memory","Support complex SQL joins"],
+  "ans":[0,1,2],
+  "exp":"The lecture lists: 'Data stored in hashtable (dictionary or map) data structure as objects. Schema-less. Mostly in-memory.' Key-value stores are the simplest NoSQL model — incredibly fast for point lookups but with no join support whatsoever. Complex SQL joins are a RELATIONAL feature that key-value stores intentionally avoid."
+},
+{
+  "id":"W5-64","pts":2,"type":"MS","topic":"Key-Value Stores",
+  "q":"Which of the following are key-value store databases? (Select ALL that apply)",
+  "opts":["Redis","Riak KV","Neo4j","Oracle NoSQL Database"],
+  "ans":[0,1,3],
+  "exp":"The lecture's key-value slide shows: Redis, Riak KV, Oracle NoSQL Database, DynamoDB (also document), and Azure Cosmos DB (also document). Neo4j is a GRAPH database — it stores nodes and edges, not simple key-value pairs. DynamoDB and Cosmos DB appear in both key-value and document categories because they support both models."
+},
+{
+  "id":"W5-65","pts":3,"type":"MC","topic":"Document Stores",
+  "q":"Document stores extend the key-value model by:",
+  "opts":["Adding SQL support","Giving the database access to the internal structure of documents, enabling field-level queries","Removing the concept of keys","Storing data as graphs"],
+  "ans":1,
+  "exp":"The lecture states document stores 'extend key-value model to key-document lookup' where 'database has access to internal structure of document therefore provide access to fields.' This is THE key difference from key-value: the DB can see inside documents, query individual fields, and create indexes on nested fields. Documents still have keys, but the values are no longer opaque."
+},
+{
+  "id":"W5-66","pts":2,"type":"MC","topic":"Document Stores",
+  "q":"Document stores typically store data in which format?",
+  "opts":["CSV files","Binary blobs only","JSON or XML","SQL tables"],
+  "ans":2,
+  "exp":"The lecture states: 'Data is structured (set of key-value) and typically stored in JSON or XML — hence the term document.' Specifically: 'Apache CouchDB and MongoDB use JSON markup in a document data store.' JSON is the dominant modern format. CSV and binary blobs are not document formats. SQL tables are relational."
+},
+{
+  "id":"W5-67","pts":2,"type":"TF","topic":"Document Stores",
+  "q":"True or False: Document stores include search capabilities (search patterns).",
+  "opts":["True","False"],
+  "ans":0,
+  "exp":"TRUE. The lecture explicitly states document stores 'include search capabilities (search patterns).' Because the database has access to the internal structure of documents, it can search within them — finding documents that match specific field values, patterns, or conditions. This is a major advantage over key-value stores where values are opaque."
+},
+{
+  "id":"W5-68","pts":3,"type":"MC","topic":"Wide-Column Stores",
+  "q":"Wide-column (column family) databases use 'flexible tables.' What makes them 'flexible'?",
+  "opts":["All rows must have identical columns","Names and formats of columns can vary from row to row — creating a sparse data matrix","Tables can only have one column","Columns are stored as JSON documents"],
+  "ans":1,
+  "exp":"The lecture states: 'Names and formats of columns can vary from a row to another. Not all columns have values.' This creates a SPARSE DATA MATRIX — unlike relational tables where every row has the same columns, wide-column rows can each have completely different columns. This flexibility is why they're called 'flexible tables.'"
+},
+{
+  "id":"W5-69","pts":3,"type":"MC","topic":"Wide-Column Stores",
+  "q":"Wide-column stores support two types of sharding. What are they?",
+  "opts":["Time-based and location-based","Vertical sharding (column families on separate computers) and horizontal sharding (rows on different computers)","Primary and secondary","Hash-based and range-based"],
+  "ans":1,
+  "exp":"The lecture describes two sharding types: VERTICAL sharding (column families — sets of related columns — stored on separate computers) and HORIZONTAL sharding (within a column family, rows are stored on different computers). This two-dimensional distribution enables massive scalability — data is split both by columns AND by rows across the cluster."
+},
+{
+  "id":"W5-70","pts":2,"type":"MC","topic":"Graph Databases",
+  "q":"Graph databases focus on:",
+  "opts":["Column-oriented storage","Key-value lookups","Relationships between entities — nodes are entities, edges are relations","Document nesting"],
+  "ans":2,
+  "exp":"The lecture states: 'Focus on relationship between entities. Nodes are entities. Edges are relations (properties).' Graph databases model the world as a network of connected entities — perfect for social networks, recommendation engines, fraud detection, and knowledge graphs. Column storage = wide-column. Key-value = Redis. Document nesting = MongoDB."
+},
+{
+  "id":"W5-71","pts":2,"type":"MC","topic":"Graph Databases",
+  "q":"According to the lecture, graph databases are widely used by which type of application?",
+  "opts":["Banking transactions","Social networks","Spreadsheet applications","Email servers"],
+  "ans":1,
+  "exp":"The lecture states: 'Widely used by social networks.' Social networks are a natural fit because the core data model IS a graph — people (nodes) connected by relationships (edges) like 'follows', 'friends_with', 'likes'. Traversing these connections (friends-of-friends, recommendations) is exactly what graph databases excel at."
+},
+// ═══════════════════════════════════════════════════════════
+// PACELC THEOREM (Slides 23-24)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-72","pts":3,"type":"MC","topic":"PACELC Theorem",
+  "q":"The PACELC theorem extends CAP by addressing what additional trade-off?",
+  "opts":["Speed vs Security","Cost vs Performance","Latency vs Consistency during normal operations (no partition)","Storage vs Memory"],
+  "ans":2,
+  "exp":"PACELC states: on Partition → trade-off between Availability and Consistency. ELSE (normal operations, no partition) → trade-off between Latency and Consistency. The key insight: even when everything works fine (no partition), you STILL must choose between fast responses (low latency) and perfectly consistent data. CAP only addresses partition scenarios — PACELC covers normal operation too."
+},
+{
+  "id":"W5-73","pts":3,"type":"MC","topic":"PACELC Theorem",
+  "q":"In the PACELC theorem, what does the 'EL' part mean for a database like Cassandra?",
+  "opts":["Else: favours Latency over Consistency during normal operations","Else: favours Consistency over Latency","Encrypted Links","Elastic Loading"],
+  "ans":0,
+  "exp":"Cassandra is PA/EL: on Partition → favours Availability. Else (normal operation) → favours LATENCY over Consistency. Even when there's no partition, Cassandra prioritises fast responses over guaranteed consistency. This matches its design as an AP system that values speed and availability above all. Contrast with MongoDB (PC/EC) which always favours consistency."
+},
+{
+  "id":"W5-74","pts":3,"type":"MC","topic":"PACELC Theorem",
+  "q":"According to the PACELC table, MongoDB is classified as:",
+  "opts":["PA/EL — favours Availability and Latency","PC/EC — favours Consistency always","PA/EC — mixed approach","PC/EL — Consistency on partition, Latency normally"],
+  "ans":1,
+  "exp":"MongoDB is PC/EC: on Partition → favours Consistency (CP system). Else (normal operation) → also favours Consistency over Latency. MongoDB ALWAYS prioritises getting the right answer, even if it's slower. This is consistent with its CP classification in CAP. Cassandra, by contrast, is PA/EL — always favouring speed and availability."
+},
+{
+  "id":"W5-75","pts":3,"type":"STE","topic":"PACELC Theorem",
+  "q":"A student claims: 'The CAP theorem tells us everything about distributed system trade-offs. There's no need for any extension.' The lecture disagrees because:",
+  "opts":["CAP is completely wrong and should be replaced","CAP only covers partition scenarios — even in normal operations, you must choose between Latency and Consistency","CAP doesn't consider consistency at all","The lecture agrees with the student"],
+  "ans":1,
+  "exp":"The lecture's 'Critics of CAP theorem' slide states: 'Even in the absence of partition (normal operations), one has to choose between Latency and Consistency.' CAP's trade-off between C and A only applies DURING partitions. PACELC extends this by adding the Else clause: during normal operations, the trade-off is between Latency and Consistency. CAP is correct but incomplete."
+},
+// ═══════════════════════════════════════════════════════════
+// NoSQL AIMS & CHARACTERISTICS (Slides 25-28)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-76","pts":3,"type":"MS","topic":"NoSQL Aims",
+  "q":"What are the three aims of NoSQL according to the lecture? (Select ALL that apply)",
+  "opts":["Flexible — no fixed schema","Highly available — replication across compute clusters","Strong ACID compliance","Web-scale — automatic horizontal sharding"],
+  "ans":[0,1,3],
+  "exp":"The lecture lists three NoSQL aims: (1) Flexible — no fixed schema, (2) Highly available — replication across compute clusters, (3) Web-scale — automatic horizontal sharding. Strong ACID compliance is the OPPOSITE of NoSQL philosophy. NoSQL explicitly drops ACID in favour of BASE to achieve these three aims."
+},
+{
+  "id":"W5-77","pts":2,"type":"MS","topic":"NoSQL Characteristics",
+  "q":"What does NoSQL NOT support according to the lecture? (Select ALL that apply)",
+  "opts":["Fixed schema — data model can evolve","Standard query language (SQL)","ACID transaction processing","Horizontal scalability"],
+  "ans":[0,1,2],
+  "exp":"The lecture's 'NoSQL do not support' slide lists: (1) Schema — data model can evolve, data exchanged as JSON, (2) SQL — no standard query language, proliferation of APIs, (3) Transaction processing — no ACID, replaced by BASE. Horizontal scalability is something NoSQL DOES support — it's a core feature, not a limitation."
+},
+{
+  "id":"W5-78","pts":2,"type":"MC","topic":"NoSQL Characteristics",
+  "q":"In NoSQL systems, who is responsible for ensuring data consistency?",
+  "opts":["The DBMS automatically","The programmer/developer","The operating system","Consistency is impossible in NoSQL"],
+  "ans":1,
+  "exp":"The lecture states NoSQL is 'lower-level than RDBMS/SQL' where the 'programmer ensures consistency (programming not querying).' Unlike RDBMS where the DBMS handles consistency automatically (ACID), in NoSQL the developer must write application logic to handle temporary inconsistencies and ensure eventual convergence. It's not impossible — it's just the developer's job."
+},
+{
+  "id":"W5-79","pts":3,"type":"MS","topic":"NoSQL Characteristics",
+  "q":"Which are listed as NoSQL characteristics in the lecture? (Select ALL that apply)",
+  "opts":["Distributed (sharding + replication)","Simpler ad hoc APIs","Different flavours for different scenarios","Strong ACID compliance"],
+  "ans":[0,1,2],
+  "exp":"The lecture lists: Distributed (sharding and replication), Lower-level than RDBMS with simpler ad hoc APIs, Different flavours with different CAP emphasis, scalability profiles, query functionality, and data models. Strong ACID is explicitly what NoSQL DROPS — replaced by BASE. Operations are described as 'simple and cheap.'"
+},
+// ═══════════════════════════════════════════════════════════
+// RDB vs NoSQL (Slide 29)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-80","pts":3,"type":"MC","topic":"RDB vs NoSQL",
+  "q":"The lecture concludes that NoSQL essentially asks: 'What if you don't need SQL or ACID?' The answer involves trading what?",
+  "opts":["Speed for consistency","Efficiency against guarantees — something simpler and more scalable","Scalability for complexity","Nothing — NoSQL has no trade-offs"],
+  "ans":1,
+  "exp":"The lecture's final comparison states: 'NoSQL: what if you don't need SQL or ACID? Something simpler. Something more scalable. Trade efficiency against guarantees.' This perfectly summarises the NoSQL philosophy: give up the strong guarantees of ACID and the overhead of SQL to gain simplicity and massive scalability. Every engineering decision involves trade-offs."
+},
+// ═══════════════════════════════════════════════════════════
+// REPLICATION & CONSISTENCY DEEP-DIVE (Slide 23)
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-81","pts":3,"type":"MC","topic":"Replication & Consistency",
+  "q":"According to the lecture's slide on CAP critics, when data updates are sent to all replicas simultaneously WITHOUT a pre-processing layer, the result is:",
+  "opts":["Strong consistency","High latency","Immediate deletion","Automatic sharding"],
+  "ans":1,
+  "exp":"The lecture's 'Critics of CAP' slide explains: when data updates are sent to all replicas simultaneously, without a pre-processing layer → Latency (because you must wait for all replicas to acknowledge). With a pre-processing layer → affects consistency. This illustrates the fundamental Latency vs Consistency trade-off that PACELC captures."
+},
+{
+  "id":"W5-82","pts":3,"type":"MC","topic":"Replication & Consistency",
+  "q":"When data updates are sent to an agreed-upon location first (e.g. Dynamo, Cassandra, Riak), synchronous replication gives:",
+  "opts":["Latency","Consistency","Availability","Partition tolerance"],
+  "ans":1,
+  "exp":"The lecture states: for systems like Dynamo, Cassandra, Riak — when updates go to an arbitrary/agreed location first: Synchronous replication → consistency (all nodes update together, but slower). Asynchronous replication → latency/speed (faster responses, but nodes may be temporarily out of sync). This is the core L vs C trade-off in PACELC's 'Else' clause."
+},
+// ═══════════════════════════════════════════════════════════
+// MIXED / TRICKY QUESTIONS
+// ═══════════════════════════════════════════════════════════
+{
+  "id":"W5-83","pts":3,"type":"STE","topic":"CAP Theorem",
+  "q":"A student's notes say: 'The CAP theorem means you must always sacrifice one of C, A, or P. Since partition tolerance is optional for distributed systems, most modern systems choose CA.' Find the error.",
+  "opts":["The student is completely correct","Partition tolerance is NOT optional — network partitions are unavoidable in real distributed systems, so the real choice is CP vs AP","The CAP theorem only applies to relational databases","You can actually guarantee all three with enough servers"],
+  "ans":1,
+  "exp":"The critical error: partition tolerance is NOT optional in real distributed systems. Network failures WILL happen. Since P is practically mandatory, the real trade-off is CP (sacrifice availability) vs AP (sacrifice consistency). CA only works in non-distributed, single-site systems like traditional RDBMS. You mathematically cannot guarantee all three — it's a proven theorem."
+},
+{
+  "id":"W5-84","pts":3,"type":"STE","topic":"NoSQL Data Models",
+  "q":"A student says: 'Key-value stores and document stores are essentially the same thing — both store data using keys.' What's wrong with this claim?",
+  "opts":["They are indeed identical","Key-value values are OPAQUE (DB can't look inside), while document store values are STRUCTURED and the DB can query individual fields inside them","Document stores don't use keys at all","Key-value stores only work in memory"],
+  "ans":1,
+  "exp":"The CRITICAL difference: in key-value stores, values are OPAQUE — the database cannot see inside them, it can only store and retrieve by key. In document stores, values are STRUCTURED (JSON/XML) and the database HAS ACCESS to the internal structure — it can query individual fields, create indexes on nested data, and search within documents. Both use keys, but document stores add field-level queryability."
+}
+];
+
+// ═══════════════════════════════════════════════════════════
+// QUIZ ENGINE (identical to sample quiz)
+// ═══════════════════════════════════════════════════════════
+var cur=0,score=0,earnedPts=0,totalPts=0;
+var answered=[],shuffled=[],selMulti=[];
+
+function shuffleArr(a){
+  var arr=a.slice();
+  for(var i=arr.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;
+  }
+  return arr;
+}
+
+function initQuiz(){
+  cur=0;score=0;earnedPts=0;answered=[];selMulti=[];
+  shuffled=shuffleArr(QS);
+  totalPts=0;
+  for(var i=0;i<shuffled.length;i++) totalPts+=shuffled[i].pts;
+  document.getElementById("results-screen").style.display="none";
+  document.getElementById("quiz-screen").style.display="block";
+  renderQ();
+}
+
+function renderQ(){
+  var q=shuffled[cur];
+  selMulti=[];
+  var tot=shuffled.length;
+  document.getElementById("prog-bar").style.width=(cur/tot*100)+"%";
+  document.getElementById("prog-label").textContent="Question "+(cur+1)+" of "+tot;
+  var badge=document.getElementById("qbadge");
+  var typeMap={"MC":"Multiple Choice","MS":"Multi-Select","TF":"True / False","STE":"Spot the Error"};
+  var clsMap={"MC":"badge b-mc","MS":"badge b-ms","TF":"badge b-tf","STE":"badge b-ste"};
+  badge.className=clsMap[q.type]||"badge b-mc";
+  badge.textContent=typeMap[q.type]||q.type;
+  document.getElementById("qpts").textContent=q.pts+" pts";
+  document.getElementById("qtopic").textContent=q.topic;
+  document.getElementById("qnum").textContent=(cur+1)+"/"+tot;
+  document.getElementById("qtext").textContent=q.q;
+  var hint=document.getElementById("qhint");
+  if(q.type==="MS"){hint.style.display="block";hint.textContent="Select ALL correct answers, then click Submit.";}
+  else{hint.style.display="none";}
+  var container=document.getElementById("qopts");
+  container.innerHTML="";
+  for(var i=0;i<q.opts.length;i++){
+    var btn=document.createElement("button");
+    btn.className="opt";
+    btn.setAttribute("data-i",i);
+    var ltr=document.createElement("span");
+    ltr.className="ltr";
+    ltr.textContent=String.fromCharCode(65+i);
+    var txt=document.createElement("span");
+    txt.className="opt-text";
+    txt.textContent=q.opts[i];
+    btn.appendChild(ltr);
+    btn.appendChild(txt);
+    if(q.type==="MS"){
+      (function(idx,b){b.addEventListener("click",function(){toggleSel(idx,b);});})(i,btn);
+    } else {
+      (function(idx){btn.addEventListener("click",function(){pickAnswer(idx);});})(i);
+    }
+    container.appendChild(btn);
+  }
+  document.getElementById("submit-btn").style.display=(q.type==="MS")?"inline-block":"none";
+  document.getElementById("fb").style.display="none";
+  document.getElementById("fb").className="";
+  document.getElementById("next-btn").style.display="none";
+}
+
+function toggleSel(idx,btn){
+  var pos=selMulti.indexOf(idx);
+  if(pos>=0){selMulti.splice(pos,1);btn.classList.remove("sel");}
+  else{selMulti.push(idx);btn.classList.add("sel");}
+}
+
+function submitMulti(){
+  var q=shuffled[cur];
+  var btns=document.querySelectorAll(".opt");
+  for(var i=0;i<btns.length;i++) btns[i].disabled=true;
+  document.getElementById("submit-btn").style.display="none";
+  var correct=q.ans;
+  var isOk=(correct.length===selMulti.length);
+  if(isOk){for(var i=0;i<correct.length;i++){if(selMulti.indexOf(correct[i])<0){isOk=false;break;}}}
+  if(isOk){score++;earnedPts+=q.pts;}
+  answered.push({q:q,chosen:selMulti.slice(),isOk:isOk});
+  for(var i=0;i<btns.length;i++){
+    var idx=parseInt(btns[i].getAttribute("data-i"));
+    var inC=correct.indexOf(idx)>=0;
+    var inS=selMulti.indexOf(idx)>=0;
+    if(inC&&inS) btns[i].classList.add("correct");
+    else if(!inC&&inS) btns[i].classList.add("wrong");
+    else if(inC&&!inS) btns[i].classList.add("reveal");
+  }
+  showFb(isOk,q.exp);
+}
+
+function pickAnswer(idx){
+  var q=shuffled[cur];
+  var btns=document.querySelectorAll(".opt");
+  for(var i=0;i<btns.length;i++) btns[i].disabled=true;
+  var isOk=(idx===q.ans);
+  if(isOk){score++;earnedPts+=q.pts;}
+  answered.push({q:q,chosen:idx,isOk:isOk});
+  btns[idx].classList.add(isOk?"correct":"wrong");
+  if(!isOk) btns[q.ans].classList.add("reveal");
+  showFb(isOk,q.exp);
+}
+
+function showFb(isOk,exp){
+  var fb=document.getElementById("fb");
+  fb.className=isOk?"fb-ok":"fb-bad";
+  fb.style.display="block";
+  document.getElementById("fb-title").textContent=isOk?"Correct!":"Incorrect";
+  document.getElementById("fb-body").textContent=exp;
+  var nb=document.getElementById("next-btn");
+  nb.style.display="block";
+  nb.textContent=(cur+1<shuffled.length)?"Next Question":"See Results";
+}
+
+function nextQ(){
+  cur++;
+  if(cur<shuffled.length) renderQ();
+  else showResults();
+}
+
+function showResults(){
+  document.getElementById("quiz-screen").style.display="none";
+  document.getElementById("results-screen").style.display="block";
+  var tot=shuffled.length;
+  var pct=Math.round(score/tot*100);
+  document.getElementById("r-pct").textContent=pct+"%";
+  setTimeout(function(){
+    document.getElementById("ring-fil").style.strokeDashoffset=377-(377*pct/100);
+  },150);
+  var title,sub;
+  if(pct>=90){title="Outstanding!";sub="You've mastered Week 5 — CAP & NoSQL are locked in.";}
+  else if(pct>=75){title="Great Work!";sub="Solid grasp. Drill your weak topics below.";}
+  else if(pct>=50){title="Getting There!";sub="Review your misses and retry before the test.";}
+  else{title="Keep Grinding!";sub="Re-read Week 5 slides and retry until 90%+.";}
+  document.getElementById("r-title").textContent=title;
+  document.getElementById("r-sub").textContent=score+"/"+tot+" correct ("+earnedPts+"/"+totalPts+" pts). "+sub;
+  var ts={};
+  for(var i=0;i<answered.length;i++){
+    var t=answered[i].q.topic;
+    if(!ts[t]) ts[t]={c:0,n:0};
+    ts[t].n++;
+    if(answered[i].isOk) ts[t].c++;
+  }
+  var tkeys=Object.keys(ts).sort(function(a,b){return(ts[a].c/ts[a].n)-(ts[b].c/ts[b].n);});
+  var pills=document.getElementById("r-pills");
+  pills.innerHTML="";
+  for(var i=0;i<tkeys.length;i++){
+    var t=tkeys[i],s=ts[t],r=s.c/s.n;
+    var cls=r>=0.75?"str":r>=0.5?"ok":"weak";
+    var icon=r>=0.75?"[OK]":r>=0.5?"[~]":"[X]";
+    var pill=document.createElement("span");
+    pill.className="pill "+cls;
+    pill.textContent=icon+" "+t+" ("+s.c+"/"+s.n+")";
+    pills.appendChild(pill);
+  }
+  var rlist=document.getElementById("r-list");
+  rlist.innerHTML="";
+  var wrong=[],right=[];
+  for(var i=0;i<answered.length;i++){
+    if(answered[i].isOk) right.push(answered[i]); else wrong.push(answered[i]);
+  }
+  function makeItem(a,isWrong){
+    var q=a.q;
+    var item=document.createElement("div");
+    item.className="r-item";
+    var ico=document.createElement("span");
+    ico.className="r-ico";
+    ico.textContent=isWrong?"[X]":"[OK]";
+    var txt=document.createElement("div");
+    txt.className="r-txt";
+    var topic=document.createElement("span");
+    topic.className="r-topic";
+    topic.textContent=q.topic;
+    var qspan=document.createElement("span");
+    qspan.className="r-q";
+    qspan.textContent=q.q.length>90?q.q.substring(0,90)+"...":q.q;
+    txt.appendChild(topic);
+    txt.appendChild(qspan);
+    if(isWrong){
+      var chosenTxt,correctTxt;
+      if(Array.isArray(a.chosen)){
+        chosenTxt=a.chosen.map(function(x){return q.opts[x];}).join(", ");
+        correctTxt=q.ans.map(function(x){return q.opts[x];}).join(", ");
+      } else {
+        chosenTxt=q.opts[a.chosen];
+        correctTxt=q.opts[q.ans];
+      }
+      var wrspan=document.createElement("span");
+      wrspan.className="r-wrong";
+      wrspan.textContent="Your answer: "+chosenTxt;
+      var crspan=document.createElement("span");
+      crspan.className="r-wrong";
+      crspan.style.color="var(--correct)";
+      crspan.textContent="Correct: "+correctTxt;
+      txt.appendChild(wrspan);
+      txt.appendChild(crspan);
+    }
+    item.appendChild(ico);
+    item.appendChild(txt);
+    return item;
+  }
+  if(wrong.length>0){
+    var s1=document.createElement("div");
+    s1.className="r-sect";
+    s1.textContent="Needs Review ("+wrong.length+")";
+    rlist.appendChild(s1);
+    for(var i=0;i<wrong.length;i++) rlist.appendChild(makeItem(wrong[i],true));
+  }
+  if(right.length>0){
+    var s2=document.createElement("div");
+    s2.className="r-sect";
+    s2.textContent="Correct ("+right.length+")";
+    rlist.appendChild(s2);
+    for(var i=0;i<right.length;i++) rlist.appendChild(makeItem(right[i],false));
+  }
+}
+
+initQuiz();
+</script>
+</body>
+</html>

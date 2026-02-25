@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Big Data and NoSQL Quiz</title>
+<style>
+:root{
+  --bg:#0f1117;--surface:#1a1d27;--surface2:#23263a;--border:#2e3250;
+  --accent:#6c63ff;--accent2:#00d4aa;--correct:#00c97b;--wrong:#ff4f6d;
+  --warn:#ffb347;--text:#e8eaf6;--muted:#8b8fa8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:"Segoe UI",system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:24px 16px;
+}
+header{text-align:center;margin-bottom:28px;}
+header h1{
+  font-size:1.9rem;font-weight:800;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+header p{color:var(--muted);margin-top:6px;font-size:.9rem;}
+#prog-wrap{width:100%;max-width:780px;background:var(--surface2);
+  border-radius:999px;height:7px;margin-bottom:8px;overflow:hidden;}
+#prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:999px;transition:width .4s;width:0%;}
+#prog-label{width:100%;max-width:780px;text-align:right;color:var(--muted);
+  font-size:.8rem;margin-bottom:16px;}
+.card{background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:28px 32px;width:100%;max-width:780px;}
+.q-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.07em;padding:3px 10px;border-radius:999px;}
+.b-mc {background:#6c63ff22;color:var(--accent); border:1px solid #6c63ff55;}
+.b-ms {background:#ff4f6d22;color:var(--wrong);  border:1px solid #ff4f6d55;}
+.b-tf {background:#00d4aa22;color:var(--accent2);border:1px solid #00d4aa55;}
+.b-ste{background:#ffb34722;color:var(--warn);   border:1px solid #ffb34755;}
+.pts-badge{font-size:.75rem;font-weight:700;color:var(--warn);padding:3px 10px;
+  background:#ffb34711;border:1px solid #ffb34733;border-radius:999px;}
+.topic-badge{font-size:.7rem;color:var(--muted);padding:3px 10px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:999px;}
+.qnum{color:var(--muted);font-size:.8rem;margin-left:auto;}
+#qtext{font-size:1.05rem;font-weight:600;line-height:1.65;margin-bottom:20px;
+  color:var(--text);white-space:pre-wrap;}
+#qhint{font-size:.82rem;color:var(--muted);font-style:italic;
+  margin-bottom:10px;display:none;padding:8px 12px;
+  background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);}
+#qopts{display:flex;flex-direction:column;gap:9px;}
+.opt{background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);cursor:pointer;font-size:.95rem;
+  padding:12px 16px;text-align:left;
+  display:flex;align-items:flex-start;gap:11px;
+  transition:border-color .2s,background .2s;}
+.opt:hover:not([disabled]){border-color:var(--accent);background:#2a2d42;}
+.ltr{background:var(--border);border-radius:5px;min-width:27px;height:27px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.78rem;flex-shrink:0;transition:background .2s,color .2s;}
+.opt-text{line-height:1.45;padding-top:1px;}
+.opt.correct{border-color:var(--correct)!important;background:#00c97b18;}
+.opt.correct .ltr{background:var(--correct);color:#000;}
+.opt.wrong{border-color:var(--wrong)!important;background:#ff4f6d18;}
+.opt.wrong .ltr{background:var(--wrong);color:#fff;}
+.opt.reveal{border-color:var(--correct)!important;background:#00c97b0d;}
+.opt.reveal .ltr{background:#00c97b55;color:var(--correct);}
+.opt.sel{border-color:var(--accent)!important;background:#6c63ff18;}
+.opt.sel .ltr{background:var(--accent);color:#fff;}
+#submit-btn{
+  display:none;margin-top:14px;padding:10px 26px;
+  background:var(--accent);border:none;border-radius:9px;
+  color:#fff;font-weight:700;font-size:.93rem;cursor:pointer;
+}
+#submit-btn:hover{opacity:.85;}
+#fb{display:none;margin-top:20px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  font-size:.93rem;line-height:1.65;}
+.fb-title{font-weight:800;font-size:1rem;margin-bottom:8px;}
+.fb-ok .fb-title{color:var(--correct);}
+.fb-bad .fb-title{color:var(--wrong);}
+.fb-body{color:var(--text);white-space:pre-wrap;line-height:1.7;}
+#nav-row{display:flex;justify-content:flex-end;margin-top:22px;}
+#next-btn{
+  display:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:11px 28px;
+}
+#next-btn:hover{opacity:.9;}
+/* Results */
+#results-screen{display:none;width:100%;max-width:780px;}
+.rcard{background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:32px;text-align:center;}
+.score-ring{width:130px;height:130px;margin:0 auto 22px;
+  position:relative;display:flex;align-items:center;justify-content:center;}
+.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.score-ring circle{fill:none;stroke-width:9;}
+.trk{stroke:var(--surface2);}
+.fil{stroke:var(--accent2);stroke-linecap:round;
+  stroke-dasharray:377;stroke-dashoffset:377;
+  transition:stroke-dashoffset 1.2s ease;}
+.pct-text{position:relative;font-size:1.8rem;font-weight:900;color:var(--accent2);}
+.rcard h2{font-size:1.45rem;margin-bottom:7px;}
+.r-sub{color:var(--muted);margin-bottom:24px;font-size:.93rem;}
+.pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:22px;}
+.pill{font-size:.76rem;padding:3px 11px;border-radius:999px;font-weight:600;}
+.pill.weak{background:#ff4f6d22;color:var(--wrong);border:1px solid #ff4f6d55;}
+.pill.ok  {background:#ffb34722;color:var(--warn); border:1px solid #ffb34755;}
+.pill.str {background:#00c97b22;color:var(--correct);border:1px solid #00c97b55;}
+.r-sect{color:var(--muted);font-size:.78rem;text-transform:uppercase;
+  letter-spacing:.07em;margin:16px 0 8px;text-align:left;}
+.r-item{background:var(--surface2);border:1px solid var(--border);
+  border-radius:9px;padding:11px 15px;margin-bottom:7px;
+  display:flex;gap:11px;align-items:flex-start;text-align:left;}
+.r-ico{font-size:1rem;flex-shrink:0;margin-top:2px;}
+.r-txt{font-size:.87rem;line-height:1.5;}
+.r-topic{font-weight:700;color:var(--accent2);font-size:.74rem;
+  text-transform:uppercase;display:block;margin-bottom:2px;}
+.r-q{color:var(--text);}
+.r-wrong{color:var(--wrong);font-size:.81rem;margin-top:4px;display:block;}
+.retry-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:13px 36px;margin-top:26px;
+}
+.retry-btn:hover{opacity:.9;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Big Data &amp; NoSQL Quiz</h1>
+  <p>61 questions &middot; All topics &middot; Immediate feedback &middot; Deep explanations</p>
+</header>
+<div id="quiz-screen">
+  <div id="prog-wrap"><div id="prog-bar"></div></div>
+  <div id="prog-label"></div>
+  <div class="card">
+    <div class="q-meta">
+      <span class="badge b-mc" id="qbadge">MC</span>
+      <span class="pts-badge" id="qpts">2 pts</span>
+      <span class="topic-badge" id="qtopic">Topic</span>
+      <span class="qnum" id="qnum">1/61</span>
+    </div>
+    <div id="qtext"></div>
+    <div id="qhint"></div>
+    <div id="qopts"></div>
+    <button id="submit-btn" onclick="submitMulti()">Submit Answer</button>
+    <div id="fb">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <div id="nav-row">
+      <button id="next-btn" onclick="nextQ()">Next Question</button>
+    </div>
+  </div>
+</div>
+<div id="results-screen">
+  <div class="rcard">
+    <div class="score-ring">
+      <svg viewBox="0 0 120 120" width="130" height="130">
+        <circle class="trk" cx="60" cy="60" r="60"/>
+        <circle class="fil" id="ring-fil" cx="60" cy="60" r="60"/>
+      </svg>
+      <span class="pct-text" id="r-pct"></span>
+    </div>
+    <h2 id="r-title"></h2>
+    <p class="r-sub" id="r-sub"></p>
+    <div class="pills" id="r-pills"></div>
+    <div id="r-list"></div>
+    <button class="retry-btn" onclick="initQuiz()">Retry Quiz</button>
+  </div>
+</div>
+
+<script>
+var QS = [
+  {
+    "id": "Q15",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "In the context of the Semantic Web, the Open World Assumption states that:",
+    "opts": [
+      "Our knowledge is incomplete, so everything not listed may be true.",
+      "Our knowledge is complete, so everything not listed is false.",
+      "If a statement is not in the database, or cannot be inferred, then its validity is false."
+    ],
+    "ans": 0,
+    "exp": "The Open World Assumption (OWA) says: just because something is not stated does not mean it is false - our knowledge base may simply be incomplete. This is the OPPOSITE of the Closed World Assumption (CWA) used in SQL databases where if something is not listed, it is treated as false. Options B and C both describe CWA behaviour."
+  },
+  {
+    "id": "Q1a",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "What is the primary purpose of using RDF in the Semantic Web?",
+    "opts": [
+      "To store data in key-value format",
+      "To represent data as triples (subject-predicate-object)",
+      "To enforce strong schema constraints",
+      "To store data in relational tables"
+    ],
+    "ans": 1,
+    "exp": "RDF (Resource Description Framework) represents information as triples: Subject - Predicate - Object, e.g. Alice - knows - Bob. These form a directed graph enabling machines to understand meaning and relationships. Key-value format is Redis/DynamoDB. Strong schema constraints are relational. RDF is graph-based, not table-based."
+  },
+  {
+    "id": "Q16",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "What does the OWL language provide for the Semantic Web?",
+    "opts": [
+      "A query language",
+      "A way to define ontologies and relationships",
+      "A database schema",
+      "A method for data sharding"
+    ],
+    "ans": 1,
+    "exp": "OWL (Web Ontology Language) lets you define ontologies - formal descriptions of concepts, their properties and relationships between them. It goes beyond RDF Schema with richer logic: disjointness, cardinality, equivalence. SPARQL is the RDF query language. OWL is not a DB schema or sharding method."
+  },
+  {
+    "id": "Q17",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "In RDF, what is a triple composed of?",
+    "opts": [
+      "Table, row, column",
+      "Node, edge, property",
+      "Subject, predicate, object",
+      "Key, value, index"
+    ],
+    "ans": 2,
+    "exp": "An RDF triple is always Subject - Predicate - Object. Example: Alice knows Bob. Millions of triples form a knowledge graph. Table/row/column is relational. Node/edge/property is Neo4j property graph terminology. Key/value/index is NoSQL key-value store terminology."
+  },
+  {
+    "id": "Q18",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "Select the correct statement regarding SKOS:",
+    "opts": [
+      "SKOS is a common data model for sharing and linking simple knowledge organisation systems",
+      "SKOS is a query language for RDF",
+      "SKOS is a database for storing triples",
+      "SKOS is a graph database system"
+    ],
+    "ans": 0,
+    "exp": "SKOS (Simple Knowledge Organization System) is a W3C standard built on RDF for representing thesauri, taxonomies and controlled vocabularies in a machine-readable way - e.g. the UNESCO thesaurus or Library of Congress subject headings. SPARQL is the RDF query language. Triple stores store triples. SKOS is a vocabulary, not a database."
+  },
+  {
+    "id": "Q1b",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Semantic Web",
+    "q": "What kind of NoSQL databases are used for the Semantic Web?",
+    "opts": [
+      "Key-value databases",
+      "Document databases",
+      "Graph databases",
+      "Column-oriented databases"
+    ],
+    "ans": 2,
+    "exp": "The Semantic Web is built on RDF graphs (triples), so graph databases and triple stores are the natural fit - they natively represent and traverse subject-predicate-object relationships. Examples: Apache Jena, Virtuoso, Amazon Neptune. Key-value stores have no relationship support. Document stores lack native graph traversal."
+  },
+  {
+    "id": "Q4",
+    "pts": 2,
+    "type": "MS",
+    "topic": "NoSQL Fundamentals",
+    "q": "Which of the following are key characteristics of NoSQL databases? (Select ALL that apply)",
+    "opts": [
+      "Schema-less design",
+      "Horizontal scalability",
+      "Complex join support",
+      "Flexible data models"
+    ],
+    "ans": [
+      0,
+      1,
+      3
+    ],
+    "exp": "NoSQL databases are characterised by: Schema-less design (no fixed schema required, fields can vary per document), Horizontal scalability (scale out by adding commodity nodes), and Flexible data models (documents, graphs, key-value, wide-column). Complex join support is a RELATIONAL database feature. NoSQL intentionally avoids joins - you denormalise data or embed documents instead."
+  },
+  {
+    "id": "Q33",
+    "pts": 2,
+    "type": "MC",
+    "topic": "NoSQL Fundamentals",
+    "q": "Which of the following is a benefit of using NoSQL databases over traditional relational databases?",
+    "opts": [
+      "Stronger ACID compliance",
+      "Better support for unstructured or semi-structured data",
+      "Always faster for all workloads",
+      "Fixed schema enforcement"
+    ],
+    "ans": 1,
+    "exp": "NoSQL databases excel at handling unstructured or semi-structured data (JSON, logs, sensor data, social graphs) that does not fit neatly into relational tables. They also offer horizontal scalability. Strong ACID compliance is an RDBMS strength. 'Always faster' is false - RDBMS can outperform NoSQL for complex joins. Fixed schemas are a relational feature, not a NoSQL benefit."
+  },
+  {
+    "id": "Q34",
+    "pts": 2,
+    "type": "MC",
+    "topic": "NoSQL Fundamentals",
+    "q": "In NoSQL databases, what does \"schema-less\" mean?",
+    "opts": [
+      "Data must follow a strict schema",
+      "Data can be stored without a predefined schema",
+      "Schema is enforced at query time only",
+      "Only relational data models support schema-less design"
+    ],
+    "ans": 1,
+    "exp": "Schema-less means you can insert documents with varying fields without declaring a fixed structure upfront. In MongoDB, one document can have {name, age} and another {name, email, address} in the same collection. This is schema-on-read flexibility. Strict schema is relational (schema-on-write). Schema-less means no mandatory schema at all."
+  },
+  {
+    "id": "Q37",
+    "pts": 2,
+    "type": "MC",
+    "topic": "NoSQL Fundamentals",
+    "q": "What does \"ACID\" stand for in database systems?",
+    "opts": [
+      "Atomicity, Consistency, Isolation, Durability",
+      "Availability, Consistency, Integrity, Distribution",
+      "Aggregation, Consistency, Isolation, Data",
+      "Atomicity, Concurrency, Indexing, Distribution"
+    ],
+    "ans": 0,
+    "exp": "ACID defines transaction reliability: A = Atomicity (all-or-nothing, fully completes or fully rolls back), C = Consistency (DB moves from one valid state to another), I = Isolation (concurrent transactions do not interfere), D = Durability (committed transactions survive crashes, written to disk). Most NoSQL systems relax ACID in favour of BASE (Basically Available, Soft state, Eventual consistency)."
+  },
+  {
+    "id": "Q22",
+    "pts": 2,
+    "type": "MC",
+    "topic": "CAP Theorem",
+    "q": "What does CAP stand for in NoSQL databases?",
+    "opts": [
+      "Consistency, Availability, Partition tolerance",
+      "Concurrency, Atomicity, Persistence",
+      "Centralization, Accessibility, Performance",
+      "Consistency, Accuracy, Performance"
+    ],
+    "ans": 0,
+    "exp": "CAP Theorem (Brewer's theorem): a distributed system can only guarantee two of three simultaneously. C = Consistency (every read returns the most recent write). A = Availability (every request gets a response, not necessarily the latest data). P = Partition Tolerance (system continues operating despite network partitions). All other options are fabricated acronyms."
+  },
+  {
+    "id": "Q23",
+    "pts": 2,
+    "type": "MC",
+    "topic": "CAP Theorem",
+    "q": "Which of the following best describes the CAP theorem?",
+    "opts": [
+      "A database can guarantee all three: consistency, availability, and partition tolerance.",
+      "A database can only guarantee two of the three: consistency, availability, and partition tolerance.",
+      "NoSQL databases do not need consistency.",
+      "Partition tolerance is optional in distributed systems."
+    ],
+    "ans": 1,
+    "exp": "The CAP theorem proves only two of C, A, P can be guaranteed simultaneously. Since network partitions are unavoidable in real distributed systems, partition tolerance is practically mandatory - meaning the real trade-off is CP vs AP. You cannot guarantee all three. NoSQL systems do care about consistency - they just often trade it for availability. Partition tolerance cannot be safely ignored."
+  },
+  {
+    "id": "Q25",
+    "pts": 3,
+    "type": "MC",
+    "topic": "CAP Theorem",
+    "q": "In the context of the CAP theorem, which consistency type allows a system to remain available and partition-tolerant but may return stale data?",
+    "opts": [
+      "Strong consistency",
+      "Eventual consistency",
+      "Immediate consistency",
+      "Strict consistency"
+    ],
+    "ans": 1,
+    "exp": "Eventual consistency (used in AP systems like Cassandra, DynamoDB) means: all nodes will eventually converge to the same value, but at any given moment some nodes may return stale data. This trades correctness guarantees for higher availability and lower latency. Strong/Strict/Immediate consistency all require the latest value on every read - these sacrifice availability during partitions (CP systems like HBase, Zookeeper)."
+  },
+  {
+    "id": "Q24",
+    "pts": 3,
+    "type": "MC",
+    "topic": "CAP Theorem",
+    "q": "You require strict consistency and partition tolerance in the face of network partitions. Which NoSQL database best meets these requirements?",
+    "opts": [
+      "MongoDB",
+      "Cassandra",
+      "Redis",
+      "Neo4j"
+    ],
+    "ans": 0,
+    "exp": "MongoDB is a CP system - it prioritises Consistency and Partition Tolerance. During a partition, MongoDB may become temporarily unavailable rather than return stale data (single-primary write model). Cassandra is AP - it favours availability and allows eventual consistency. Standalone Redis is CA (no partition tolerance by default). Neo4j is CP but is a graph DB optimised for traversal, not general-purpose storage."
+  },
+  {
+    "id": "Q5",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Key-Value Stores",
+    "q": "Which of the following is a characteristic feature of key-value store queries?",
+    "opts": [
+      "ACID transaction support.",
+      "Ability to perform complex join operations.",
+      "Limited querying capabilities.",
+      "Support for complex data types."
+    ],
+    "ans": 2,
+    "exp": "Key-value stores (Redis, DynamoDB) are designed for O(1) point lookups by exact key only. They intentionally have limited querying - no native range scans, filters, or joins. Most key-value stores are not ACID-compliant (though Redis has some transaction support). Complex joins require relational or graph engines. Values are opaque blobs from the store's perspective."
+  },
+  {
+    "id": "Q6",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Key-Value Stores",
+    "q": "Consider a key-value store where a key is a tuple of values. Such a key is called:",
+    "opts": [
+      "Compound key",
+      "Foreign key",
+      "Primary key",
+      "Shard key"
+    ],
+    "ans": 0,
+    "exp": "A compound key (composite key) is made of multiple fields/components, e.g. (userId, timestamp). In Cassandra the compound key includes a partition key (for routing) plus optional clustering columns (for ordering within a partition). Foreign key is a relational concept linking tables. Primary key is any unique identifier. Shard key determines which node stores data but is a different concept."
+  },
+  {
+    "id": "Q7",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "Which of the following is a key feature of MongoDB?",
+    "opts": [
+      "Strong consistency across nodes",
+      "Document-oriented storage using JSON-like format",
+      "Graph-based query language",
+      "Column-family data model"
+    ],
+    "ans": 1,
+    "exp": "MongoDB is a document database storing data as BSON documents (Binary JSON) - a flexible, JSON-like format supporting nested objects and arrays, ideal for hierarchical semi-structured data without a fixed schema. MongoDB provides tunable but not always strong consistency across all nodes. Its query language is MQL (MongoDB Query Language), not graph-based. Column-family models are Cassandra/HBase."
+  },
+  {
+    "id": "Q8",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "Which of the following is a key feature of document databases?",
+    "opts": [
+      "Data stored in rows and columns",
+      "Data stored in JSON-like documents",
+      "Data stored in graph structures",
+      "Data stored as key-value pairs only"
+    ],
+    "ans": 1,
+    "exp": "Document databases store self-describing JSON/BSON documents where each document can have a different structure. This allows nesting related data (e.g. an order document with an embedded array of line items), reducing the need for joins. Rows/columns = relational. Graph structures = Neo4j/graph databases. Key-value pairs are simpler than full documents."
+  },
+  {
+    "id": "Q14",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "In a document database, data is typically stored in:",
+    "opts": [
+      "Rows and columns",
+      "XML documents",
+      "JSON-like documents",
+      "Tables"
+    ],
+    "ans": 2,
+    "exp": "Document databases like MongoDB store data as JSON-like documents (BSON in MongoDB's case). Each document is a self-contained record with fields and values, including nested objects and arrays. The document model maps naturally to objects in modern programming languages. Rows/columns and tables are relational concepts. XML-based document stores exist but JSON is the modern standard."
+  },
+  {
+    "id": "Q3",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "db.glossary.aggregate([{$group:{_id:'$term',count:{$sum:1}}},{$match:{count:{$gt:1}}}]) - which statement is true?",
+    "opts": [
+      "Returns a count of how many terms are in glossary",
+      "Returns a list of terms that appear multiple times in glossary",
+      "Returns a list of all unique (distinct) terms in glossary",
+      "Returns a count of how many times each term appears in glossary"
+    ],
+    "ans": 1,
+    "exp": "Pipeline trace: Step 1 - $group by term produces {_id: term, count: N} for every unique term. Step 2 - $match count > 1 filters to only terms appearing more than once. Result: a list of DUPLICATED terms in glossary. It does NOT return a single total count. It does NOT return ALL unique terms - only those with duplicates. The $match filters out count=1 entries."
+  },
+  {
+    "id": "Q27b",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "db.createCollection('people', {validator:{$jsonSchema:{bsonType:'object', required:['name','surname','email']...}}}) - what does this do?",
+    "opts": [
+      "Creates a collection with a fixed JSON schema to validate incoming data.",
+      "Creates a collection and inserts the specified document.",
+      "Applies a JSON schema to an existing collection to validate existing data."
+    ],
+    "ans": 0,
+    "exp": "db.createCollection() with a $jsonSchema validator creates a NEW collection with built-in document validation rules. Any document inserted must pass the schema (required fields, type checks, regex patterns, enum values). This is MongoDB's schema-on-write option. It does NOT insert a document - it only defines the collection and its validation rules. It does NOT retroactively validate existing data in an existing collection."
+  },
+  {
+    "id": "Q26",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "In MongoDB, what does the find() method do?",
+    "opts": [
+      "Inserts a new document",
+      "Updates an existing document",
+      "Retrieves documents from a collection",
+      "Deletes documents from a collection"
+    ],
+    "ans": 2,
+    "exp": "db.collection.find(query, projection) is MongoDB's primary read operation. It returns a cursor over documents matching the query filter. Example: db.users.find({age:{$gt:18}}) returns all users older than 18. insertOne()/insertMany() for inserts. updateOne()/updateMany() for updates. deleteOne()/deleteMany() for deletes."
+  },
+  {
+    "id": "Q27a",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "What is a \"shard\" in MongoDB?",
+    "opts": [
+      "A type of index",
+      "A partition of data across a cluster",
+      "A query language",
+      "A document schema"
+    ],
+    "ans": 1,
+    "exp": "In MongoDB sharding, a shard is a horizontal partition of data distributed across cluster nodes. Each shard holds a subset of the total data determined by the shard key. This allows MongoDB to scale beyond the capacity of a single server by distributing both storage and query load. Shards are not indexes (though the shard key must be indexed). MQL is MongoDB's query language. Schemas are defined via validators."
+  },
+  {
+    "id": "Q28",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "Key advantage of MongoDB's aggregation framework?",
+    "opts": [
+      "It enforces ACID transactions",
+      "It allows complex data processing and transformation",
+      "It stores data in column families",
+      "It requires a fixed schema"
+    ],
+    "ans": 1,
+    "exp": "MongoDB's Aggregation Pipeline chains stages ($match, $group, $sort, $lookup, $unwind, $project) to filter, transform and analyse documents - equivalent to SQL's WHERE, GROUP BY, JOIN. ACID is about transaction guarantees, not aggregation. Column families are a Cassandra/HBase concept. The aggregation framework works perfectly with schema-less collections."
+  },
+  {
+    "id": "Q29",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "In MongoDB, what is the purpose of the $group stage in an aggregation pipeline?",
+    "opts": [
+      "To filter documents",
+      "To group documents by a specified key and perform aggregations",
+      "To sort documents",
+      "To join collections"
+    ],
+    "ans": 1,
+    "exp": "The $group stage groups input documents by a specified _id expression and computes aggregate values for each group (e.g. $sum, $avg, $count, $push). It is equivalent to SQL's GROUP BY clause. $match filters documents. $sort sorts documents. $lookup performs joins between collections."
+  },
+  {
+    "id": "Q30",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "What is the purpose of using a replica set in MongoDB?",
+    "opts": [
+      "To increase storage capacity",
+      "To provide high availability and redundancy",
+      "To improve schema enforcement",
+      "To enforce ACID compliance"
+    ],
+    "ans": 1,
+    "exp": "A replica set in MongoDB is a group of mongod instances maintaining the same dataset. One node is the primary (handles all writes) and the rest are secondaries (replicate data asynchronously). If the primary fails, an automatic election promotes a secondary - providing high availability and fault tolerance. Increasing storage capacity is the role of SHARDING not replication. Replica sets are about availability not ACID."
+  },
+  {
+    "id": "Q31",
+    "pts": 3,
+    "type": "MS",
+    "topic": "MongoDB",
+    "q": "What is the purpose of using data sharding in MongoDB? (Select ALL that apply)",
+    "opts": [
+      "To overcome storage limitations of centralised systems",
+      "To distribute data across multiple servers for scalability",
+      "To improve query performance by splitting data",
+      "To enforce strong consistency across nodes"
+    ],
+    "ans": [
+      0,
+      1,
+      2
+    ],
+    "exp": "MongoDB sharding serves multiple purposes: Overcome storage limits (a single machine cannot store petabytes - sharding spreads data across many nodes), Distribute data for scalability (horizontal scale-out by adding shard nodes), Improve query performance (queries targeting a specific shard key range hit only one shard - called shard pruning). Sharding actually makes strong consistency HARDER - it trades consistency for scalability."
+  },
+  {
+    "id": "Q32",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MongoDB",
+    "q": "Which statement about MongoDB indexes is correct?",
+    "opts": [
+      "Indexes always slow down query performance",
+      "Indexes help speed up query execution",
+      "Indexes are only used for sharding",
+      "Indexes store data in column families"
+    ],
+    "ans": 1,
+    "exp": "Indexes (B-tree based) allow the query engine to find documents without a full collection scan - O(log n) instead of O(n). For example an index on email lets MongoDB find a user by email efficiently. Indexes slow down WRITES (extra maintenance overhead) not reads. The statement 'always slow down queries' is the opposite of the truth. Indexes serve many purposes beyond sharding. Column families are a Cassandra/HBase concept."
+  },
+  {
+    "id": "Q2",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "What kind of database is Cassandra?",
+    "opts": [
+      "Wide-column database",
+      "Graph database",
+      "Key-value database",
+      "Document database"
+    ],
+    "ans": 0,
+    "exp": "Apache Cassandra is a wide-column store (also called a column-family store). Data is organised into rows identified by a partition key with an arbitrary number of columns - and different rows can have different columns. This model is optimised for high-write throughput and large-scale analytical reads. Graph = Neo4j (nodes and edges). Key-value = Redis (opaque values per key). Document = MongoDB (JSON blobs)."
+  },
+  {
+    "id": "Q21",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "What type of database is Cassandra?",
+    "opts": [
+      "Wide-column database.",
+      "Key-value database.",
+      "Graph database.",
+      "Column oriented database."
+    ],
+    "ans": 0,
+    "exp": "Cassandra is a wide-column store. While sometimes called column-oriented, the precise NoSQL term is wide-column - each row can have a different set of columns grouped into column families. This distinguishes it from purely column-oriented analytical databases like Apache Parquet. Key-value has no column structure. Graph has nodes/edges. Column-oriented is imprecise for NoSQL classification."
+  },
+  {
+    "id": "Q11",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "In Cassandra, data is distributed across nodes using:",
+    "opts": [
+      "Master-slave replication",
+      "Consistent hashing",
+      "Single-node storage",
+      "Centralised indexing"
+    ],
+    "ans": 1,
+    "exp": "Cassandra uses a consistent hashing ring to distribute data. Each node is assigned a token range on the ring; a partition key is hashed to determine which node(s) own that data. Adding or removing nodes only requires redistributing a small fraction of data. Cassandra has NO master node - it is fully peer-to-peer (masterless). Single-node defeats the distributed purpose. It uses gossip protocol, not centralised indexing."
+  },
+  {
+    "id": "Q12",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "What is a key advantage of column-oriented databases like Cassandra?",
+    "opts": [
+      "They support complex joins efficiently.",
+      "They are optimised for writing and reading large-scale data.",
+      "They provide strong ACID compliance.",
+      "They use graph relationships to store data."
+    ],
+    "ans": 1,
+    "exp": "Cassandra is designed for massive write throughput and scalable reads of large datasets - ideal for time-series data, IoT sensor streams, and activity logging where millions of writes per second are needed across distributed nodes. Cassandra has NO JOIN support - you must denormalise data at write time. Cassandra uses eventual consistency (AP system), not strong ACID. Graph relationships are Neo4j."
+  },
+  {
+    "id": "Q10",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "Which type of NoSQL database organises data into columns and column families?",
+    "opts": [
+      "Graph database",
+      "Key-value database",
+      "Wide-column store",
+      "Document database"
+    ],
+    "ans": 2,
+    "exp": "Wide-column stores (Cassandra, HBase, Google Bigtable) organise data into rows and column families. A column family is a set of related columns stored together. Unlike relational tables, different rows in the same table can have entirely different columns. Graph = nodes/edges. Key-value has no column concept. Document = nested JSON."
+  },
+  {
+    "id": "Q36",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Cassandra",
+    "q": "What is the key difference between MongoDB and Cassandra?",
+    "opts": [
+      "MongoDB is a graph database and Cassandra is document-based",
+      "MongoDB is document-based and Cassandra is wide-column",
+      "MongoDB is relational and Cassandra is key-value",
+      "MongoDB is key-value and Cassandra is relational"
+    ],
+    "ans": 1,
+    "exp": "MongoDB = document store (BSON/JSON, flexible hierarchical data, great for flexible document queries). Cassandra = wide-column store (column families, optimised for high-write distributed workloads with eventual consistency). Both are NoSQL but serve different use cases. All other options are completely wrong database type assignments."
+  },
+  {
+    "id": "Q13",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Graph Databases",
+    "q": "What is the main advantage of using a graph database?",
+    "opts": [
+      "Fast relational joins",
+      "Efficient traversal of relationships",
+      "Strong ACID compliance",
+      "Schema enforcement"
+    ],
+    "ans": 1,
+    "exp": "Graph databases (Neo4j, Amazon Neptune) store data as nodes and edges natively, making multi-hop relationship traversals extremely efficient - O(depth) vs exponentially expensive recursive joins in SQL. For example, 'find friends-of-friends within 3 hops' is trivial in a graph DB. Graph DBs avoid joins entirely - relationships are first-class objects. ACID support exists in some but is not the primary differentiator."
+  },
+  {
+    "id": "Q19",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Graph Databases",
+    "q": "In graph databases, relationships between data are represented as:",
+    "opts": [
+      "Tables",
+      "Documents",
+      "Edges",
+      "Columns"
+    ],
+    "ans": 2,
+    "exp": "In graph databases, edges (also called relationships or arcs) connect nodes and represent associations between entities. Edges can be directed (one-way) or undirected, and can carry properties, e.g. KNOWS {since: 2020}. Tables = relational databases. Documents = MongoDB/document databases. Columns = wide-column stores like Cassandra."
+  },
+  {
+    "id": "Q35",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Graph Databases",
+    "q": "Which of the following is a characteristic of graph databases?",
+    "opts": [
+      "Data stored in key-value pairs",
+      "Data stored as nodes and relationships",
+      "Data stored in tables with rows/columns",
+      "Data stored as JSON documents"
+    ],
+    "ans": 1,
+    "exp": "Graph databases model everything as nodes (entities) and relationships (edges between entities). Both nodes and relationships can have properties (key-value attributes). This native graph structure makes them ideal for social networks, fraud detection, recommendation engines, and knowledge graphs."
+  },
+  {
+    "id": "Q40",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Graph Databases",
+    "q": "Which of the following is a key characteristic of graph databases?",
+    "opts": [
+      "Data is stored in tables",
+      "Data is stored in documents",
+      "Data is stored as nodes and relationships",
+      "Data is stored in key-value pairs"
+    ],
+    "ans": 2,
+    "exp": "The defining feature of graph databases is their native storage of nodes (vertices) and relationships (edges). Unlike relational databases that simulate graphs through join tables, graph databases use index-free adjacency - relationship traversal is O(1) per hop regardless of dataset size."
+  },
+  {
+    "id": "Q39",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Neo4j",
+    "q": "In Neo4j, what is the purpose of a relationship?",
+    "opts": [
+      "To store data attributes",
+      "To connect nodes and represent associations",
+      "To create indexes",
+      "To enforce schema validation"
+    ],
+    "ans": 1,
+    "exp": "In Neo4j, relationships are first-class citizens of the data model. They connect two nodes with a specific type (e.g. KNOWS, BORN_IN) and direction, and can carry their own properties. This allows extremely efficient traversal without expensive joins. Data attributes are stored as properties on nodes or relationships. Indexes are separate structures. Schema validation uses constraints."
+  },
+  {
+    "id": "Q41",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Neo4j",
+    "q": "In Neo4j, which type of relationship represents directional connections between nodes?",
+    "opts": [
+      "Undirected relationship",
+      "Directed relationship",
+      "Symmetric relationship",
+      "Bidirectional relationship"
+    ],
+    "ans": 1,
+    "exp": "In Neo4j, all relationships are directed - they have a start node and an end node with a specific direction. Example: (Alice)-[:FOLLOWS]->(Bob). However, Cypher queries can traverse relationships in either direction regardless of stored direction using undirected syntax. Undirected is a query-time traversal option, not a storage type. Symmetric/Bidirectional are not distinct Neo4j relationship types."
+  },
+  {
+    "id": "Q38",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Neo4j",
+    "q": "Find the correct Cypher query to retrieve all people born in Berlin (cities are stored as separate City nodes connected by relationships):",
+    "opts": [
+      "MATCH (p:Person) WHERE p.city = \"Berlin\" RETURN p",
+      "MATCH (p:Person {bornIn: \"Berlin\"}) RETURN p",
+      "MATCH (p:Person)-[:BORN_IN]->(:City {name:\"Berlin\"}) RETURN p",
+      "MATCH (p:Person)-[:LIVES_IN]->(:City {name:\"Berlin\"}) RETURN p"
+    ],
+    "ans": 2,
+    "exp": "When cities are separate City nodes, the correct query traverses the [:BORN_IN] relationship to a City node with name='Berlin'. Option A assumes city is a property on Person - wrong when City is a separate node. Option B assumes bornIn is a property on Person - same issue. Option D uses LIVES_IN (current residence) not BORN_IN (birthplace) - a different relationship."
+  },
+  {
+    "id": "I1",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Big Data Fundamentals",
+    "q": "Which of the following BEST captures the original '3 Vs' model that defined Big Data?",
+    "opts": [
+      "Volume, Velocity, Validity",
+      "Volume, Velocity, Variety",
+      "Veracity, Value, Validity",
+      "Volume, Variety, Veracity"
+    ],
+    "ans": 1,
+    "exp": "Volume (scale of data), Velocity (speed of generation and processing), and Variety (structured, semi-structured, unstructured formats) are the original three V's coined by Gartner analyst Doug Laney. Validity and Value are sometimes added as extensions (5Vs or 7Vs) but are NOT part of the original triad. Veracity was the 4th V added later."
+  },
+  {
+    "id": "I2",
+    "pts": 2,
+    "type": "TF",
+    "topic": "Big Data Fundamentals",
+    "q": "True or False: Traditional relational database systems (RDBMS) are well-suited to handle petabyte-scale unstructured data with high-velocity writes.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE. RDBMS systems like MySQL rely on rigid schemas and are designed for structured data. They struggle with Volume (vertical scaling has hard limits), Variety (schema-on-write forces all data into tables - unstructured data like logs, images, JSON does not fit natively), and Velocity (ACID transaction overhead limits high-write throughput). Big Data systems like HDFS, NoSQL, and Spark use horizontal scale-out to address these."
+  },
+  {
+    "id": "I3",
+    "pts": 2,
+    "type": "MC",
+    "topic": "HDFS",
+    "q": "What is the default block size in HDFS (Hadoop 2.x and 3.x)?",
+    "opts": [
+      "64 MB",
+      "128 MB",
+      "256 MB",
+      "512 KB"
+    ],
+    "ans": 1,
+    "exp": "128 MB is the default block size in Hadoop 2.x and 3.x. It was 64 MB in Hadoop 1.x. Large block sizes reduce NameNode metadata overhead - a 1 TB file stored in 128 MB blocks requires only ~8,000 metadata entries vs ~1 million for a 1 MB block size. 64 MB was Hadoop 1.x default. 512 KB is a typical traditional filesystem block. 256 MB is a valid configurable option but not the default."
+  },
+  {
+    "id": "I4",
+    "pts": 2,
+    "type": "MC",
+    "topic": "HDFS",
+    "q": "In HDFS, where is file metadata (namespace, block locations, permissions) stored?",
+    "opts": [
+      "Distributed across all DataNodes",
+      "In the Secondary NameNode's disk as the primary store",
+      "In the NameNode's main memory (RAM)",
+      "In ZooKeeper's distributed ledger"
+    ],
+    "ans": 2,
+    "exp": "The NameNode keeps the entire file system namespace and block-to-DataNode mapping in RAM for fast access. This is why NameNode hardware needs large memory, and why a single NameNode is a classic Single Point of Failure (SPOF) - addressed in Hadoop 2+ with NameNode HA. DataNodes store the actual data blocks, not metadata. The Secondary NameNode periodically merges edit logs with the fsimage checkpoint - it is NOT a hot standby. ZooKeeper is used for HA coordination, not metadata storage."
+  },
+  {
+    "id": "I5",
+    "pts": 2,
+    "type": "TF",
+    "topic": "HDFS",
+    "q": "True or False: HDFS is optimised for low-latency random reads of small files, making it ideal for OLTP workloads.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE. HDFS is designed for high-throughput sequential reads of large files (batch analytics). It has high latency for random reads and poor performance with millions of small files (each small file consumes an equal NameNode metadata entry regardless of size). OLTP workloads require HBase or traditional RDBMS. HDFS is best for MapReduce, Spark batch jobs, and data warehouse workloads."
+  },
+  {
+    "id": "I6",
+    "pts": 2,
+    "type": "MC",
+    "topic": "MapReduce",
+    "q": "In MapReduce, which phase sorts and groups intermediate key-value pairs before passing them to the Reducer?",
+    "opts": [
+      "Combiner",
+      "Partitioner",
+      "Shuffle and Sort",
+      "Input Split"
+    ],
+    "ans": 2,
+    "exp": "The Shuffle and Sort phase is the bridge between Map and Reduce. After mappers emit (key, value) pairs, the framework: 1) Partitions them by key hash to the correct reducer, 2) Sorts all values for a key together so the reducer receives (key, [v1, v2, v3...]). The Combiner is a mini-reducer that runs locally on mapper output to reduce network traffic - it is optional. The Partitioner decides which reducer gets which key but does not sort. Input Split is the logical division of input data fed to each mapper."
+  },
+  {
+    "id": "I7",
+    "pts": 3,
+    "type": "MC",
+    "topic": "MapReduce",
+    "q": "A MapReduce job processes a 2 TB file. Each HDFS block is 128 MB. Approximately how many Map tasks will be launched?",
+    "opts": [
+      "1",
+      "~16,000",
+      "~2,000",
+      "Exactly 1 per DataNode"
+    ],
+    "ans": 1,
+    "exp": "~16,000 mappers. The number of map tasks = total data / block size = 2 TB / 128 MB = 2,097,152 MB / 128 MB = approximately 16,384 tasks (~16,000). By default, one mapper is launched per input split, and each split corresponds to one HDFS block. 1 mapper would mean no parallelism. 1 per DataNode confuses resource slots with data partitioning."
+  },
+  {
+    "id": "I8",
+    "pts": 2,
+    "type": "TF",
+    "topic": "MapReduce",
+    "q": "True or False: In MapReduce, intermediate key-value pairs produced by the Mapper are written to HDFS before being consumed by the Reducer.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE. Intermediate data is written to the LOCAL DISK of the mapper node, NOT to HDFS. Writing to HDFS would incur replication overhead for temporary data. The Reduce phase then pulls (fetches) this data over the network during the Shuffle phase. Only the FINAL OUTPUT of Reducers is written to HDFS."
+  },
+  {
+    "id": "I9",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Apache Spark",
+    "q": "What is the primary data abstraction in Apache Spark's core API?",
+    "opts": [
+      "DataFrame",
+      "DStream",
+      "Resilient Distributed Dataset (RDD)",
+      "SparkTable"
+    ],
+    "ans": 2,
+    "exp": "The RDD (Resilient Distributed Dataset) is Spark's foundational abstraction - an immutable, fault-tolerant, partitioned collection of records distributed across a cluster. 'Resilient' means it can recompute lost partitions using its lineage graph. DataFrames are a higher-level abstraction built on top of RDDs (structured API, introduced in Spark 1.3). DStreams are the Spark Streaming abstraction for micro-batches. SparkTable does not exist."
+  },
+  {
+    "id": "I10",
+    "pts": 2,
+    "type": "TF",
+    "topic": "Apache Spark",
+    "q": "True or False: Spark always processes data faster than MapReduce because it stores all intermediate data in RAM.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE - it is nuanced. Spark is generally faster than MapReduce for iterative algorithms (ML, graph processing) because it can cache RDDs in memory, avoiding repeated disk I/O. However: Spark does NOT always use RAM - if data exceeds memory, it spills to disk. For single-pass batch ETL jobs, the performance gap may be small. 'Always faster' is too absolute - it depends on workload type and cluster memory."
+  },
+  {
+    "id": "I11",
+    "pts": 3,
+    "type": "MC",
+    "topic": "Apache Spark",
+    "q": "Which Spark persistence level stores each RDD partition as a serialised Java object in RAM AND replicates it to a second node?",
+    "opts": [
+      "MEMORY_ONLY",
+      "DISK_ONLY_2",
+      "MEMORY_AND_DISK",
+      "MEMORY_ONLY_SER_2"
+    ],
+    "ans": 3,
+    "exp": "MEMORY_ONLY_SER_2 = serialised (compact binary) objects stored in JVM heap memory + replicated to 2 nodes. MEMORY_ONLY = deserialized in RAM, no replication. DISK_ONLY_2 = on disk only, replicated to 2 nodes. MEMORY_AND_DISK = RAM first, spill to disk if needed, no replication. The _2 suffix ALWAYS means 2-node replication for fault tolerance without recomputation."
+  },
+  {
+    "id": "I12",
+    "pts": 3,
+    "type": "STE",
+    "topic": "Apache Spark",
+    "q": "This PySpark code counts lines containing 'ERROR'. What is wrong with it?\n\nsc = SparkContext('local', 'ErrorCount')\nlines = sc.textFile('hdfs://logs/app.log')\nerrors = lines.filter(lambda line: 'ERROR' in line)\ncount = errors.count\nprint('Error count:', count)",
+    "opts": [
+      "SparkContext should use 'yarn' not 'local'",
+      "The filter lambda syntax is wrong - should use .filter('ERROR')",
+      "errors.count is missing parentheses - it references the method object, not the result",
+      "textFile() cannot read from HDFS paths"
+    ],
+    "ans": 2,
+    "exp": "Missing parentheses on .count! errors.count (without parentheses) is a REFERENCE to the method object - it returns something like <bound method RDD.count> not the integer count. You must call errors.count() to INVOKE the action and trigger Spark execution. 'local' is valid for development. The lambda syntax is correct PySpark. textFile() absolutely supports HDFS paths - that is its primary use case."
+  },
+  {
+    "id": "I13",
+    "pts": 3,
+    "type": "MC",
+    "topic": "CAP Theorem",
+    "q": "According to the CAP theorem, which property does Apache Cassandra sacrifice in favour of Availability and Partition Tolerance?",
+    "opts": [
+      "Performance",
+      "Consistency",
+      "Partition Tolerance",
+      "Durability"
+    ],
+    "ans": 1,
+    "exp": "Cassandra is an AP system - it prioritises Availability and Partition Tolerance at the expense of strong Consistency. Cassandra uses eventual consistency: nodes will synchronise eventually, but at any instant two nodes may return different values for the same key. Cassandra does allow configurable consistency levels (ONE, QUORUM, ALL) but its design philosophy is AP. Partition Tolerance cannot be sacrificed in a real distributed network - this is why CAP effectively becomes CP vs AP."
+  },
+  {
+    "id": "I14",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Graph Databases",
+    "q": "Which NoSQL database type is BEST suited for storing a social network where queries like 'find friends-of-friends within 3 hops' are common?",
+    "opts": [
+      "Document Store (e.g. MongoDB)",
+      "Column-Family Store (e.g. HBase)",
+      "Graph Database (e.g. Neo4j)",
+      "Key-Value Store (e.g. Redis)"
+    ],
+    "ans": 2,
+    "exp": "Graph databases model data as nodes and edges natively. Traversal queries like 'friends-of-friends' are O(depth) in a graph DB vs O(n^2) recursive joins in a relational DB. Document stores are great for nested JSON but poor at multi-hop traversals. Column-family stores excel at wide-column analytical reads. Key-value stores are O(1) point lookups but have no concept of relationships between entities."
+  },
+  {
+    "id": "I15",
+    "pts": 2,
+    "type": "TF",
+    "topic": "Cassandra",
+    "q": "True or False: HBase stores data in a row-oriented format, just like a traditional RDBMS.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE. HBase is a column-family (wide-column) store. While it uses a row key for lookup, data is physically stored and compressed per column family. This makes analytical queries (reading only a few columns across millions of rows) far more efficient than row-oriented storage where entire rows would be loaded into memory."
+  },
+  {
+    "id": "I16",
+    "pts": 3,
+    "type": "STE",
+    "topic": "Hive / HiveQL",
+    "q": "A data engineer writes this HiveQL query. Find the bug:\n\nSELECT region, SUM(sales_amount) AS total_sales\nFROM transactions\nWHERE year = 2024\nGROUP BY region\nHAVING total_sales > 100000\nORDER BY total_sales;",
+    "opts": [
+      "No bug - this is valid HiveQL",
+      "HAVING cannot reference an alias (total_sales) - use SUM(sales_amount) > 100000",
+      "GROUP BY must come after ORDER BY in HiveQL",
+      "WHERE clause cannot filter on partition columns"
+    ],
+    "ans": 1,
+    "exp": "HAVING cannot reference a column alias in standard SQL and most Hive versions. The alias total_sales is defined in the SELECT clause, but HAVING is evaluated BEFORE SELECT aliasing in the logical query processing order (FROM > WHERE > GROUP BY > HAVING > SELECT > ORDER BY). The correct form is: HAVING SUM(sales_amount) > 100000. GROUP BY before ORDER BY is correct. Filtering on partition columns in WHERE is perfectly valid and encouraged for partition pruning."
+  },
+  {
+    "id": "I17",
+    "pts": 2,
+    "type": "MC",
+    "topic": "Kafka and Streaming",
+    "q": "In Apache Kafka, which component is responsible for persisting messages and serving them to consumers?",
+    "opts": [
+      "Producer",
+      "Broker",
+      "Consumer Group",
+      "ZooKeeper"
+    ],
+    "ans": 1,
+    "exp": "Brokers are the Kafka servers that receive messages from producers, store them on disk in partitioned logs, and serve them to consumers. A Kafka cluster is made up of multiple brokers for fault tolerance and scalability. Producers WRITE data to brokers. Consumer Groups READ from brokers in a coordinated fashion. ZooKeeper (being phased out in KRaft mode) manages cluster metadata and leader election - it does NOT store message data."
+  },
+  {
+    "id": "I18",
+    "pts": 2,
+    "type": "TF",
+    "topic": "Kafka and Streaming",
+    "q": "True or False: In Apache Kafka, once a message is consumed and acknowledged by a consumer, it is immediately deleted from the broker.",
+    "opts": [
+      "True",
+      "False"
+    ],
+    "ans": 1,
+    "exp": "FALSE. Kafka uses a log-based retention model. Messages are retained for a configurable period (e.g. 7 days) or until a size limit is reached, REGARDLESS of consumption status. This allows multiple consumer groups to independently replay the same messages and enables replaying historical data - a key feature distinguishing Kafka from traditional message queues like RabbitMQ."
+  },
+  {
+    "id": "I19",
+    "pts": 3,
+    "type": "STE",
+    "topic": "MapReduce",
+    "q": "This Python Hadoop Streaming mapper emits (word, 1) pairs. Find the critical error:\n\nimport sys\nfor line in sys.stdin:\n    line = line.strip()\n    words = line.split()\n    for word in words:\n        print(word, '\\t', 1)",
+    "opts": [
+      "sys.stdin cannot be iterated in Hadoop Streaming",
+      "No error - the tab separator is correct",
+      "print(word, '\\t', 1) adds spaces around the tab - the key becomes 'word \\t 1' not 'word\\t1'",
+      "The script should import hadoop instead of sys"
+    ],
+    "ans": 2,
+    "exp": "The tab separator is malformed. print(word, '\\t', 1) uses Python's default sep=' ', producing: word [space] \\t [space] 1 with spaces around the tab. Hadoop Streaming's default field separator expects NO extra spaces. The correct approach is: print('%s\\t%d' % (word, 1)) or print(f'{word}\\t1') or print(word + '\\t' + str(1)). sys.stdin is exactly how Hadoop Streaming works - that is correct. There is no 'hadoop' Python module to import."
+  },
+  {
+    "id": "I20",
+    "pts": 3,
+    "type": "MC",
+    "topic": "YARN and Cluster Management",
+    "q": "In YARN (Yet Another Resource Negotiator), which component allocates resources (CPU, memory containers) to running applications?",
+    "opts": [
+      "ResourceManager's ApplicationMaster",
+      "ResourceManager's Scheduler",
+      "NodeManager",
+      "JobTracker"
+    ],
+    "ans": 1,
+    "exp": "The ResourceManager's Scheduler is the component that allocates resources across applications. It has pluggable policies: FIFO Scheduler, Capacity Scheduler, and Fair Scheduler. The ApplicationMaster is per-application - it REQUESTS resources from the Scheduler but does not allocate them. NodeManagers manage resources on individual worker nodes and launch containers but do not make allocation decisions. JobTracker is the Hadoop 1.x predecessor to YARN - it no longer exists in Hadoop 2+."
+  }
+];
+
+var cur = 0, score = 0, earnedPts = 0, totalPts = 0;
+var answered = [], shuffled = [], selMulti = [];
+
+function shuffleArr(a) {
+  var arr = a.slice();
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+  }
+  return arr;
+}
+
+function initQuiz() {
+  cur = 0; score = 0; earnedPts = 0; answered = []; selMulti = [];
+  shuffled = shuffleArr(QS);
+  totalPts = 0;
+  for (var i = 0; i < shuffled.length; i++) totalPts += shuffled[i].pts;
+  document.getElementById("results-screen").style.display = "none";
+  document.getElementById("quiz-screen").style.display = "block";
+  renderQ();
+}
+
+function renderQ() {
+  var q = shuffled[cur];
+  selMulti = [];
+  var tot = shuffled.length;
+
+  document.getElementById("prog-bar").style.width = (cur / tot * 100) + "%";
+  document.getElementById("prog-label").textContent = "Question " + (cur + 1) + " of " + tot;
+
+  var badge = document.getElementById("qbadge");
+  var typeMap = {"MC":"Multiple Choice","MS":"Multi-Select","TF":"True / False","STE":"Spot the Error"};
+  var clsMap  = {"MC":"badge b-mc","MS":"badge b-ms","TF":"badge b-tf","STE":"badge b-ste"};
+  badge.className = clsMap[q.type] || "badge b-mc";
+  badge.textContent = typeMap[q.type] || q.type;
+
+  document.getElementById("qpts").textContent = q.pts + " pts";
+  document.getElementById("qtopic").textContent = q.topic;
+  document.getElementById("qnum").textContent = (cur + 1) + "/" + tot;
+  document.getElementById("qtext").textContent = q.q;
+
+  var hint = document.getElementById("qhint");
+  if (q.type === "MS") {
+    hint.style.display = "block";
+    hint.textContent = "Select ALL correct answers, then click Submit.";
+  } else {
+    hint.style.display = "none";
+  }
+
+  var container = document.getElementById("qopts");
+  container.innerHTML = "";
+  for (var i = 0; i < q.opts.length; i++) {
+    var btn = document.createElement("button");
+    btn.className = "opt";
+    btn.setAttribute("data-i", i);
+
+    var ltr = document.createElement("span");
+    ltr.className = "ltr";
+    ltr.textContent = String.fromCharCode(65 + i);
+
+    var txt = document.createElement("span");
+    txt.className = "opt-text";
+    txt.textContent = q.opts[i];
+
+    btn.appendChild(ltr);
+    btn.appendChild(txt);
+
+    if (q.type === "MS") {
+      (function(idx, b) {
+        b.addEventListener("click", function() { toggleSel(idx, b); });
+      })(i, btn);
+    } else {
+      (function(idx) {
+        btn.addEventListener("click", function() { pickAnswer(idx); });
+      })(i);
+    }
+    container.appendChild(btn);
+  }
+
+  document.getElementById("submit-btn").style.display = (q.type === "MS") ? "inline-block" : "none";
+  document.getElementById("fb").style.display = "none";
+  document.getElementById("fb").className = "";
+  document.getElementById("next-btn").style.display = "none";
+}
+
+function toggleSel(idx, btn) {
+  var pos = selMulti.indexOf(idx);
+  if (pos >= 0) { selMulti.splice(pos, 1); btn.classList.remove("sel"); }
+  else { selMulti.push(idx); btn.classList.add("sel"); }
+}
+
+function submitMulti() {
+  var q = shuffled[cur];
+  var btns = document.querySelectorAll(".opt");
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  document.getElementById("submit-btn").style.display = "none";
+
+  var correct = q.ans;
+  var isOk = (correct.length === selMulti.length);
+  if (isOk) {
+    for (var i = 0; i < correct.length; i++) {
+      if (selMulti.indexOf(correct[i]) < 0) { isOk = false; break; }
+    }
+  }
+  if (isOk) { score++; earnedPts += q.pts; }
+  answered.push({ q: q, chosen: selMulti.slice(), isOk: isOk });
+
+  for (var i = 0; i < btns.length; i++) {
+    var idx = parseInt(btns[i].getAttribute("data-i"));
+    var inC = correct.indexOf(idx) >= 0;
+    var inS = selMulti.indexOf(idx) >= 0;
+    if (inC && inS)   btns[i].classList.add("correct");
+    else if (!inC && inS) btns[i].classList.add("wrong");
+    else if (inC && !inS) btns[i].classList.add("reveal");
+  }
+  showFb(isOk, q.exp);
+}
+
+function pickAnswer(idx) {
+  var q = shuffled[cur];
+  var btns = document.querySelectorAll(".opt");
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  var isOk = (idx === q.ans);
+  if (isOk) { score++; earnedPts += q.pts; }
+  answered.push({ q: q, chosen: idx, isOk: isOk });
+  btns[idx].classList.add(isOk ? "correct" : "wrong");
+  if (!isOk) btns[q.ans].classList.add("reveal");
+  showFb(isOk, q.exp);
+}
+
+function showFb(isOk, exp) {
+  var fb = document.getElementById("fb");
+  fb.className = isOk ? "fb-ok" : "fb-bad";
+  fb.style.display = "block";
+  document.getElementById("fb-title").textContent = isOk ? "Correct!" : "Incorrect";
+  document.getElementById("fb-body").textContent = exp;
+  var nb = document.getElementById("next-btn");
+  nb.style.display = "block";
+  nb.textContent = (cur + 1 < shuffled.length) ? "Next Question" : "See Results";
+}
+
+function nextQ() {
+  cur++;
+  if (cur < shuffled.length) renderQ();
+  else showResults();
+}
+
+function showResults() {
+  document.getElementById("quiz-screen").style.display = "none";
+  document.getElementById("results-screen").style.display = "block";
+
+  var tot = shuffled.length;
+  var pct = Math.round(score / tot * 100);
+  document.getElementById("r-pct").textContent = pct + "%";
+  setTimeout(function() {
+    document.getElementById("ring-fil").style.strokeDashoffset = 377 - (377 * pct / 100);
+  }, 150);
+
+  var title, sub;
+  if (pct >= 90)      { title = "Outstanding!";   sub = "You have mastered this material."; }
+  else if (pct >= 75) { title = "Great Work!";     sub = "Solid understanding. Review your misses below."; }
+  else if (pct >= 50) { title = "Getting There!";  sub = "Drill the weak topics hard."; }
+  else                { title = "Keep Grinding!";  sub = "Revisit your notes and retry."; }
+  document.getElementById("r-title").textContent = title;
+  document.getElementById("r-sub").textContent = score + "/" + tot + " correct (" + earnedPts + "/" + totalPts + " pts). " + sub;
+
+  var ts = {};
+  for (var i = 0; i < answered.length; i++) {
+    var t = answered[i].q.topic;
+    if (!ts[t]) ts[t] = { c: 0, n: 0 };
+    ts[t].n++;
+    if (answered[i].isOk) ts[t].c++;
+  }
+  var tkeys = Object.keys(ts).sort(function(a, b) {
+    return (ts[a].c / ts[a].n) - (ts[b].c / ts[b].n);
+  });
+  var pills = document.getElementById("r-pills");
+  pills.innerHTML = "";
+  for (var i = 0; i < tkeys.length; i++) {
+    var t = tkeys[i], s = ts[t], r = s.c / s.n;
+    var cls  = r >= 0.75 ? "str" : r >= 0.5 ? "ok" : "weak";
+    var icon = r >= 0.75 ? "[OK]" : r >= 0.5 ? "[~]" : "[X]";
+    var pill = document.createElement("span");
+    pill.className = "pill " + cls;
+    pill.textContent = icon + " " + t + " (" + s.c + "/" + s.n + ")";
+    pills.appendChild(pill);
+  }
+
+  var rlist = document.getElementById("r-list");
+  rlist.innerHTML = "";
+  var wrong = [], right = [];
+  for (var i = 0; i < answered.length; i++) {
+    if (answered[i].isOk) right.push(answered[i]); else wrong.push(answered[i]);
+  }
+
+  function makeItem(a, isWrong) {
+    var q = a.q;
+    var item = document.createElement("div");
+    item.className = "r-item";
+    var ico = document.createElement("span");
+    ico.className = "r-ico";
+    ico.textContent = isWrong ? "[X]" : "[OK]";
+    var txt = document.createElement("div");
+    txt.className = "r-txt";
+    var topic = document.createElement("span");
+    topic.className = "r-topic";
+    topic.textContent = q.topic;
+    var qspan = document.createElement("span");
+    qspan.className = "r-q";
+    qspan.textContent = q.q.length > 90 ? q.q.substring(0, 90) + "..." : q.q;
+    txt.appendChild(topic);
+    txt.appendChild(qspan);
+    if (isWrong) {
+      var chosenTxt, correctTxt;
+      if (Array.isArray(a.chosen)) {
+        chosenTxt  = a.chosen.map(function(x) { return q.opts[x]; }).join(", ");
+        correctTxt = q.ans.map(function(x) { return q.opts[x]; }).join(", ");
+      } else {
+        chosenTxt  = q.opts[a.chosen];
+        correctTxt = q.opts[q.ans];
+      }
+      var wrspan = document.createElement("span");
+      wrspan.className = "r-wrong";
+      wrspan.textContent = "Your answer: " + chosenTxt;
+      var crspan = document.createElement("span");
+      crspan.className = "r-wrong";
+      crspan.style.color = "var(--correct)";
+      crspan.textContent = "Correct: " + correctTxt;
+      txt.appendChild(wrspan);
+      txt.appendChild(crspan);
+    }
+    item.appendChild(ico);
+    item.appendChild(txt);
+    return item;
+  }
+
+  if (wrong.length > 0) {
+    var s1 = document.createElement("div");
+    s1.className = "r-sect";
+    s1.textContent = "Needs Review (" + wrong.length + ")";
+    rlist.appendChild(s1);
+    for (var i = 0; i < wrong.length; i++) rlist.appendChild(makeItem(wrong[i], true));
+  }
+  if (right.length > 0) {
+    var s2 = document.createElement("div");
+    s2.className = "r-sect";
+    s2.textContent = "Correct (" + right.length + ")";
+    rlist.appendChild(s2);
+    for (var i = 0; i < right.length; i++) rlist.appendChild(makeItem(right[i], false));
+  }
+}
+
+initQuiz();
+</script>
+</body>
+</html>

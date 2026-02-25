@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Week 2 – Knowledge Representation, RDF/RDFS, SKOS &amp; OWL Quiz</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;800;900&display=swap');
+:root{
+  --bg:#0b0d14;--surface:#131622;--surface2:#1c2033;--border:#282d48;
+  --accent:#7c6cff;--accent2:#00e4b8;--correct:#00d68f;--wrong:#ff4f6d;
+  --warn:#ffb347;--text:#e8eaf6;--muted:#7b80a0;
+  --class-test:#b47cff;--class-test-bg:#b47cff18;--class-test-bdr:#b47cff44;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Outfit',system-ui,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;padding:24px 16px;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, #7c6cff08 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, #00e4b808 0%, transparent 50%);
+}
+header{text-align:center;margin-bottom:28px;}
+header h1{
+  font-size:2rem;font-weight:900;letter-spacing:-.02em;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+header p{color:var(--muted);margin-top:6px;font-size:.88rem;}
+.ct-banner{
+  width:100%;max-width:780px;margin-bottom:18px;
+  background:var(--class-test-bg);border:1px solid var(--class-test-bdr);
+  border-radius:10px;padding:12px 18px;
+  font-size:.82rem;color:var(--class-test);line-height:1.55;
+  display:flex;align-items:flex-start;gap:10px;
+}
+.ct-banner b{color:#d4a0ff;}
+.ct-ico{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+#prog-wrap{width:100%;max-width:780px;background:var(--surface2);
+  border-radius:999px;height:7px;margin-bottom:8px;overflow:hidden;}
+#prog-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+  border-radius:999px;transition:width .4s;width:0%;}
+#prog-label{width:100%;max-width:780px;text-align:right;color:var(--muted);
+  font-size:.78rem;margin-bottom:16px;font-family:'JetBrains Mono',monospace;}
+.card{background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:28px 32px;width:100%;max-width:780px;
+  box-shadow:0 4px 32px #0004;}
+.q-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+.badge{font-size:.68rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;padding:3px 10px;border-radius:999px;font-family:'JetBrains Mono',monospace;}
+.b-mc {background:#7c6cff22;color:var(--accent); border:1px solid #7c6cff55;}
+.b-ms {background:#ff4f6d22;color:var(--wrong);  border:1px solid #ff4f6d55;}
+.b-tf {background:#00e4b822;color:var(--accent2);border:1px solid #00e4b855;}
+.pts-badge{font-size:.73rem;font-weight:700;color:var(--warn);padding:3px 10px;
+  background:#ffb34711;border:1px solid #ffb34733;border-radius:999px;font-family:'JetBrains Mono',monospace;}
+.topic-badge{font-size:.68rem;color:var(--muted);padding:3px 10px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:999px;}
+.topic-badge.ct{color:var(--class-test);border-color:var(--class-test-bdr);background:var(--class-test-bg);}
+.qnum{color:var(--muted);font-size:.78rem;margin-left:auto;font-family:'JetBrains Mono',monospace;}
+#qtext{font-size:1.05rem;font-weight:600;line-height:1.65;margin-bottom:20px;
+  color:var(--text);white-space:pre-wrap;}
+#qhint{font-size:.82rem;color:var(--muted);font-style:italic;
+  margin-bottom:10px;display:none;padding:8px 12px;
+  background:var(--surface2);border-radius:6px;border-left:3px solid var(--accent);}
+#qopts{display:flex;flex-direction:column;gap:9px;}
+.opt{background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:10px;color:var(--text);cursor:pointer;font-size:.93rem;
+  padding:12px 16px;text-align:left;
+  display:flex;align-items:flex-start;gap:11px;
+  transition:border-color .2s,background .2s,transform .1s;}
+.opt:hover:not([disabled]){border-color:var(--accent);background:#2a2d45;transform:translateX(3px);}
+.ltr{background:var(--border);border-radius:6px;min-width:27px;height:27px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.76rem;flex-shrink:0;transition:background .2s,color .2s;
+  font-family:'JetBrains Mono',monospace;}
+.opt-text{line-height:1.45;padding-top:1px;}
+.opt.correct{border-color:var(--correct)!important;background:#00d68f14;}
+.opt.correct .ltr{background:var(--correct);color:#000;}
+.opt.wrong{border-color:var(--wrong)!important;background:#ff4f6d14;}
+.opt.wrong .ltr{background:var(--wrong);color:#fff;}
+.opt.reveal{border-color:var(--correct)!important;background:#00d68f0a;}
+.opt.reveal .ltr{background:#00d68f55;color:var(--correct);}
+.opt.sel{border-color:var(--accent)!important;background:#7c6cff18;}
+.opt.sel .ltr{background:var(--accent);color:#fff;}
+#submit-btn{
+  display:none;margin-top:14px;padding:10px 26px;
+  background:var(--accent);border:none;border-radius:9px;
+  color:#fff;font-weight:700;font-size:.93rem;cursor:pointer;
+  font-family:'Outfit',sans-serif;
+}
+#submit-btn:hover{opacity:.85;}
+#fb{display:none;margin-top:20px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  font-size:.91rem;line-height:1.65;}
+.fb-title{font-weight:800;font-size:1rem;margin-bottom:8px;}
+.fb-ok .fb-title{color:var(--correct);}
+.fb-bad .fb-title{color:var(--wrong);}
+.fb-body{color:var(--text);white-space:pre-wrap;line-height:1.7;}
+code.in{background:var(--border);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:.85em;}
+#nav-row{display:flex;justify-content:flex-end;margin-top:22px;}
+#next-btn{
+  display:none;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:11px 28px;
+  font-family:'Outfit',sans-serif;
+}
+#next-btn:hover{opacity:.9;}
+#results-screen{display:none;width:100%;max-width:780px;}
+.rcard{background:var(--surface);border:1px solid var(--border);
+  border-radius:14px;padding:32px;text-align:center;box-shadow:0 4px 32px #0004;}
+.score-ring{width:140px;height:140px;margin:0 auto 22px;
+  position:relative;display:flex;align-items:center;justify-content:center;}
+.score-ring svg{position:absolute;top:0;left:0;transform:rotate(-90deg);}
+.score-ring circle{fill:none;stroke-width:9;}
+.trk{stroke:var(--surface2);}
+.fil{stroke:var(--accent2);stroke-linecap:round;
+  stroke-dasharray:377;stroke-dashoffset:377;
+  transition:stroke-dashoffset 1.2s ease;}
+.pct-text{position:relative;font-size:2rem;font-weight:900;color:var(--accent2);}
+.rcard h2{font-size:1.5rem;margin-bottom:7px;font-weight:900;}
+.r-sub{color:var(--muted);margin-bottom:24px;font-size:.93rem;}
+.pills{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:22px;}
+.pill{font-size:.74rem;padding:3px 11px;border-radius:999px;font-weight:600;}
+.pill.weak{background:#ff4f6d22;color:var(--wrong);border:1px solid #ff4f6d55;}
+.pill.ok  {background:#ffb34722;color:var(--warn); border:1px solid #ffb34755;}
+.pill.str {background:#00d68f22;color:var(--correct);border:1px solid #00d68f55;}
+.r-sect{color:var(--muted);font-size:.76rem;text-transform:uppercase;
+  letter-spacing:.08em;margin:16px 0 8px;text-align:left;font-family:'JetBrains Mono',monospace;}
+.r-item{background:var(--surface2);border:1px solid var(--border);
+  border-radius:9px;padding:11px 15px;margin-bottom:7px;
+  display:flex;gap:11px;align-items:flex-start;text-align:left;}
+.r-ico{font-size:1rem;flex-shrink:0;margin-top:2px;}
+.r-txt{font-size:.85rem;line-height:1.5;}
+.r-topic{font-weight:700;color:var(--accent2);font-size:.72rem;
+  text-transform:uppercase;display:block;margin-bottom:2px;font-family:'JetBrains Mono',monospace;}
+.r-q{color:var(--text);}
+.r-wrong{color:var(--wrong);font-size:.8rem;margin-top:4px;display:block;}
+.retry-btn{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:9px;color:#fff;cursor:pointer;
+  font-size:.97rem;font-weight:700;padding:13px 36px;margin-top:26px;
+  font-family:'Outfit',sans-serif;
+}
+.retry-btn:hover{opacity:.9;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Week 2 — Knowledge Representation &amp; Semantic Web</h1>
+  <p>82 questions · RDF · RDFS · SKOS · OWL Intro · Class Test + Exam Prep</p>
+</header>
+<div class="ct-banner">
+  <span class="ct-ico">⬥</span>
+  <span><b>Class Test Scope:</b> Questions tagged <b>RDF/RDFS</b> and <b>SKOS</b> are directly examinable in the Week 7 class test. Questions tagged <b>OWL</b> are final-exam only. Topic badges with a purple border indicate class test material.</span>
+</div>
+<div id="quiz-screen">
+  <div id="prog-wrap"><div id="prog-bar"></div></div>
+  <div id="prog-label"></div>
+  <div class="card">
+    <div class="q-meta">
+      <span class="badge b-mc" id="qbadge">MC</span>
+      <span class="pts-badge" id="qpts">2 pts</span>
+      <span class="topic-badge" id="qtopic">Topic</span>
+      <span class="qnum" id="qnum">1/82</span>
+    </div>
+    <div id="qtext"></div>
+    <div id="qhint"></div>
+    <div id="qopts"></div>
+    <button id="submit-btn" onclick="submitMulti()">Submit Answer</button>
+    <div id="fb">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-body" id="fb-body"></div>
+    </div>
+    <div id="nav-row">
+      <button id="next-btn" onclick="nextQ()">Next Question →</button>
+    </div>
+  </div>
+</div>
+<div id="results-screen">
+  <div class="rcard">
+    <div class="score-ring">
+      <svg viewBox="0 0 130 130" width="140" height="140">
+        <circle class="trk" cx="65" cy="65" r="60"/>
+        <circle class="fil" id="ring-fil" cx="65" cy="65" r="60"/>
+      </svg>
+      <span class="pct-text" id="r-pct"></span>
+    </div>
+    <h2 id="r-title"></h2>
+    <p class="r-sub" id="r-sub"></p>
+    <div class="pills" id="r-pills"></div>
+    <div id="r-list"></div>
+    <button class="retry-btn" onclick="initQuiz()">⟳ Retry Quiz</button>
+  </div>
+</div>
+
+<script>
+var CT_TOPICS = ["RDF Basics","RDF Triples","RDF Serialisation","RDF Containers","Blank Nodes","RDFS Classes","RDFS Properties","RDFS Inference","SKOS Concepts","SKOS Relationships","SKOS Transitivity","SKOS Disjointness","Vocabularies","Knowledge Graphs"];
+
+var QS = [
+  // ============================================================
+  // KNOWLEDGE GRAPHS (4 Qs)
+  // ============================================================
+  {
+    "id":"KG1","pts":2,"type":"MC","topic":"Knowledge Graphs",
+    "q":"In a knowledge graph, what do the NODES represent?",
+    "opts":["Relationships between things","Things (resources, people, concepts, objects)","Triples","Database tables"],
+    "ans":1,
+    "exp":"In a knowledge graph, NODES represent things — people, places, concepts, objects (anything you want to describe). The EDGES (links) between nodes represent the relationships. Triples are the way we write down those relationships. Knowledge graphs are not relational databases — they have no tables."
+  },
+  {
+    "id":"KG2","pts":2,"type":"MC","topic":"Knowledge Graphs",
+    "q":"Which of the following is a correct triple from the sentence: \"Alice teaches Mathematics\"?",
+    "opts":["(teaches, Alice, Mathematics)","(Mathematics, teaches, Alice)","(Alice, teaches, Mathematics)","(Alice, Mathematics, teaches)"],
+    "ans":2,
+    "exp":"A triple is always (Subject, Predicate, Object). The subject is the thing doing the action (Alice), the predicate is the relationship (teaches), and the object is what it connects to (Mathematics). The order is strict: Subject → Predicate → Object."
+  },
+  {
+    "id":"KG3","pts":2,"type":"MC","topic":"Knowledge Graphs",
+    "q":"Knowledge graph relationships are inherently:",
+    "opts":["Bidirectional (symmetric)","Directed (asymmetric)","Untyped","Unnamed"],
+    "ans":1,
+    "exp":"Knowledge graph relationships are inherently DIRECTED — they go from subject to object like a one-way street. 'John teaches BDM' does NOT mean 'BDM teaches John'. The direction matters. They are also named (typed) — the predicate gives the relationship a name."
+  },
+  {
+    "id":"KG4","pts":3,"type":"MS","topic":"Knowledge Graphs",
+    "q":"Which of the following are characteristics of knowledge graphs? (Select ALL that apply)",
+    "opts":["Scaling — one graph can represent many domains","Agreement — relationships need standardised meanings","Asymmetry — relationships are directed","Atomicity — each node stores only one value"],
+    "ans":[0,1,2],
+    "exp":"Knowledge graphs have 5 key characteristics: Scaling (one graph holds knowledge from many domains), Agreement (terms must be standardised), Structure (rules about what connects to what), Plurality (same relationship type can appear many times), and Asymmetry (edges are directed). 'Atomicity' is a database transaction concept (ACID), not a knowledge graph characteristic."
+  },
+
+  // ============================================================
+  // RDF BASICS (6 Qs)
+  // ============================================================
+  {
+    "id":"RDF1","pts":2,"type":"MC","topic":"RDF Basics",
+    "q":"What does RDF stand for?",
+    "opts":["Relational Data Framework","Resource Description Framework","Rapid Data Format","Remote Data Fetcher"],
+    "ans":1,
+    "exp":"RDF = Resource Description Framework. It is the standard W3C language for representing knowledge graphs as triples (subject-predicate-object). It is not relational — it's graph-based. It's a data model, not a data format or fetching protocol."
+  },
+  {
+    "id":"RDF2","pts":2,"type":"MC","topic":"RDF Basics",
+    "q":"In an RDF triple (subject, predicate, object), the predicate must always be:",
+    "opts":["A literal value","A blank node","An IRI (Internationalized Resource Identifier)","Either a literal or an IRI"],
+    "ans":2,
+    "exp":"The PREDICATE must ALWAYS be an IRI — it cannot be a literal or a blank node. This is a strict rule. The subject can be an IRI or a blank node. The object can be an IRI, a literal, or a blank node. Remember: predicates are ALWAYS IRIs."
+  },
+  {
+    "id":"RDF3","pts":2,"type":"MC","topic":"RDF Basics",
+    "q":"An IRI (Internationalized Resource Identifier) in RDF is best described as:",
+    "opts":["A human-readable label for display only","A unique web-style address that identifies a resource globally","A local variable name within a file","A database primary key"],
+    "ans":1,
+    "exp":"An IRI is like a web address (URL) that uniquely identifies any resource — not just web pages but people, concepts, places, etc. Example: http://example.org/people/John uniquely identifies 'John'. It ensures no ambiguity — everyone referring to this IRI means the exact same thing."
+  },
+  {
+    "id":"RDF4","pts":2,"type":"MC","topic":"RDF Basics",
+    "q":"In RDF, a literal is:",
+    "opts":["A node that represents another resource via an IRI","A plain value such as a string, integer, or date","A relationship between two resources","An anonymous node without an IRI"],
+    "ans":1,
+    "exp":"A literal is a PLAIN VALUE — a piece of data like \"Hello World\" (string), 42 (integer), or \"2024-01-15\" (date). Literals have a datatype (e.g. xsd:string, xsd:integer). A resource via IRI is an IRI node. A relationship is a predicate. An anonymous node is a blank node."
+  },
+  {
+    "id":"RDF5","pts":3,"type":"MS","topic":"RDF Basics",
+    "q":"Which of the following can appear as the OBJECT in an RDF triple? (Select ALL that apply)",
+    "opts":["An IRI","A literal (e.g. a string or number)","A blank node","A predicate"],
+    "ans":[0,1,2],
+    "exp":"The object in an RDF triple can be: an IRI (linking to another resource), a literal (a plain value), or a blank node (anonymous). A predicate is never an object — predicates define the relationship itself and sit in the middle position of the triple."
+  },
+  {
+    "id":"RDF6","pts":3,"type":"MC","topic":"RDF Basics",
+    "q":"Which of the following can appear as the SUBJECT in an RDF triple?",
+    "opts":["An IRI or a blank node only","An IRI, literal, or blank node","An IRI only","Any value including literals"],
+    "ans":0,
+    "exp":"The SUBJECT can only be an IRI or a blank node — NEVER a literal. You cannot have a plain number or string as the subject of a statement. Think of it this way: subjects are 'things' that need identity (IRI) or at least exist as unnamed things (blank nodes). A raw value like '42' can't be the subject of a sentence."
+  },
+
+  // ============================================================
+  // RDF TRIPLES & READING (4 Qs)
+  // ============================================================
+  {
+    "id":"TRP1","pts":2,"type":"MC","topic":"RDF Triples",
+    "q":"Given the sentence \"Edinburgh is located in Scotland\", which is the correct triple?",
+    "opts":["(Scotland, locatedIn, Edinburgh)","(Edinburgh, locatedIn, Scotland)","(locatedIn, Edinburgh, Scotland)","(Edinburgh, Scotland, locatedIn)"],
+    "ans":1,
+    "exp":"The subject is Edinburgh (the thing being described), the predicate is locatedIn (the relationship), and the object is Scotland (what it connects to). Always read it like a sentence: Edinburgh [subject] locatedIn [predicate] Scotland [object]."
+  },
+  {
+    "id":"TRP2","pts":2,"type":"MC","topic":"RDF Triples",
+    "q":"An RDF model (a collection of triples) is:",
+    "opts":["An ordered list — the order of triples matters","An unordered collection — the order does not matter","A tree structure with a root node","A table with rows and columns"],
+    "ans":1,
+    "exp":"An RDF model is an UNORDERED collection of triples. The order you write triples in does not matter — the same set of triples represents the same knowledge regardless of sequence. It's a graph (network), not a tree or a table."
+  },
+  {
+    "id":"TRP3","pts":3,"type":"MC","topic":"RDF Triples",
+    "q":"How many triples does the following Turtle code contain?\n\n@prefix ex: <http://example.org/> .\nex:Alice a ex:Person ;\n  ex:name \"Alice\" ;\n  ex:knows ex:Bob , ex:Carol .",
+    "opts":["2","3","4","5"],
+    "ans":2,
+    "exp":"Let's count: (1) ex:Alice a ex:Person — Alice is a Person. (2) ex:Alice ex:name \"Alice\" — Alice's name is \"Alice\". (3) ex:Alice ex:knows ex:Bob — Alice knows Bob. (4) ex:Alice ex:knows ex:Carol — Alice knows Carol. The comma after ex:Bob means 'same subject AND predicate, new object'. Total = 4 triples."
+  },
+  {
+    "id":"TRP4","pts":2,"type":"MC","topic":"RDF Triples",
+    "q":"The xsd:integer datatype in RDF is used for:",
+    "opts":["Whole numbers like 42","Decimal numbers like 3.14","True/false values","Date values"],
+    "ans":0,
+    "exp":"xsd:integer is for whole numbers (no decimals): 42, -7, 1000. For decimals like 3.14, use xsd:float or xsd:double. For true/false, use xsd:boolean. For dates, use xsd:date or xsd:dateTime. These are XML Schema datatypes used in RDF to specify the type of literal values."
+  },
+
+  // ============================================================
+  // RDF SERIALISATION: TURTLE (6 Qs)
+  // ============================================================
+  {
+    "id":"TTL1","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In Turtle syntax, the keyword 'a' is a shortcut for:",
+    "opts":["rdfs:subClassOf","rdf:type","owl:sameAs","rdfs:label"],
+    "ans":1,
+    "exp":"In Turtle, 'a' is shorthand for rdf:type, which means 'is an instance of'. So 'ex:John a ex:Person' means 'John is an instance of the class Person'. This is one of the most commonly tested Turtle facts — memorise it!"
+  },
+  {
+    "id":"TTL2","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In Turtle, what does the semicolon (;) mean?",
+    "opts":["End of all statements about this subject","Same subject, different predicate","Same subject and predicate, different object","Comment marker"],
+    "ans":1,
+    "exp":"The semicolon (;) means: 'I'm still talking about the SAME subject, but with a DIFFERENT predicate.' Example: ex:John a ex:Person ; ex:name \"John\" . Both statements are about ex:John. The DOT (.) ends all statements about a subject. The COMMA (,) means same subject AND same predicate, new object."
+  },
+  {
+    "id":"TTL3","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In Turtle, what does the comma (,) mean?",
+    "opts":["Same subject, different predicate","End of this subject's triples","Same subject AND same predicate, different object","Start of a new triple"],
+    "ans":2,
+    "exp":"The comma (,) means: 'Same subject AND same predicate, but a DIFFERENT object.' Example: ex:John ex:knows ex:Alice , ex:Bob . This creates TWO triples: John knows Alice AND John knows Bob. The semicolon (;) is for same subject, different predicate. The dot (.) ends the subject."
+  },
+  {
+    "id":"TTL4","pts":3,"type":"MC","topic":"RDF Serialisation",
+    "q":"Which of the following is valid Turtle syntax for: \"John is a Person and his age is 25\"?",
+    "opts":[
+      "ex:John a ex:Person ; ex:age \"25\"^^xsd:integer .",
+      "ex:John a ex:Person , ex:age \"25\"^^xsd:integer .",
+      "ex:John a ex:Person . ex:age \"25\"^^xsd:integer .",
+      "ex:John = ex:Person ; ex:age \"25\"^^xsd:integer ."
+    ],
+    "ans":0,
+    "exp":"Option A is correct: 'a' for rdf:type, semicolon (;) to continue with same subject but different predicate, and dot (.) to finish. Option B is wrong because comma means same predicate — John cannot be 'a' (type of) an age literal. Option C is wrong because the dot ends John's triples, so ex:age has no subject. Option D uses '=' which is not standard Turtle."
+  },
+  {
+    "id":"TTL5","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"How is a typed literal (e.g., the integer 30) written in Turtle?",
+    "opts":["\"30\"@xsd:integer","\"30\"^^xsd:integer","30^^xsd:integer","xsd:integer(30)"],
+    "ans":1,
+    "exp":"Typed literals use the ^^ syntax: \"30\"^^xsd:integer. The value goes in quotes, then ^^ followed by the datatype IRI. The @ symbol is for language tags (e.g. \"cat\"@en for English), NOT datatypes. Bare 30 without quotes is actually valid shorthand in Turtle for an integer, but the explicit form uses ^^."
+  },
+  {
+    "id":"TTL6","pts":3,"type":"MC","topic":"RDF Serialisation",
+    "q":"In Turtle, what does @prefix do?",
+    "opts":["Declares a namespace shortcut so you don't type full IRIs every time","Imports an external file","Comments out a line","Declares a variable for later use"],
+    "ans":0,
+    "exp":"@prefix creates a namespace shortcut. Instead of writing <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> every time, you write @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . and then just use rdf:type. It saves massive amounts of typing and makes the code readable."
+  },
+
+  // ============================================================
+  // RDF/XML (5 Qs)
+  // ============================================================
+  {
+    "id":"XML1","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In RDF/XML, which element wraps the entire RDF document?",
+    "opts":["<rdf:Description>","<rdf:RDF>","<rdf:Graph>","<rdf:Document>"],
+    "ans":1,
+    "exp":"<rdf:RDF> is the ROOT element of every RDF/XML document. Everything goes inside it. <rdf:Description> describes individual resources (subjects) — it goes INSIDE <rdf:RDF>. <rdf:Graph> and <rdf:Document> don't exist in the standard."
+  },
+  {
+    "id":"XML2","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In RDF/XML, the attribute rdf:about is used to:",
+    "opts":["Create a new identifier","Reference an EXISTING resource as the subject being described","Specify the datatype of a literal","Define a namespace prefix"],
+    "ans":1,
+    "exp":"rdf:about says 'I am describing THIS existing resource'. Example: <rdf:Description rdf:about=\"http://example.org/John\"> means 'the following properties are about John'. rdf:ID (not rdf:about) creates a NEW identifier. rdf:datatype specifies literal types. xmlns: defines namespaces."
+  },
+  {
+    "id":"XML3","pts":3,"type":"MC","topic":"RDF Serialisation",
+    "q":"In RDF/XML, what does rdf:resource attribute do inside a property element?",
+    "opts":["Makes the property value a literal string","Makes the property value point to ANOTHER resource (IRI), not a literal","Defines the datatype of a value","Creates a blank node"],
+    "ans":1,
+    "exp":"rdf:resource makes the object of a triple another RESOURCE (IRI) rather than a literal. Example: <ex:knows rdf:resource=\"http://example.org/Mary\"/> means the 'knows' relationship points to the resource Mary (an IRI), not the text string 'Mary'. Without rdf:resource, text between tags becomes a literal string."
+  },
+  {
+    "id":"XML4","pts":3,"type":"MC","topic":"RDF Serialisation",
+    "q":"What is the difference between rdf:about and rdf:ID in RDF/XML?",
+    "opts":["rdf:about references an existing resource; rdf:ID creates a new identifier relative to the base URI","They are identical and interchangeable","rdf:about is for literals; rdf:ID is for resources","rdf:ID references an existing resource; rdf:about creates a new one"],
+    "ans":0,
+    "exp":"rdf:about REFERENCES an existing resource (can be any IRI). rdf:ID CREATES a new identifier by appending '#' + the ID value to the document's base URI. Example: if base is http://example.org/, then rdf:ID=\"snack\" creates http://example.org/#snack. They are NOT interchangeable — one points to existing things, the other creates new identifiers."
+  },
+  {
+    "id":"XML5","pts":2,"type":"MC","topic":"RDF Serialisation",
+    "q":"In RDF/XML, namespaces (prefixes) are declared using:",
+    "opts":["@prefix (like Turtle)","xmlns: attributes in the <rdf:RDF> tag","<namespace> elements","rdf:prefix attributes"],
+    "ans":1,
+    "exp":"In RDF/XML, namespaces use the standard XML namespace mechanism: xmlns:prefix=\"URI\" inside the <rdf:RDF> tag. Example: xmlns:foaf=\"http://xmlns.com/foaf/0.1/\". In Turtle, you use @prefix. They achieve the same goal (shortcuts) but with different syntax because one is XML and the other is Turtle."
+  },
+
+  // ============================================================
+  // RDF CONTAINERS & COLLECTIONS (6 Qs)
+  // ============================================================
+  {
+    "id":"CON1","pts":2,"type":"MC","topic":"RDF Containers",
+    "q":"Which RDF container represents an UNORDERED group of resources?",
+    "opts":["rdf:Seq","rdf:Bag","rdf:Alt","rdf:List"],
+    "ans":1,
+    "exp":"rdf:Bag = unordered group (like a bag of marbles — any order). rdf:Seq = ordered group (like a playlist — order matters). rdf:Alt = alternatives (like a menu — pick one). rdf:List is used for collections, not containers."
+  },
+  {
+    "id":"CON2","pts":2,"type":"MC","topic":"RDF Containers",
+    "q":"You want to represent the preferred format for a music album where the listener can choose ONE option (CD, Vinyl, or Digital). Which container type should you use?",
+    "opts":["rdf:Bag","rdf:Seq","rdf:Alt","rdf:Collection"],
+    "ans":2,
+    "exp":"rdf:Alt is for a set of ALTERNATIVES where you pick ONE. Choosing between CD, Vinyl, or Digital is a classic Alt use case — pick your preferred format. rdf:Bag would be for an unordered group where all items are relevant. rdf:Seq is for an ordered sequence."
+  },
+  {
+    "id":"CON3","pts":2,"type":"MC","topic":"RDF Containers",
+    "q":"rdf:Seq differs from rdf:Bag because:",
+    "opts":["rdf:Seq is unordered, rdf:Bag is ordered","rdf:Seq is ordered, rdf:Bag is unordered","rdf:Seq allows duplicates, rdf:Bag does not","rdf:Seq is closed, rdf:Bag is open"],
+    "ans":1,
+    "exp":"rdf:Seq = ORDERED (like a playlist). rdf:Bag = UNORDERED (like a bag of items). Both are OPEN (can have members added), and both allow duplicates. The only difference is whether the order of items carries meaning."
+  },
+  {
+    "id":"CON4","pts":3,"type":"MC","topic":"RDF Containers",
+    "q":"What is the KEY difference between an RDF Container (Bag/Seq/Alt) and an RDF Collection?",
+    "opts":["Containers are ordered; Collections are unordered","Containers are OPEN (can have members added); Collections are CLOSED (fixed members only)","Containers use IRIs; Collections use literals","There is no difference; they are synonyms"],
+    "ans":1,
+    "exp":"This is a critical distinction: CONTAINERS (Bag, Seq, Alt) are OPEN — anyone can add more members at any time. COLLECTIONS are CLOSED — they can ONLY contain the specified members, period. Think: Container = open box (throw stuff in), Collection = sealed envelope (fixed contents)."
+  },
+  {
+    "id":"CON5","pts":2,"type":"MC","topic":"RDF Containers",
+    "q":"In RDF/XML, a Collection is indicated by which attribute?",
+    "opts":["rdf:type=\"Collection\"","rdf:parseType=\"Collection\"","rdf:container=\"closed\"","rdf:closed=\"true\""],
+    "ans":1,
+    "exp":"In RDF/XML, you mark a collection using rdf:parseType=\"Collection\" on the property element. This tells the parser that the enclosed resources form a CLOSED list. The other options are made up and don't exist in the RDF standard."
+  },
+  {
+    "id":"CON6","pts":3,"type":"MS","topic":"RDF Containers",
+    "q":"Which of the following are true about RDF Containers? (Select ALL that apply)",
+    "opts":["rdf:Bag is unordered","rdf:Seq preserves order","rdf:Alt means pick one from the set","Containers are closed — no new members can be added"],
+    "ans":[0,1,2],
+    "exp":"Bag is unordered ✓. Seq is ordered ✓. Alt means 'pick one' ✓. But containers are OPEN, not closed. Anyone can add new members to a container. Only COLLECTIONS (rdf:parseType=\"Collection\") are closed."
+  },
+
+  // ============================================================
+  // BLANK NODES (4 Qs)
+  // ============================================================
+  {
+    "id":"BN1","pts":2,"type":"MC","topic":"Blank Nodes",
+    "q":"A blank node in RDF is:",
+    "opts":["A node with an empty string as its IRI","A node that has NO IRI — it is anonymous","A node that has been deleted","A node containing a null value"],
+    "ans":1,
+    "exp":"A blank node (bnode) is a node that exists in the graph but has NO IRI — it is anonymous. It represents 'something' without giving it a global identity. The system generates an internal ID (like _:b1) to track it, but this ID is NOT visible outside. It's not empty, deleted, or null — it just lacks a public name."
+  },
+  {
+    "id":"BN2","pts":2,"type":"MC","topic":"Blank Nodes",
+    "q":"In Turtle, blank nodes are represented using:",
+    "opts":["Angle brackets: < >","Square brackets: [ ]","Curly braces: { }","Parentheses: ( )"],
+    "ans":1,
+    "exp":"In Turtle, square brackets [ ] denote a blank node. Example: ex:John ex:knows [ ex:name \"Paul\" ] . means 'John knows some unnamed thing whose name is Paul.' Angle brackets are for full IRIs. Curly braces are used in SPARQL for graph patterns. Parentheses are for collections."
+  },
+  {
+    "id":"BN3","pts":3,"type":"MC","topic":"Blank Nodes",
+    "q":"In RDF/XML, a blank node is created when:",
+    "opts":["<rdf:Description> has rdf:about=\"\"","<rdf:Description> has NO rdf:about attribute","<rdf:Description> has rdf:blank=\"true\"","<rdf:Description> has rdf:type=\"blank\""],
+    "ans":1,
+    "exp":"In RDF/XML, a blank node is created when <rdf:Description> has NO rdf:about (and no rdf:ID) attribute. Without these attributes, the node is anonymous — it has no IRI, so it's a blank node. rdf:about=\"\" would reference the base URI itself. rdf:blank and rdf:type=\"blank\" don't exist in the standard."
+  },
+  {
+    "id":"BN4","pts":2,"type":"MC","topic":"Blank Nodes",
+    "q":"A blank node can appear in which positions of an RDF triple?",
+    "opts":["Subject only","Object only","Subject or Object","Subject, Predicate, or Object"],
+    "ans":2,
+    "exp":"Blank nodes can appear as the SUBJECT or OBJECT of a triple, but NEVER as the predicate. Predicates must always be IRIs. Subjects can be IRIs or blank nodes. Objects can be IRIs, literals, or blank nodes."
+  },
+
+  // ============================================================
+  // RDFS CLASSES (4 Qs)
+  // ============================================================
+  {
+    "id":"RDFS1","pts":2,"type":"MC","topic":"RDFS Classes",
+    "q":"RDFS (RDF Schema) extends RDF by adding:",
+    "opts":["A query language for triples","The ability to define vocabularies with classes, hierarchies, and constraints","Transaction support for concurrent access","A visual interface for graph editing"],
+    "ans":1,
+    "exp":"RDFS adds a SCHEMA layer on top of RDF. It lets you define CLASSES (types of things), create HIERARCHIES (Dog subClassOf Animal), and set CONSTRAINTS (domain and range). SPARQL is the query language. Transaction support is a database feature. Visual interfaces are tools like Protégé."
+  },
+  {
+    "id":"RDFS2","pts":2,"type":"MC","topic":"RDFS Classes",
+    "q":"In RDFS, rdfs:Resource represents:",
+    "opts":["Only literal values","Only classes","Everything — all things are resources","Only properties"],
+    "ans":2,
+    "exp":"rdfs:Resource is the class of ALL resources. Everything in RDF is a resource — people, classes, properties, you name it. It's the ultimate parent class. It's not limited to literals, classes, or properties — it encompasses everything."
+  },
+  {
+    "id":"RDFS3","pts":3,"type":"MC","topic":"RDFS Classes",
+    "q":"What is the difference between rdf:resource (lowercase 'r') and rdfs:Resource (capital 'R')?",
+    "opts":["They are the same thing","rdf:resource is an XML attribute for pointing to IRIs; rdfs:Resource is a CLASS representing all resources","rdf:resource is a class; rdfs:Resource is an attribute","rdf:resource is for literals; rdfs:Resource is for IRIs"],
+    "ans":1,
+    "exp":"This is a classic exam trap! rdf:resource (lowercase) is an XML ATTRIBUTE used in RDF/XML to make a property's object point to another resource (IRI). rdfs:Resource (uppercase) is a CLASS that represents all resources in the RDF world. Completely different things despite similar names!"
+  },
+  {
+    "id":"RDFS4","pts":2,"type":"MC","topic":"RDFS Classes",
+    "q":"rdfs:Literal represents:",
+    "opts":["The class of all resources","The class of all plain values (strings, numbers, dates)","The class of all properties","The class of all classes"],
+    "ans":1,
+    "exp":"rdfs:Literal is the class of all literal values — strings, integers, floats, dates, booleans, etc. It is a subclass of rdfs:Resource (because even values are resources in RDF). rdfs:Class is the class of all classes. rdfs:Resource is the class of everything."
+  },
+
+  // ============================================================
+  // RDFS PROPERTIES (6 Qs)
+  // ============================================================
+  {
+    "id":"RDFSP1","pts":2,"type":"MC","topic":"RDFS Properties",
+    "q":"rdfs:subClassOf means:",
+    "opts":["Class A is the same as class B","Class A is a kind of (more specific than) class B","Class A contains class B as a member","Class A is disjoint with class B"],
+    "ans":1,
+    "exp":"rdfs:subClassOf means 'A is a kind of B' — A is more specific, B is more general. Example: Horse subClassOf Animal means 'every Horse is an Animal'. It does NOT mean they're the same (that's owl:equivalentClass). It does NOT mean containment or disjointness."
+  },
+  {
+    "id":"RDFSP2","pts":2,"type":"MC","topic":"RDFS Properties",
+    "q":"rdfs:subClassOf is a transitive property. This means:",
+    "opts":["If A subClassOf B, then B subClassOf A","If A subClassOf B and B subClassOf C, then A subClassOf C","If A subClassOf B, then A and B are the same class","subClassOf can only be applied once"],
+    "ans":1,
+    "exp":"Transitive means the relationship 'chains through' intermediate steps. If Dog subClassOf Mammal, and Mammal subClassOf Animal, then Dog subClassOf Animal automatically. This is how inheritance hierarchies work — you inherit from grandparents too, not just parents!"
+  },
+  {
+    "id":"RDFSP3","pts":2,"type":"MC","topic":"RDFS Properties",
+    "q":"rdfs:domain specifies:",
+    "opts":["The class that the OBJECT of a property must belong to","The class that the SUBJECT of a property must belong to","The range of valid literal values","The web domain where the resource is hosted"],
+    "ans":1,
+    "exp":"rdfs:domain says 'the SUBJECT of this property must be of this class'. If teaches has domain Person, then anything that teaches something must be a Person. The OBJECT constraint is rdfs:range, not domain. It has nothing to do with web hosting domains!"
+  },
+  {
+    "id":"RDFSP4","pts":2,"type":"MC","topic":"RDFS Properties",
+    "q":"rdfs:range specifies:",
+    "opts":["The class that the SUBJECT of a property must belong to","The class or datatype that the OBJECT of a property must belong to","A numeric range like 1-100","The number of allowed values"],
+    "ans":1,
+    "exp":"rdfs:range says 'the OBJECT of this property must be of this class or datatype'. If teaches has range Course, then anything that someone teaches must be a Course. The SUBJECT constraint is rdfs:domain. It's not a numeric range or a count."
+  },
+  {
+    "id":"RDFSP5","pts":3,"type":"MC","topic":"RDFS Properties",
+    "q":"rdfs:subPropertyOf means:",
+    "opts":["Property A is the opposite of property B","Property A is a more specific version of property B","Property A has the same domain as property B","Property A is used less frequently than property B"],
+    "ans":1,
+    "exp":"rdfs:subPropertyOf means 'A is a special case of B'. Example: hasDaughter subPropertyOf hasChild — every 'has daughter' relationship is also a 'has child' relationship. Like subClassOf, subPropertyOf is TRANSITIVE. It says nothing about opposites, domains, or frequency."
+  },
+  {
+    "id":"RDFSP6","pts":3,"type":"MS","topic":"RDFS Properties",
+    "q":"Which of the following are RDFS properties (not OWL)? (Select ALL that apply)",
+    "opts":["rdfs:subClassOf","rdfs:domain","owl:inverseOf","rdfs:range"],
+    "ans":[0,1,3],
+    "exp":"rdfs:subClassOf, rdfs:domain, and rdfs:range are all RDFS properties — they define vocabulary structure in the RDFS layer. owl:inverseOf is an OWL property that specifies one property is the reverse of another. RDFS cannot express inverse properties — that's one of its limitations that OWL addresses."
+  },
+
+  // ============================================================
+  // RDFS INFERENCE (5 Qs)
+  // ============================================================
+  {
+    "id":"INF1","pts":2,"type":"MC","topic":"RDFS Inference",
+    "q":"Inference in RDFS means:",
+    "opts":["Manually adding new triples to the graph","Automatically discovering facts NOT explicitly stated by applying logical rules","Deleting incorrect triples","Querying the graph with SPARQL"],
+    "ans":1,
+    "exp":"Inference means AUTOMATICALLY discovering hidden facts by applying rules. If Dog subClassOf Animal, and Rex is a Dog, a reasoner infers Rex is also an Animal — even though nobody said that explicitly. It's not manual, not deletion, and not querying."
+  },
+  {
+    "id":"INF2","pts":3,"type":"MC","topic":"RDFS Inference",
+    "q":"Given: :Dog rdfs:subClassOf :Animal. :Rex rdf:type :Dog.\nWhat can be inferred?",
+    "opts":[":Rex rdf:type :Animal",":Animal rdf:type :Dog",":Dog rdf:type :Rex",":Animal rdfs:subClassOf :Dog"],
+    "ans":0,
+    "exp":"Since Dog is a subclass of Animal, and Rex is a Dog, the reasoner infers Rex is ALSO an Animal. This is type inheritance — you follow the hierarchy upward. Animal is NOT a type of Dog (that's backwards). Dog is NOT a type of Rex (Rex is an instance, Dog is a class). Animal is NOT a subclass of Dog (it's the other way around)."
+  },
+  {
+    "id":"INF3","pts":3,"type":"MC","topic":"RDFS Inference",
+    "q":"Given: :teaches rdfs:domain :Lecturer. :teaches rdfs:range :Course. :John :teaches :BDM.\nWhat is inferred about :John?",
+    "opts":[":John rdf:type :Course",":John rdf:type :Lecturer",":John rdfs:subClassOf :Lecturer",":BDM rdf:type :Lecturer"],
+    "ans":1,
+    "exp":"Since :teaches has domain :Lecturer, anything that 'teaches' something must be a Lecturer. John teaches BDM, so John must be a Lecturer. Also inferred: BDM is a Course (from the range). John is NOT a Course (he's the subject/domain). subClassOf relates classes, not individuals. BDM is a Course, not a Lecturer."
+  },
+  {
+    "id":"INF4","pts":3,"type":"MS","topic":"RDFS Inference",
+    "q":"Given: :Cat rdfs:subClassOf :Mammal. :Mammal rdfs:subClassOf :Animal. :Whiskers rdf:type :Cat.\nWhich of the following are inferred? (Select ALL that apply)",
+    "opts":[":Whiskers rdf:type :Mammal",":Whiskers rdf:type :Animal",":Cat rdfs:subClassOf :Animal",":Animal rdfs:subClassOf :Cat"],
+    "ans":[0,1,2],
+    "exp":"By type inheritance: Whiskers is a Cat → Cat subClassOf Mammal → Whiskers is a Mammal ✓. Mammal subClassOf Animal → Whiskers is also an Animal ✓. By transitivity of subClassOf: Cat subClassOf Mammal, Mammal subClassOf Animal → Cat subClassOf Animal ✓. Animal is NOT a subclass of Cat — that's backwards!"
+  },
+  {
+    "id":"INF5","pts":3,"type":"MC","topic":"RDFS Inference",
+    "q":"What are the two basic types of inference in RDFS?",
+    "opts":["Forward chaining and backward chaining","Type inheritance and type inference via domain/range","Consistency checking and classification","Realization and satisfiability"],
+    "ans":1,
+    "exp":"RDFS supports two inference types: (1) Type Inheritance — following the subClassOf hierarchy upward (Cat→Mammal→Animal). (2) Type Inference — using domain/range constraints to figure out types (if :teaches has domain :Person, and John teaches something, then John must be a Person). Forward/backward chaining are inference strategies. Consistency/classification/realization are OWL reasoning tasks."
+  },
+
+  // ============================================================
+  // SCHEMA vs INSTANCE (2 Qs)
+  // ============================================================
+  {
+    "id":"SI1","pts":2,"type":"MC","topic":"RDFS Classes",
+    "q":"The SCHEMA (TBox) in RDF/RDFS contains:",
+    "opts":["Actual data about specific people and things","Class definitions, property definitions, hierarchies, and constraints","Only namespace declarations","Only blank nodes"],
+    "ans":1,
+    "exp":"The Schema (TBox) contains the RULES and VOCABULARY: what classes exist, what properties exist, how they're related (hierarchies), and constraints (domain/range). It's the blueprint. Actual data about specific things (John, Mary) goes in the Instance layer (ABox)."
+  },
+  {
+    "id":"SI2","pts":2,"type":"MC","topic":"RDFS Classes",
+    "q":"The INSTANCE layer (ABox) contains:",
+    "opts":["Class hierarchies and property definitions","Actual data — the real individuals and their property values","Only IRIs and no literals","SPARQL queries"],
+    "ans":1,
+    "exp":"The Instance layer (ABox) contains the ACTUAL DATA: real individuals (John, Mary), their types (John is a Person), and their property values (John's age is 30). It uses the vocabulary defined in the Schema (TBox). Hierarchies and property definitions belong in the TBox."
+  },
+
+  // ============================================================
+  // VOCABULARIES (3 Qs)
+  // ============================================================
+  {
+    "id":"VOC1","pts":2,"type":"MC","topic":"Vocabularies",
+    "q":"Dublin Core (dc:) is a standard vocabulary used for:",
+    "opts":["Describing social networks and people","Basic metadata like title, creator, description, and date","Defining class hierarchies","Writing SPARQL queries"],
+    "ans":1,
+    "exp":"Dublin Core defines basic METADATA properties for resources: dc:title, dc:creator, dc:description, dc:date, etc. It's widely used for describing documents, files, and web resources. FOAF is for social networks/people. RDFS defines hierarchies. SPARQL is a query language, not a vocabulary."
+  },
+  {
+    "id":"VOC2","pts":2,"type":"MC","topic":"Vocabularies",
+    "q":"FOAF (Friend of a Friend) vocabulary is used to describe:",
+    "opts":["Geographic locations","People, their activities, and relationships to others","Chemical compounds","Music metadata"],
+    "ans":1,
+    "exp":"FOAF is a vocabulary for describing PEOPLE and their social connections. Properties include foaf:name, foaf:knows, foaf:mbox (email). It's widely used in social web applications. Geographic data uses GeoSPARQL or GeoNames. Music uses MusicBrainz or Schema.org."
+  },
+  {
+    "id":"VOC3","pts":3,"type":"MS","topic":"Vocabularies",
+    "q":"Which of the following are standard vocabularies used with RDF? (Select ALL that apply)",
+    "opts":["Dublin Core (dc:)","FOAF (foaf:)","SKOS (skos:)","SQL (sql:)"],
+    "ans":[0,1,2],
+    "exp":"Dublin Core (metadata), FOAF (people/social), and SKOS (structured vocabularies) are all standard RDF vocabularies. SQL is a relational database query language — it has nothing to do with RDF. There is no 'sql:' namespace in the Semantic Web."
+  },
+
+  // ============================================================
+  // SKOS CONCEPTS & LABELS (4 Qs)
+  // ============================================================
+  {
+    "id":"SK1","pts":2,"type":"MC","topic":"SKOS Concepts",
+    "q":"SKOS stands for:",
+    "opts":["Semantic Knowledge Organization System","Simple Knowledge Organization System","Standard Knowledge Ontology Schema","Structured Knowledge Ordering System"],
+    "ans":1,
+    "exp":"SKOS = Simple Knowledge Organization System. It is a W3C standard (since 2009) built on RDF for representing taxonomies, thesauri, and classification systems. It is intentionally 'simple' — more powerful than plain lists but less complex than full OWL ontologies."
+  },
+  {
+    "id":"SK2","pts":2,"type":"MC","topic":"SKOS Concepts",
+    "q":"The fundamental building block of SKOS is:",
+    "opts":["skos:Class","skos:Concept","skos:Term","skos:Entity"],
+    "ans":1,
+    "exp":"The fundamental unit in SKOS is the CONCEPT — a 'unit of thought'. You create concepts using: ex:cat rdf:type skos:Concept. Concepts are then given labels and linked with relationships. SKOS does not have skos:Class, skos:Term, or skos:Entity."
+  },
+  {
+    "id":"SK3","pts":3,"type":"MC","topic":"SKOS Concepts",
+    "q":"skos:prefLabel is:",
+    "opts":["A hidden search term for the concept","The preferred (main) name for the concept, limited to ONE per language","An alternative synonym for the concept","A comment or description of the concept"],
+    "ans":1,
+    "exp":"skos:prefLabel is the PREFERRED name — the main, canonical label for the concept. You can have exactly ONE prefLabel per language (one in English, one in French, etc.). skos:altLabel is for synonyms (alternative names). skos:hiddenLabel is for hidden search terms. rdfs:comment is for descriptions."
+  },
+  {
+    "id":"SK4","pts":2,"type":"MC","topic":"SKOS Concepts",
+    "q":"In the following Turtle, what is \"feline\"?\n\nex:cat a skos:Concept ;\n  skos:prefLabel \"cat\"@en ;\n  skos:altLabel \"feline\"@en .",
+    "opts":["The preferred name","An alternative name (synonym)","A hidden label","A broader concept"],
+    "ans":1,
+    "exp":"skos:altLabel is an ALTERNATIVE label — a synonym. 'feline' is another word for 'cat', so it's an altLabel. The prefLabel (preferred name) is 'cat'. altLabels let users find the concept using different terms."
+  },
+
+  // ============================================================
+  // SKOS RELATIONSHIPS (5 Qs)
+  // ============================================================
+  {
+    "id":"SKR1","pts":2,"type":"MC","topic":"SKOS Relationships",
+    "q":"skos:broader means:",
+    "opts":["Concept A is MORE SPECIFIC than concept B","Concept A is MORE GENERAL than concept B","Concept A is the same as concept B","Concept A is not related to concept B"],
+    "ans":1,
+    "exp":"If you say :cat skos:broader :animal, it means 'the concept broader (more general) than cat is animal'. Broader = up the hierarchy to something more general. Narrower = down the hierarchy to something more specific. It's the SKOS equivalent of going from specific to general."
+  },
+  {
+    "id":"SKR2","pts":2,"type":"MC","topic":"SKOS Relationships",
+    "q":"skos:narrower is the inverse of:",
+    "opts":["skos:broader","skos:related","skos:exactMatch","skos:prefLabel"],
+    "ans":0,
+    "exp":"skos:narrower is the INVERSE of skos:broader. If :animal skos:narrower :cat (cat is narrower than animal), then a reasoner infers :cat skos:broader :animal (animal is broader than cat). They always come in pairs. skos:related is a separate, non-hierarchical relationship."
+  },
+  {
+    "id":"SKR3","pts":2,"type":"MC","topic":"SKOS Relationships",
+    "q":"skos:related is used for:",
+    "opts":["Hierarchical (parent-child) relationships","Non-hierarchical ASSOCIATIVE relationships between concepts","Exact matches between vocabularies","Defining preferred labels"],
+    "ans":1,
+    "exp":"skos:related is for ASSOCIATIVE (non-hierarchical) links — concepts that are connected but neither is more general/specific than the other. Example: 'Cat' related to 'Pet' — cats can be pets, but 'Pet' is not a broader category of 'Cat'. skos:broader/narrower handle hierarchies. skos:exactMatch handles vocabulary alignment."
+  },
+  {
+    "id":"SKR4","pts":3,"type":"MS","topic":"SKOS Relationships",
+    "q":"Which of the following are HIERARCHICAL relationships in SKOS? (Select ALL that apply)",
+    "opts":["skos:broader","skos:narrower","skos:related","skos:broaderTransitive"],
+    "ans":[0,1,3],
+    "exp":"skos:broader, skos:narrower, skos:broaderTransitive, and skos:narrowerTransitive are all HIERARCHICAL — they express parent-child (general-specific) relationships. skos:related is ASSOCIATIVE (non-hierarchical) — it links concepts that are connected but not in a hierarchy."
+  },
+  {
+    "id":"SKR5","pts":2,"type":"MC","topic":"SKOS Relationships",
+    "q":"skos:related is symmetric. This means:",
+    "opts":["If A related B, then B related A automatically","If A related B and B related C, then A related C","If A related B, then A is broader than B","related can only be used once per concept"],
+    "ans":0,
+    "exp":"Symmetric means the relationship works both ways automatically. If Cat is related to Pet, then Pet is also related to Cat — a reasoner infers this. The second option describes transitivity, not symmetry. skos:related is NOT transitive in SKOS."
+  },
+
+  // ============================================================
+  // SKOS TRANSITIVITY (4 Qs)
+  // ============================================================
+  {
+    "id":"SKT1","pts":3,"type":"MC","topic":"SKOS Transitivity",
+    "q":"Are skos:broader and skos:narrower transitive?",
+    "opts":["Yes, fully transitive","No, they are intransitive","Neither — they are neither transitive nor intransitive","They are transitive only when used with skos:related"],
+    "ans":2,
+    "exp":"CRITICAL FACT: skos:broader and skos:narrower are NEITHER transitive NOR intransitive. If A broader B and B broader C, we simply don't know about A and C. For GUARANTEED transitivity, you must use skos:broaderTransitive or skos:narrowerTransitive. This is a very common exam question!"
+  },
+  {
+    "id":"SKT2","pts":3,"type":"MC","topic":"SKOS Transitivity",
+    "q":"To guarantee transitive behavior in SKOS hierarchies, you should use:",
+    "opts":["skos:broader","skos:broaderTransitive","rdfs:subClassOf","skos:related"],
+    "ans":1,
+    "exp":"skos:broaderTransitive (and skos:narrowerTransitive) are the EXPLICITLY transitive versions. If :cat broaderTransitive :mammal and :mammal broaderTransitive :animal, then :cat skos:broader :animal is INFERRED. Plain skos:broader does NOT guarantee this chain. rdfs:subClassOf is for classes, not SKOS concepts. skos:related is not hierarchical."
+  },
+  {
+    "id":"SKT3","pts":3,"type":"MC","topic":"SKOS Transitivity",
+    "q":"Given:\n:cat skos:broaderTransitive :mammal .\n:mammal skos:broaderTransitive :animal .\n\nWhat is inferred?",
+    "opts":[":cat skos:related :animal",":cat skos:broader :animal",":animal skos:broader :cat",":cat skos:narrower :mammal"],
+    "ans":1,
+    "exp":"Because broaderTransitive IS transitive: cat → mammal → animal chains through, so cat broader animal is inferred. The inference gives skos:broader (not broaderTransitive itself). cat is NOT related to animal (related is associative, not hierarchical). animal is not broader than cat — it's the other way around."
+  },
+  {
+    "id":"SKT4","pts":2,"type":"MC","topic":"SKOS Transitivity",
+    "q":"A relationship that is 'neither transitive nor intransitive' means:",
+    "opts":["If A→B and B→C, then A→C is always true","If A→B and B→C, then A→C is always false","If A→B and B→C, nothing can be concluded about A and C","The relationship cannot be used"],
+    "ans":2,
+    "exp":"'Neither transitive nor intransitive' means we simply CANNOT draw any conclusion about indirect links. If A→B and B→C, we don't know if A→C is true or false — it's unknown. This is how skos:broader, skos:narrower, and skos:related work in SKOS."
+  },
+
+  // ============================================================
+  // SKOS DISJOINTNESS & MATCHING (4 Qs)
+  // ============================================================
+  {
+    "id":"SKD1","pts":3,"type":"MC","topic":"SKOS Disjointness",
+    "q":"In SKOS, skos:related is disjoint with:",
+    "opts":["skos:prefLabel and skos:altLabel","skos:broader and skos:narrower","skos:exactMatch and skos:closeMatch","skos:broaderTransitive only"],
+    "ans":1,
+    "exp":"skos:related is DISJOINT with skos:broader and skos:narrower. This means two concepts CANNOT be both 'related' AND 'broader/narrower' at the same time. If they are, it's an INCONSISTENCY. This is a frequently tested concept — two concepts must be either hierarchically linked OR associatively linked, never both."
+  },
+  {
+    "id":"SKD2","pts":3,"type":"MC","topic":"SKOS Disjointness",
+    "q":"The following SKOS statements are:\n\n:Biology skos:broader :Science .\n:Science skos:related :Biology .\n",
+    "opts":["Perfectly valid","Inconsistent — related is disjoint with broader/narrower","Valid because related and broader can coexist","Valid because they describe different directions"],
+    "ans":1,
+    "exp":"This is INCONSISTENT. If Biology broader Science, then the reasoner infers Science narrower Biology. Now we have Science both 'related to' AND 'narrower than' Biology. But related is DISJOINT with narrower — they cannot both hold. This is a contradiction and a reasoner would flag it as an error."
+  },
+  {
+    "id":"SKD3","pts":2,"type":"MC","topic":"SKOS Disjointness",
+    "q":"skos:exactMatch means:",
+    "opts":["Two concepts are vaguely similar","Two concepts are identical and can be used interchangeably","Two concepts are in a hierarchical relationship","Two concepts are from the same vocabulary"],
+    "ans":1,
+    "exp":"skos:exactMatch means two concepts from DIFFERENT vocabularies represent the SAME idea and can be used interchangeably. It's used to align/link vocabularies. skos:closeMatch is for 'almost similar' concepts. exactMatch does NOT create a hierarchy. The concepts are typically from different schemes."
+  },
+  {
+    "id":"SKD4","pts":3,"type":"MC","topic":"SKOS Disjointness",
+    "q":"What is the difference between skos:exactMatch and owl:sameAs?",
+    "opts":["They are identical","skos:exactMatch says concepts are interchangeable; owl:sameAs says they are literally the SAME identity","skos:exactMatch is stronger than owl:sameAs","owl:sameAs is only for SKOS vocabularies"],
+    "ans":1,
+    "exp":"skos:exactMatch says 'these concepts can be used interchangeably' — they represent the same idea. owl:sameAs is STRONGER — it says the two things are literally the SAME thing (same identity). With owl:sameAs, every property of one applies to the other. exactMatch is conceptual equivalence; sameAs is identity equivalence."
+  },
+
+  // ============================================================
+  // SKOS COMMON MISTAKES (2 Qs)
+  // ============================================================
+  {
+    "id":"SKM1","pts":3,"type":"MC","topic":"SKOS Relationships",
+    "q":"To represent that UK is part of Europe in a SKOS taxonomy, the CORRECT approach is:",
+    "opts":["UK rdfs:subClassOf Europe","UK skos:broader Europe","UK owl:sameAs Europe","UK rdf:type Europe"],
+    "ans":1,
+    "exp":"In SKOS, use skos:broader/narrower for concept hierarchies. 'UK broader Europe' means 'the concept broader than UK is Europe'. rdfs:subClassOf is WRONG here because UK and Europe are not classes — they are concepts (instances). owl:sameAs means they're the same thing (they're not). rdf:type means UK is an instance of Europe (wrong — Europe is not a class)."
+  },
+  {
+    "id":"SKM2","pts":2,"type":"MC","topic":"SKOS Relationships",
+    "q":"Why should you NOT use rdfs:subClassOf for SKOS concept hierarchies?",
+    "opts":["rdfs:subClassOf is deprecated","rdfs:subClassOf is for class-to-class relationships, not concept-to-concept","rdfs:subClassOf cannot be transitive","rdfs:subClassOf is only for OWL"],
+    "ans":1,
+    "exp":"rdfs:subClassOf relates CLASSES — it means 'every instance of A is also an instance of B'. SKOS concepts are INDIVIDUALS (instances of skos:Concept), not classes. UK is not a class — it's a concept. Using subClassOf for concepts is a category error. Use skos:broader/narrower instead."
+  },
+
+  // ============================================================
+  // RDF LIMITATIONS + RDFS LIMITATIONS (2 Qs)
+  // ============================================================
+  {
+    "id":"LIM1","pts":2,"type":"MC","topic":"RDF Basics",
+    "q":"The main limitation of plain RDF (without RDFS) is:",
+    "opts":["It cannot store data at all","It has no type/class system — nothing prevents nonsensical triples","It can only store numbers, not text","It requires a relational database to function"],
+    "ans":1,
+    "exp":"Plain RDF has NO type system. Nothing stops you from writing 'MyCar lastName Smith' — which makes no sense because cars don't have last names. There's no mechanism to say which properties are allowed for which types of things. RDFS adds this vocabulary/schema layer. RDF absolutely CAN store data, text, and works independently of relational databases."
+  },
+  {
+    "id":"LIM2","pts":3,"type":"MS","topic":"RDFS Properties",
+    "q":"Which of the following are LIMITATIONS of RDFS that OWL addresses? (Select ALL that apply)",
+    "opts":["Cannot express cardinality constraints (e.g. 'exactly 2 parents')","Cannot express that properties are transitive, symmetric, or inverse","Cannot define classes or properties at all","Cannot localise range constraints (different ranges for different domains)"],
+    "ans":[0,1,3],
+    "exp":"RDFS CANNOT express: cardinality (how many values a property can have), property characteristics (transitive, symmetric, inverse), or localised constraints (different ranges depending on the subject class). RDFS CAN define classes and properties — that's its core purpose! These limitations are why OWL was created."
+  },
+
+  // ============================================================
+  // OWL (Final Exam Only) (6 Qs)
+  // ============================================================
+  {
+    "id":"OWL1","pts":2,"type":"MC","topic":"OWL",
+    "q":"OWL stands for:",
+    "opts":["Ontology Web Language","Open Web Logic","Web Ontology Language","Online Web Lexicon"],
+    "ans":2,
+    "exp":"OWL = Web Ontology Language (yes, the acronym is intentionally out of order!). It is the most powerful semantic web language, extending RDFS with rich logic: disjointness, cardinality, property characteristics, and full reasoning support."
+  },
+  {
+    "id":"OWL2","pts":2,"type":"MC","topic":"OWL",
+    "q":"owl:equivalentClass means:",
+    "opts":["Two classes are completely unrelated","Two classes refer to exactly the same set of individuals","One class is a subclass of the other","Two classes are disjoint"],
+    "ans":1,
+    "exp":"owl:equivalentClass means the two classes have EXACTLY the same members. Every instance of class A is also an instance of class B, and vice versa. Example: :Human owl:equivalentClass :Person. It's stronger than subClassOf (which is one-way). Disjoint means NO overlap."
+  },
+  {
+    "id":"OWL3","pts":2,"type":"MC","topic":"OWL",
+    "q":"owl:disjointWith means:",
+    "opts":["Two classes are the same","Two classes share some members","No individual can belong to BOTH classes simultaneously","One class is a subclass of the other"],
+    "ans":2,
+    "exp":"owl:disjointWith means the classes have ZERO overlap — no individual can be a member of both. Example: :Man owl:disjointWith :Woman means nobody can be both a Man and a Woman. If someone is typed as both, a reasoner flags it as an inconsistency."
+  },
+  {
+    "id":"OWL4","pts":3,"type":"MC","topic":"OWL",
+    "q":"Given: :hasWife owl:inverseOf :hasHusband. :John :hasWife :Mary.\nWhat is inferred?",
+    "opts":[":Mary :hasWife :John",":Mary :hasHusband :John",":John :hasHusband :Mary","Nothing — OWL cannot infer from inverseOf"],
+    "ans":1,
+    "exp":"owl:inverseOf means the relationship works in REVERSE. If hasWife is the inverse of hasHusband, and John hasWife Mary, then Mary hasHusband John is automatically inferred. The subject and object swap, and the property flips to its inverse. Mary does NOT hasWife John — that would mean Mary's wife is John."
+  },
+  {
+    "id":"OWL5","pts":3,"type":"MS","topic":"OWL",
+    "q":"Which of the following are OWL reasoning tasks? (Select ALL that apply)",
+    "opts":["Consistency checking (no contradictions)","Classification (build full class hierarchy)","Realisation (determine class of each individual)","Aggregation (compute sums and averages)"],
+    "ans":[0,1,2],
+    "exp":"OWL reasoners perform: Consistency checking (verifying no contradictions exist), Classification (building the complete inheritance hierarchy), and Realisation (figuring out which class each individual belongs to). Aggregation (sums, averages) is a database/query operation (like SQL GROUP BY or MongoDB $group), not an OWL reasoning task."
+  },
+  {
+    "id":"OWL6","pts":2,"type":"MC","topic":"OWL",
+    "q":"In OWL, a property that is 'symmetric' means:",
+    "opts":["If A→B then B→A automatically","If A→B and B→C then A→C","Each subject has at most one value","If A→B then it is NOT the case that B→A"],
+    "ans":0,
+    "exp":"Symmetric means: if the relationship holds in one direction, it automatically holds in reverse. Example: 'marriedTo' is symmetric — if John marriedTo Mary, then Mary marriedTo John. Transitive = chaining (A→B→C). Functional = at most one value. Asymmetric = NOT in reverse."
+  }
+];
+
+// ====== QUIZ ENGINE (identical logic to sample) ======
+var shuffled, cur, score, earnedPts, totalPts, answered, selMulti;
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function initQuiz() {
+  shuffled = shuffle(QS.slice());
+  cur = 0; score = 0; earnedPts = 0; answered = []; selMulti = [];
+  totalPts = 0;
+  for (var i = 0; i < shuffled.length; i++) totalPts += shuffled[i].pts;
+  document.getElementById("results-screen").style.display = "none";
+  document.getElementById("quiz-screen").style.display = "block";
+  renderQ();
+}
+
+function renderQ() {
+  var q = shuffled[cur];
+  selMulti = [];
+  var pct = Math.round((cur / shuffled.length) * 100);
+  document.getElementById("prog-bar").style.width = pct + "%";
+  document.getElementById("prog-label").textContent = "Score: " + earnedPts + "/" + totalPts + " pts";
+
+  // Badge
+  var badge = document.getElementById("qbadge");
+  badge.textContent = q.type;
+  badge.className = "badge " + (q.type === "MC" ? "b-mc" : q.type === "MS" ? "b-ms" : "b-tf");
+
+  document.getElementById("qpts").textContent = q.pts + " pts";
+
+  // Topic badge with class test indicator
+  var tb = document.getElementById("qtopic");
+  tb.textContent = q.topic;
+  var isCT = CT_TOPICS.indexOf(q.topic) >= 0;
+  tb.className = "topic-badge" + (isCT ? " ct" : "");
+
+  document.getElementById("qnum").textContent = (cur + 1) + "/" + shuffled.length;
+  document.getElementById("qtext").textContent = q.q;
+
+  // Hint
+  var hint = document.getElementById("qhint");
+  if (q.hint) { hint.textContent = q.hint; hint.style.display = "block"; }
+  else { hint.style.display = "none"; }
+
+  // Options
+  var container = document.getElementById("qopts");
+  container.innerHTML = "";
+  var letters = "ABCDEFGH";
+  for (var i = 0; i < q.opts.length; i++) {
+    var btn = document.createElement("button");
+    btn.className = "opt";
+    btn.setAttribute("data-i", i);
+
+    var ltr = document.createElement("span");
+    ltr.className = "ltr";
+    ltr.textContent = letters[i];
+
+    var txt = document.createElement("span");
+    txt.className = "opt-text";
+    txt.textContent = q.opts[i];
+
+    btn.appendChild(ltr);
+    btn.appendChild(txt);
+
+    if (q.type === "MS") {
+      (function(idx, b) {
+        b.addEventListener("click", function() { toggleSel(idx, b); });
+      })(i, btn);
+    } else {
+      (function(idx) {
+        btn.addEventListener("click", function() { pickAnswer(idx); });
+      })(i);
+    }
+    container.appendChild(btn);
+  }
+
+  document.getElementById("submit-btn").style.display = (q.type === "MS") ? "inline-block" : "none";
+  document.getElementById("fb").style.display = "none";
+  document.getElementById("fb").className = "";
+  document.getElementById("next-btn").style.display = "none";
+}
+
+function toggleSel(idx, btn) {
+  var pos = selMulti.indexOf(idx);
+  if (pos >= 0) { selMulti.splice(pos, 1); btn.classList.remove("sel"); }
+  else { selMulti.push(idx); btn.classList.add("sel"); }
+}
+
+function submitMulti() {
+  var q = shuffled[cur];
+  var btns = document.querySelectorAll(".opt");
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  document.getElementById("submit-btn").style.display = "none";
+
+  var correct = q.ans;
+  var isOk = (correct.length === selMulti.length);
+  if (isOk) {
+    for (var i = 0; i < correct.length; i++) {
+      if (selMulti.indexOf(correct[i]) < 0) { isOk = false; break; }
+    }
+  }
+  if (isOk) { score++; earnedPts += q.pts; }
+  answered.push({ q: q, chosen: selMulti.slice(), isOk: isOk });
+
+  for (var i = 0; i < btns.length; i++) {
+    var idx = parseInt(btns[i].getAttribute("data-i"));
+    var inC = correct.indexOf(idx) >= 0;
+    var inS = selMulti.indexOf(idx) >= 0;
+    if (inC && inS)   btns[i].classList.add("correct");
+    else if (!inC && inS) btns[i].classList.add("wrong");
+    else if (inC && !inS) btns[i].classList.add("reveal");
+  }
+  showFb(isOk, q.exp);
+}
+
+function pickAnswer(idx) {
+  var q = shuffled[cur];
+  var btns = document.querySelectorAll(".opt");
+  for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+  var isOk = (idx === q.ans);
+  if (isOk) { score++; earnedPts += q.pts; }
+  answered.push({ q: q, chosen: idx, isOk: isOk });
+  btns[idx].classList.add(isOk ? "correct" : "wrong");
+  if (!isOk) btns[q.ans].classList.add("reveal");
+  showFb(isOk, q.exp);
+}
+
+function showFb(isOk, exp) {
+  var fb = document.getElementById("fb");
+  fb.className = isOk ? "fb-ok" : "fb-bad";
+  fb.style.display = "block";
+  document.getElementById("fb-title").textContent = isOk ? "✓ Correct!" : "✗ Incorrect";
+  document.getElementById("fb-body").textContent = exp;
+  var nb = document.getElementById("next-btn");
+  nb.style.display = "block";
+  nb.textContent = (cur + 1 < shuffled.length) ? "Next Question →" : "See Results →";
+}
+
+function nextQ() {
+  cur++;
+  if (cur < shuffled.length) renderQ();
+  else showResults();
+}
+
+function showResults() {
+  document.getElementById("quiz-screen").style.display = "none";
+  document.getElementById("results-screen").style.display = "block";
+
+  var tot = shuffled.length;
+  var pct = Math.round(score / tot * 100);
+  document.getElementById("r-pct").textContent = pct + "%";
+  setTimeout(function() {
+    document.getElementById("ring-fil").style.strokeDashoffset = 377 - (377 * pct / 100);
+  }, 150);
+
+  var title, sub;
+  if (pct >= 90)      { title = "⚡ Outstanding!";  sub = "You've mastered Week 2. Ready for the class test."; }
+  else if (pct >= 75) { title = "✦ Great Work!";    sub = "Strong understanding. Drill your misses below."; }
+  else if (pct >= 50) { title = "◉ Getting There!"; sub = "Review the weak topics and retry."; }
+  else                { title = "↻ Keep Grinding!"; sub = "Revisit your Week 2 notes and try again."; }
+  document.getElementById("r-title").textContent = title;
+  document.getElementById("r-sub").textContent = score + "/" + tot + " correct (" + earnedPts + "/" + totalPts + " pts). " + sub;
+
+  var ts = {};
+  for (var i = 0; i < answered.length; i++) {
+    var t = answered[i].q.topic;
+    if (!ts[t]) ts[t] = { c: 0, n: 0 };
+    ts[t].n++;
+    if (answered[i].isOk) ts[t].c++;
+  }
+  var tkeys = Object.keys(ts).sort(function(a, b) {
+    return (ts[a].c / ts[a].n) - (ts[b].c / ts[b].n);
+  });
+  var pills = document.getElementById("r-pills");
+  pills.innerHTML = "";
+  for (var i = 0; i < tkeys.length; i++) {
+    var t = tkeys[i], s = ts[t], r = s.c / s.n;
+    var cls  = r >= 0.75 ? "str" : r >= 0.5 ? "ok" : "weak";
+    var icon = r >= 0.75 ? "✓" : r >= 0.5 ? "~" : "✗";
+    var pill = document.createElement("span");
+    pill.className = "pill " + cls;
+    pill.textContent = icon + " " + t + " (" + s.c + "/" + s.n + ")";
+    pills.appendChild(pill);
+  }
+
+  var rlist = document.getElementById("r-list");
+  rlist.innerHTML = "";
+  var wrong = [], right = [];
+  for (var i = 0; i < answered.length; i++) {
+    if (answered[i].isOk) right.push(answered[i]); else wrong.push(answered[i]);
+  }
+
+  function makeItem(a, isWrong) {
+    var q = a.q;
+    var item = document.createElement("div");
+    item.className = "r-item";
+    var ico = document.createElement("span");
+    ico.className = "r-ico";
+    ico.textContent = isWrong ? "✗" : "✓";
+    ico.style.color = isWrong ? "var(--wrong)" : "var(--correct)";
+    var txt = document.createElement("div");
+    txt.className = "r-txt";
+    var topic = document.createElement("span");
+    topic.className = "r-topic";
+    topic.textContent = q.topic;
+    var qspan = document.createElement("span");
+    qspan.className = "r-q";
+    qspan.textContent = q.q.length > 100 ? q.q.substring(0, 100) + "..." : q.q;
+    txt.appendChild(topic);
+    txt.appendChild(qspan);
+    if (isWrong) {
+      var chosenTxt, correctTxt;
+      if (Array.isArray(a.chosen)) {
+        chosenTxt  = a.chosen.map(function(x) { return q.opts[x]; }).join(", ");
+        correctTxt = q.ans.map(function(x) { return q.opts[x]; }).join(", ");
+      } else {
+        chosenTxt  = q.opts[a.chosen];
+        correctTxt = q.opts[q.ans];
+      }
+      var wrspan = document.createElement("span");
+      wrspan.className = "r-wrong";
+      wrspan.textContent = "Your answer: " + chosenTxt;
+      var crspan = document.createElement("span");
+      crspan.className = "r-wrong";
+      crspan.style.color = "var(--correct)";
+      crspan.textContent = "Correct: " + correctTxt;
+      txt.appendChild(wrspan);
+      txt.appendChild(crspan);
+    }
+    item.appendChild(ico);
+    item.appendChild(txt);
+    return item;
+  }
+
+  if (wrong.length > 0) {
+    var s1 = document.createElement("div");
+    s1.className = "r-sect";
+    s1.textContent = "⚠ Needs Review (" + wrong.length + ")";
+    rlist.appendChild(s1);
+    for (var i = 0; i < wrong.length; i++) rlist.appendChild(makeItem(wrong[i], true));
+  }
+  if (right.length > 0) {
+    var s2 = document.createElement("div");
+    s2.className = "r-sect";
+    s2.textContent = "✓ Correct (" + right.length + ")";
+    rlist.appendChild(s2);
+    for (var i = 0; i < right.length; i++) rlist.appendChild(makeItem(right[i], false));
+  }
+}
+
+initQuiz();
+</script>
+</body>
+</html>
