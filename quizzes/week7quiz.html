@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F21BD — Week 7: Data Integration Drill</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0e14;--surface:#13161f;--card:#181c28;--border:#252a3a;
+  --text:#e2e4eb;--muted:#7a8099;--accent:#6ee7b7;--accent2:#34d399;
+  --wrong:#f87171;--wrong-bg:rgba(248,113,113,.08);--correct-bg:rgba(110,231,183,.08);
+  --gold:#fbbf24;--blue:#60a5fa;--purple:#a78bfa;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(110,231,183,.06),transparent),radial-gradient(ellipse 60% 40% at 80% 100%,rgba(96,165,250,.04),transparent);pointer-events:none;z-index:0}
+.app{max-width:800px;margin:0 auto;padding:24px 20px 60px;position:relative;z-index:1}
+.header{text-align:center;margin-bottom:36px}
+.header .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.15);padding:4px 14px;border-radius:99px;margin-bottom:14px}
+.header h1{font-size:clamp(1.6rem,4vw,2.2rem);font-weight:800;letter-spacing:-.03em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header p{color:var(--muted);font-size:.92rem;margin-top:6px}
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:28px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.progress-stats{display:flex;gap:20px;width:100%;font-size:.82rem;font-family:'JetBrains Mono',monospace}
+.progress-stats span{color:var(--muted)}
+.progress-stats .val{color:var(--text);font-weight:600}
+.progress-stats .correct-count .val{color:var(--accent)}
+.progress-stats .wrong-count .val{color:var(--wrong)}
+.progress-bar-outer{width:100%;height:7px;background:var(--border);border-radius:99px;overflow:hidden}
+.progress-bar-inner{height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1)}
+.topic-label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.question-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px 26px;margin-bottom:20px;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.q-number{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:6px}
+.q-type{display:inline-block;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:2px 8px;border-radius:4px;margin-left:8px}
+.q-type.mc{background:rgba(96,165,250,.12);color:var(--blue)}
+.q-type.tf{background:rgba(167,139,250,.12);color:var(--purple)}
+.q-type.spot{background:rgba(251,191,36,.12);color:var(--gold)}
+.q-text{font-size:1.08rem;font-weight:600;margin:10px 0 20px;line-height:1.55}
+.q-text code{font-family:'JetBrains Mono',monospace;font-size:.88em;background:rgba(110,231,183,.07);padding:2px 6px;border-radius:4px;color:var(--accent)}
+.options{display:flex;flex-direction:column;gap:10px}
+.option-btn{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;padding:13px 18px;font-size:.94rem;color:var(--text);cursor:pointer;text-align:left;transition:all .2s;font-family:'Outfit',sans-serif;line-height:1.5}
+.option-btn:hover:not(.disabled){border-color:var(--accent);background:rgba(110,231,183,.04)}
+.option-btn.disabled{cursor:default;opacity:.7}
+.option-btn.selected-correct{border-color:var(--accent);background:var(--correct-bg);opacity:1!important}
+.option-btn.selected-wrong{border-color:var(--wrong);background:var(--wrong-bg);opacity:1!important}
+.option-btn.reveal-correct{border-color:var(--accent);opacity:1!important}
+.opt-letter{font-family:'JetBrains Mono',monospace;font-weight:700;margin-right:10px;font-size:.85rem}
+.option-btn.selected-correct .opt-letter{color:var(--accent)}
+.option-btn.selected-wrong .opt-letter{color:var(--wrong)}
+.feedback{margin-top:18px;padding:16px 18px;border-radius:10px;font-size:.88rem;line-height:1.65;display:none;animation:fadeUp .3s ease}
+.feedback.correct{background:var(--correct-bg);border:1px solid rgba(110,231,183,.2)}
+.feedback.correct .fb-title{color:var(--accent)}
+.feedback.wrong{background:var(--wrong-bg);border:1px solid rgba(248,113,113,.2)}
+.feedback.wrong .fb-title{color:var(--wrong)}
+.fb-title{font-weight:700;font-size:.92rem;margin-bottom:4px}
+.feedback p{color:var(--muted)}
+.nav-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:var(--bg);font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;padding:12px 28px;border:none;border-radius:10px;cursor:pointer;margin-top:18px;transition:all .2s}
+.nav-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+.nav-btn:disabled{opacity:.3;cursor:default;transform:none}
+.results-screen{display:none;animation:fadeUp .5s ease}
+.results-header{text-align:center;margin-bottom:32px}
+.results-header .score-circle{width:140px;height:140px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 20px;border:3px solid var(--accent);background:rgba(110,231,183,.04)}
+.score-circle .big{font-size:2.2rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.score-circle .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.results-header h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.results-header p{color:var(--muted);font-size:.9rem}
+.grade-msg{text-align:center;font-size:1rem;margin-bottom:30px;padding:14px;border-radius:10px}
+.grade-msg.great{background:var(--correct-bg);color:var(--accent);border:1px solid rgba(110,231,183,.2)}
+.grade-msg.ok{background:rgba(251,191,36,.06);color:var(--gold);border:1px solid rgba(251,191,36,.15)}
+.grade-msg.needs-work{background:var(--wrong-bg);color:var(--wrong);border:1px solid rgba(248,113,113,.2)}
+.topic-breakdown{margin-bottom:28px}
+.topic-breakdown h3{font-size:.95rem;font-weight:700;margin-bottom:14px;color:var(--text)}
+.topic-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;margin-bottom:6px;background:var(--surface);border:1px solid var(--border);font-size:.85rem}
+.topic-row .t-name{color:var(--text)}
+.topic-row .t-score{font-family:'JetBrains Mono',monospace;font-weight:600}
+.topic-row .t-score.perfect{color:var(--accent)}
+.topic-row .t-score.partial{color:var(--gold)}
+.topic-row .t-score.low{color:var(--wrong)}
+.review-section{margin-bottom:24px}
+.review-section h3{font-size:.95rem;font-weight:700;margin-bottom:10px}
+.review-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;font-size:.84rem;color:var(--muted);line-height:1.5}
+.review-item strong{color:var(--wrong);font-weight:600}
+.restart-btn{display:block;margin:20px auto 0;background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;padding:12px 32px;border-radius:10px;cursor:pointer;transition:all .2s}
+.restart-btn:hover{background:rgba(110,231,183,.06)}
+.start-screen{text-align:center;padding:40px 20px}
+.start-screen .icon{font-size:3rem;margin-bottom:16px}
+.start-screen h2{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.start-screen p{color:var(--muted);font-size:.9rem;max-width:500px;margin:0 auto 12px}
+.start-screen .stat-row{display:flex;justify-content:center;gap:24px;margin:20px 0}
+.start-screen .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;min-width:100px}
+.start-screen .stat .n{font-size:1.4rem;font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace}
+.start-screen .stat .l{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+@media(max-width:600px){
+  .app{padding:16px 14px 40px}
+  .question-card{padding:20px 16px}
+  .progress-stats{gap:12px;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+const QUESTIONS = [
+  // ═══════════════════ TOPIC: Data Silos ═══════════════════
+  {
+    topic:"Data Silos",type:"mc",
+    text:"What is a data silo?",
+    options:["A large centralised database","An isolated data repository accessible only to its creating department","A type of data warehouse","A backup storage system"],
+    correct:1,
+    explanation:"A data silo is 'a repository of information that is useful to the business unit that creates it but inaccessible to other teams that might benefit from the data it holds' (Oracle, 2025). It is NOT a centralised database — it's the opposite: scattered and isolated."
+  },
+  {
+    topic:"Data Silos",type:"mc",
+    text:"Which of these is NOT a cause of data silos forming?",
+    options:["Organic growth of departments","Different technologies across teams","Using a single unified database","Mergers and acquisitions"],
+    correct:2,
+    explanation:"Using a single unified database is actually the SOLUTION to silos, not a cause. Causes include: organic growth, different technologies (HR uses Oracle, Sales uses MySQL), competitive company culture, mergers, and lack of governance."
+  },
+  {
+    topic:"Data Silos",type:"mc",
+    text:"A company has the same customer 'John Smith' stored in Sales, HR, Marketing, and CRM databases with different addresses in each. Which silo problem does this illustrate?",
+    options:["No overview","Wasted resources","Data inconsistency","Poor governance"],
+    correct:2,
+    explanation:"This is data inconsistency — the same data exists in multiple places but has gone out of sync (different addresses). Data duplication caused it (John is in 4 databases), but the conflicting addresses are specifically the inconsistency problem."
+  },
+  {
+    topic:"Data Silos",type:"tf",
+    text:"True or False: Data silos only form in small companies that lack IT departments.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False. Data silos often form in LARGE organisations precisely because they have many departments that independently build their own systems over time. Company culture (departments competing), mergers, and organic growth all contribute — regardless of company size."
+  },
+  {
+    topic:"Data Silos",type:"mc",
+    text:"The mnemonic D-I-N-W-P helps remember silo problems. What does it stand for?",
+    options:["Data, Integration, Networks, Warehouses, Processing","Duplication, Inconsistency, No overview, Wasted resources, Poor decisions","Distribution, Isolation, Normalisation, Wrappers, Partitioning","Database, Indexing, Nodes, Workers, Pipes"],
+    correct:1,
+    explanation:"D-I-N-W-P = Duplication (same data in multiple places), Inconsistency (copies go out of sync), No overview (teams can't see each other's data), Wasted resources (duplicated storage/effort), Poor decisions (conflicting info causes wrong choices)."
+  },
+
+  // ═══════════════════ TOPIC: Data Integration Approaches ═══════════════════
+  {
+    topic:"Integration Approaches",type:"mc",
+    text:"What is the single most important distinction between Data Warehousing and Virtual Data Integration?",
+    options:["Speed vs accuracy","Cloud vs on-premise","Data is physically COPIED (DW) vs data STAYS at source (VDI)","SQL vs NoSQL"],
+    correct:2,
+    explanation:"The fundamental distinction: in a Data Warehouse, data is physically extracted, transformed, and loaded (copied) into a central database. In VDI, data stays at its original source and a mediator queries sources live. Every comparison question centres on this difference."
+  },
+  {
+    topic:"Integration Approaches",type:"mc",
+    text:"How many main data integration approaches does the lecture identify?",
+    options:["3","4","6","8"],
+    correct:2,
+    explanation:"The lecture identifies 6 approaches: (1) Manual/Middleware, (2) Data Federation, (3) Data Warehousing, (4) Application-Based, (5) Data Virtualisation, (6) ETL/ELT."
+  },
+  {
+    topic:"Integration Approaches",type:"tf",
+    text:"True or False: Data Federation and Data Virtualisation both keep data at the original source.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. Both Data Federation and Data Virtualisation create virtual unified views without moving data. The difference is that Data Virtualisation typically uses a more sophisticated mediator with wrappers and mappings."
+  },
+
+  // ═══════════════════ TOPIC: Data Warehouse ═══════════════════
+  {
+    topic:"Data Warehouse",type:"mc",
+    text:"A data warehouse works by:",
+    options:["Querying sources in real-time via a mediator","Making periodical physical copies of data from all sources into one central database","Linking databases through APIs","Merging all source databases into one"],
+    correct:1,
+    explanation:"A data warehouse makes periodical physical copies of data from every source department, transforms them into a common format via ETL, and stores them in one integrated central database with a unified global schema."
+  },
+  {
+    topic:"Data Warehouse",type:"mc",
+    text:"In a data warehouse architecture, what is a 'Data Mart'?",
+    options:["The ETL processing server","A smaller focused subset of the warehouse for a specific team or topic","The original source database","A backup copy of the warehouse"],
+    correct:1,
+    explanation:"A Data Mart is a smaller, focused subset of the warehouse designed for a specific team or analysis area — e.g., a 'Sales Mart' containing only sales-related data. It sits downstream from the warehouse and is optimised for specific queries."
+  },
+  {
+    topic:"Data Warehouse",type:"mc",
+    text:"Bill Inmon's warehouse design philosophy uses:",
+    options:["Star and Snowflake schemas with denormalised dimensions","Tables in 3NF (Third Normal Form) with minimal redundancy","Key-Value stores for maximum speed","No schema at all — schema-on-read"],
+    correct:1,
+    explanation:"Inmon advocates a normalised (3NF) approach: tables follow strict normalisation rules to minimise redundancy and ensure data integrity. This suits enterprise-wide warehouses. Ralph Kimball's approach uses dimensional modelling (Star/Snowflake schemas)."
+  },
+  {
+    topic:"Data Warehouse",type:"mc",
+    text:"Which of these is NOT a commercial data warehouse product mentioned in the lecture?",
+    options:["Amazon Redshift","Google BigQuery","MongoDB Atlas","Snowflake"],
+    correct:2,
+    explanation:"MongoDB Atlas is a NoSQL document database, NOT a data warehouse. The lecture lists: Amazon Redshift, Google BigQuery, Microsoft Synapse, IBM Db2, Oracle Autonomous DW, and Snowflake as warehouse products."
+  },
+
+  // ═══════════════════ TOPIC: Star vs Snowflake Schema ═══════════════════
+  {
+    topic:"Star vs Snowflake",type:"mc",
+    text:"In a Star Schema, what does the central 'Fact Table' store?",
+    options:["Customer names and addresses","Measurable numerical data (e.g., sales amount, quantity)","Database configuration settings","Foreign keys to other databases"],
+    correct:1,
+    explanation:"The Fact Table stores measurable data — the numbers you want to analyse (sales amounts, quantities, counts). It contains foreign keys linking to Dimension Tables, which provide the context (WHO, WHAT, WHEN, WHERE)."
+  },
+  {
+    topic:"Star vs Snowflake",type:"mc",
+    text:"Dimension tables answer which type of questions?",
+    options:["How much and how many","WHO, WHAT, WHEN, WHERE","Why and how","If and unless"],
+    correct:1,
+    explanation:"Dimension tables provide context for the facts: WHO (customer), WHAT (product), WHEN (time/date), WHERE (store/location). The Fact Table tells you 'how much/how many' while Dimensions tell you the surrounding context."
+  },
+  {
+    topic:"Star vs Snowflake",type:"mc",
+    text:"How does a Snowflake Schema differ from a Star Schema?",
+    options:["Snowflake has no fact table","Snowflake normalises dimension tables into sub-tables","Snowflake uses NoSQL instead of SQL","Snowflake stores data in JSON format"],
+    correct:1,
+    explanation:"In a Snowflake Schema, dimension tables are split (normalised) into multiple sub-tables forming branches. For example, instead of one 'Time' dimension with Year+Month+Day columns, you get separate Year, Month, and Day tables linked together."
+  },
+  {
+    topic:"Star vs Snowflake",type:"mc",
+    text:"Which schema type requires fewer JOINs and is therefore faster for queries?",
+    options:["Snowflake (normalised dimensions)","Star (flat dimensions)","Both are identical in speed","Neither — speed depends only on hardware"],
+    correct:1,
+    explanation:"Star Schema has fewer JOINs because each dimension is a single flat table directly connected to the fact table. Snowflake needs more JOINs to traverse normalised sub-tables (Year → Month → Day), making queries slower but saving storage."
+  },
+  {
+    topic:"Star vs Snowflake",type:"tf",
+    text:"True or False: Star Schema has higher data redundancy than Snowflake Schema.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. Star Schema dimensions are denormalised (flat), so data like 'Year=2025' is repeated in every row of the Time dimension. Snowflake normalises these into sub-tables, eliminating that redundancy — but at the cost of more complex queries."
+  },
+  {
+    topic:"Star vs Snowflake",type:"spot",
+    text:"Spot the error: 'The Snowflake Schema is simpler than the Star Schema because it uses fewer tables and requires fewer JOINs.'",
+    options:["Star Schema actually uses fewer tables, not Snowflake","Snowflake actually uses MORE tables and MORE JOINs","Both schemas use the same number of tables","Snowflake doesn't use JOINs at all"],
+    correct:1,
+    explanation:"This is backwards! Snowflake uses MORE tables (dimensions split into sub-tables) and therefore requires MORE JOINs. Star Schema is the simpler one with fewer tables and fewer JOINs. Snowflake trades simplicity for reduced redundancy."
+  },
+
+  // ═══════════════════ TOPIC: ETL ═══════════════════
+  {
+    topic:"ETL Process",type:"mc",
+    text:"What are the three steps of ETL in the correct order?",
+    options:["Export, Transfer, Link","Extract, Transform, Load","Evaluate, Test, Launch","Encode, Translate, Load"],
+    correct:1,
+    explanation:"ETL = Extract (read raw data from sources), Transform (clean, merge, convert to target format, apply business rules), Load (write transformed data into the warehouse). This is the process that fills a data warehouse."
+  },
+  {
+    topic:"ETL Process",type:"mc",
+    text:"During the 'Transform' step of ETL, which of these activities does NOT occur?",
+    options:["Cleaning errors and fixing typos","Merging duplicate records","Writing data to the warehouse","Converting currencies (e.g., GBP to USD)"],
+    correct:2,
+    explanation:"Writing data to the warehouse is the LOAD step, not Transform. Transform activities include: cleaning (fix errors/typos), merging (combine duplicates), applying business rules, converting formats/currencies, and calculating derived values."
+  },
+  {
+    topic:"ETL Process",type:"mc",
+    text:"What is the key difference between ETL and ELT?",
+    options:["ETL is newer than ELT","In ETL, transformation happens on a separate server; in ELT, it happens inside the target database","ELT doesn't extract data","ETL only works with NoSQL databases"],
+    correct:1,
+    explanation:"ETL: Extract → Transform (on a separate ETL server) → Load. ELT: Extract → Load (raw data into target) → Transform (inside the target database using its built-in processing power). ELT is preferred for modern cloud warehouses like BigQuery and Snowflake."
+  },
+  {
+    topic:"ETL Process",type:"tf",
+    text:"True or False: ELT is better suited for modern cloud warehouses like BigQuery and Snowflake.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. ELT leverages the powerful built-in processing capabilities of modern cloud data warehouses. Since these systems can handle massive transformations internally, it's more efficient to load raw data first and transform it in-place."
+  },
+  {
+    topic:"ETL Process",type:"mc",
+    text:"Which of these is an open-source ETL tool?",
+    options:["Informatica","IBM DataStage","Apache NiFi","Microsoft SSIS"],
+    correct:2,
+    explanation:"Apache NiFi and Talend are open-source ETL tools. Informatica, IBM DataStage, and Microsoft SSIS are commercial (proprietary) ETL tools."
+  },
+
+  // ═══════════════════ TOPIC: Virtual Data Integration ═══════════════════
+  {
+    topic:"Virtual Data Integration",type:"mc",
+    text:"In VDI, what is the role of the Mediator?",
+    options:["It physically copies data from sources","It provides a virtual unified view by routing queries to sources and combining results","It deletes duplicate records","It converts data to RDF format"],
+    correct:1,
+    explanation:"The Mediator is the central component in VDI. It receives a user query against the global schema, uses mappings to determine which data lives where, breaks the query into sub-queries, sends them via wrappers to the right sources, and combines the results."
+  },
+  {
+    topic:"Virtual Data Integration",type:"mc",
+    text:"What happens in VDI if one of the source databases goes offline?",
+    options:["The mediator uses cached data","The system continues normally","That source's data becomes completely unavailable","The warehouse backup kicks in"],
+    correct:2,
+    explanation:"A key disadvantage of VDI: since data stays at the source and is queried live, if a source goes offline, its data is completely unavailable. Unlike a warehouse (which has physical copies), VDI has no backup copies to fall back on."
+  },
+  {
+    topic:"Virtual Data Integration",type:"tf",
+    text:"True or False: In VDI, data is always up-to-date because queries hit live sources.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. This is a key advantage of VDI. Since queries go directly to the original source databases in real-time, the results always reflect the latest data. A data warehouse, by contrast, can have stale data because it only refreshes periodically via ETL."
+  },
+  {
+    topic:"Virtual Data Integration",type:"mc",
+    text:"Which of these is NOT a characteristic of VDI?",
+    options:["Sources remain independent","Sources can be added/removed without rebuilding","Data is periodically copied to a central store","The same source can participate in multiple mediated systems"],
+    correct:2,
+    explanation:"'Data is periodically copied to a central store' describes a Data Warehouse, NOT VDI. In VDI, data never moves. The other three are all correct VDI characteristics."
+  },
+
+  // ═══════════════════ TOPIC: Wrappers & Mappings ═══════════════════
+  {
+    topic:"Wrappers & Mappings",type:"mc",
+    text:"What is a Wrapper in the context of VDI?",
+    options:["A compression algorithm","A connector/translator between a data source and the mediator","A type of database index","A security firewall"],
+    correct:1,
+    explanation:"A wrapper is a software connector that sits between a data source and the mediator. It translates the mediator's requests into a format the source understands, and translates responses back. Think of it as a bilingual translator between two speakers of different languages."
+  },
+  {
+    topic:"Wrappers & Mappings",type:"tf",
+    text:"True or False: A wrapper can present a different schema than the source's actual internal structure.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. A wrapper can transform and present the data differently from how it's actually stored. It acts as an adapter, potentially reshaping the data view before presenting it to the mediator. The same source can even have different wrappers for different systems."
+  },
+  {
+    topic:"Wrappers & Mappings",type:"mc",
+    text:"What do Mappings describe in a VDI system?",
+    options:["The physical location of servers","How source data relates to the global schema — which data lives where","Network routing tables","User access permissions"],
+    correct:1,
+    explanation:"Mappings are logical formulas (usually SQL queries or views) that tell the mediator exactly where each piece of data lives and how it corresponds to the global unified schema. They are the basis for the mediator's query planning."
+  },
+
+  // ═══════════════════ TOPIC: GAV, LAV, GLAV ═══════════════════
+  {
+    topic:"GAV / LAV / GLAV",type:"mc",
+    text:"In GAV (Global-As-View), the global schema is defined as:",
+    options:["An independent ideal schema","Views over the local source schemas","Views over the RDF triple store","A copy of the largest source"],
+    correct:1,
+    explanation:"In GAV, the global schema is defined as views over the local schemas. You look at what each source has, then write the global view as a combination. This makes query answering easy (just follow the view definitions) but adding new sources hard (must rewrite the global view)."
+  },
+  {
+    topic:"GAV / LAV / GLAV",type:"mc",
+    text:"In LAV (Local-As-View), the local schemas are defined as:",
+    options:["Independent isolated databases","Copies of the global schema","Views over the global schema","Flat files"],
+    correct:2,
+    explanation:"In LAV, you first design the ideal global schema. Then each source describes itself as a view over that global schema — saying 'I can provide THIS part of the global view.' This makes adding sources easy but query answering harder."
+  },
+  {
+    topic:"GAV / LAV / GLAV",type:"mc",
+    text:"Which mapping approach makes it EASIEST to add new data sources?",
+    options:["GAV","LAV","Neither — both are equally difficult","Direct Mapping"],
+    correct:1,
+    explanation:"LAV makes adding sources easy. A new source just describes itself in terms of the existing global schema ('I can provide rows for the Student concept'). In GAV, adding a source requires rewriting the entire global view definition, which is hard."
+  },
+  {
+    topic:"GAV / LAV / GLAV",type:"mc",
+    text:"Which mapping approach makes query answering EASIEST?",
+    options:["LAV","GLAV","GAV","R2RML"],
+    correct:2,
+    explanation:"GAV makes query answering easy because the global schema IS defined as views over the sources — you just follow the view definitions to find the data. In LAV, the system must figure out which combination of sources can satisfy the query, making it harder."
+  },
+  {
+    topic:"GAV / LAV / GLAV",type:"mc",
+    text:"GLAV (Global-and-Local-As-View) relates to GAV and LAV how?",
+    options:["GLAV replaces both entirely","GLAV is a special case of GAV","GAV and LAV are both special cases of GLAV","GLAV is unrelated to GAV and LAV"],
+    correct:2,
+    explanation:"GLAV is the most general approach: mappings are correspondences between views on BOTH sides. GAV is a special case (only global side uses views) and LAV is a special case (only local side uses views). GLAV subsumes both."
+  },
+  {
+    topic:"GAV / LAV / GLAV",type:"spot",
+    text:"Spot the error: 'In GAV, adding new data sources is easy because you just describe what the new source offers in terms of the global schema.'",
+    options:["GAV doesn't use a global schema","This describes LAV, not GAV — in GAV, adding sources is HARD","GAV doesn't support multiple sources","The global schema cannot be modified"],
+    correct:1,
+    explanation:"This description is LAV, not GAV! In LAV, you describe new sources as views over the global schema (easy to add). In GAV, the global schema is defined as views over ALL local sources, so adding a new source means REWRITING the global view (hard)."
+  },
+
+  // ═══════════════════ TOPIC: OBDA ═══════════════════
+  {
+    topic:"OBDA",type:"mc",
+    text:"What does OBDA stand for?",
+    options:["Online Big Data Analytics","Ontology-Based Data Access","Object-Based Database Architecture","Open Binary Data Allocation"],
+    correct:1,
+    explanation:"OBDA = Ontology-Based Data Access. It uses an OWL ontology as a high-level global schema over existing relational databases. Users query with SPARQL; the system rewrites it into SQL automatically. Data never moves."
+  },
+  {
+    topic:"OBDA",type:"mc",
+    text:"What problem does OBDA solve?",
+    options:["Slow network connections","How to get Semantic Web benefits without migrating data out of SQL databases","How to speed up NoSQL queries","How to compress large files"],
+    correct:1,
+    explanation:"Companies have massive data in SQL databases. Converting it all to RDF would be incredibly expensive. OBDA puts an OWL ontology ON TOP of the existing SQL database, letting users query with SPARQL while data stays in place — Semantic Web benefits without migration."
+  },
+  {
+    topic:"OBDA",type:"mc",
+    text:"In OBDA, when a user writes a SPARQL query, what happens next?",
+    options:["The data is converted to RDF and stored in a triple store","The OBDA engine rewrites the SPARQL into SQL and runs it on the relational database","The user must also write the SQL equivalent manually","The ontology is deleted and recreated"],
+    correct:1,
+    explanation:"The OBDA engine (e.g., Ontop) reads the OBDA mappings linking ontology concepts to tables, then automatically rewrites the SPARQL query into an equivalent SQL query. The SQL runs on the existing relational database, and results are returned as RDF triples."
+  },
+  {
+    topic:"OBDA",type:"tf",
+    text:"True or False: In OBDA, data must be migrated from the relational database to an RDF triple store before querying.",
+    options:["True","False"],
+    correct:1,
+    explanation:"False! The entire point of OBDA is that data NEVER moves. It stays in the relational database. The OBDA engine virtualises the SQL data as RDF by rewriting SPARQL into SQL on-the-fly. This saves the massive cost of data migration."
+  },
+  {
+    topic:"OBDA",type:"mc",
+    text:"Which of these is NOT a benefit of OBDA listed in the lecture?",
+    options:["No data migration needed","Users don't need to know SQL","Ontology hides database complexity","Data is automatically backed up to the cloud"],
+    correct:3,
+    explanation:"Automatic cloud backup is NOT an OBDA benefit. The 5 key benefits are: (1) No data migration, (2) Users query with SPARQL (no SQL needed), (3) Ontology hides ugly table/column names, (4) OWL reasoning/inference, (5) Reuses existing SQL infrastructure."
+  },
+
+  // ═══════════════════ TOPIC: Direct Mapping vs R2RML ═══════════════════
+  {
+    topic:"DB-to-Ontology Mapping",type:"mc",
+    text:"In Direct Mapping, a database TABLE automatically becomes:",
+    options:["A datatype property","An OWL Class","An RDF literal","A SPARQL endpoint"],
+    correct:1,
+    explanation:"Direct Mapping rules: Table → OWL Class, Column → Datatype Property, Row → Individual (instance), Foreign Key → Object Property. It's fully automatic with zero configuration but offers no customisation."
+  },
+  {
+    topic:"DB-to-Ontology Mapping",type:"mc",
+    text:"In Direct Mapping, a database ROW becomes:",
+    options:["An OWL Class","A datatype property","An individual instance","A named graph"],
+    correct:2,
+    explanation:"Each row in the table becomes an individual instance of the corresponding class. For example, row with ID 42 in the 'student' table becomes the individual :student/42 of type :student."
+  },
+  {
+    topic:"DB-to-Ontology Mapping",type:"mc",
+    text:"What is R2RML?",
+    options:["A NoSQL query language","A W3C standard for customisable mapping of relational databases to RDF","A JavaScript framework","A type of data warehouse"],
+    correct:1,
+    explanation:"R2RML (RDB-to-RDF Mapping Language) is a W3C standard. You write custom mapping rules called 'triples maps' that define exactly how each row becomes RDF triples. Unlike Direct Mapping, R2RML gives you full control over the output."
+  },
+  {
+    topic:"DB-to-Ontology Mapping",type:"mc",
+    text:"What is the main advantage of Direct Mapping over R2RML?",
+    options:["Better output quality","Full customisation","Zero configuration — fully automatic","Supports more databases"],
+    correct:2,
+    explanation:"Direct Mapping's advantage is zero configuration — it's fully automatic. Just point it at a database and it generates RDF. R2RML produces better quality output but requires writing mapping definitions manually."
+  },
+  {
+    topic:"DB-to-Ontology Mapping",type:"tf",
+    text:"True or False: Both Direct Mapping and R2RML are W3C standards.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. Both are official W3C (World Wide Web Consortium) standards for mapping relational databases to RDF. Direct Mapping is the automatic approach; R2RML is the customisable approach."
+  },
+
+  // ═══════════════════ TOPIC: Ontop & Lab Practical ═══════════════════
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"The lab uses three tools together for OBDA. Which combination is correct?",
+    options:["Eclipse + MySQL + Apache Jena","Protégé + Ontop plugin + H2 Database","Visual Studio + SQL Server + GraphDB","IntelliJ + PostgreSQL + RDF4J"],
+    correct:1,
+    explanation:"The lab uses: Protégé (Stanford's ontology editor), the Ontop plugin (OBDA engine that translates SPARQL to SQL), and H2 Database (lightweight SQL database containing university data)."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"In the lab's OBDA mapping, what does <code>:uni1/student/{s_id}</code> create?",
+    options:["A database table","An RDF individual IRI using the student's primary key","A SPARQL query","A CSS class"],
+    correct:1,
+    explanation:"The template :uni1/student/{s_id} creates an IRI for each student using their primary key. For a student with s_id=42, it creates :uni1/student/42. This becomes the unique identifier for that RDF individual."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"In the mapping <code>a :Student</code>, what does the keyword <code>a</code> mean?",
+    options:["Assign","Aggregate","rdf:type (declares the class membership)","Attribute"],
+    correct:2,
+    explanation:"In Turtle/SPARQL syntax, 'a' is shorthand for rdf:type. So ':uni1/student/{s_id} a :Student' means 'this individual is rdf:type :Student' — it declares the individual as a member of the Student class."
+  },
+  {
+    topic:"Ontop Lab",type:"spot",
+    text:"Spot the error in this mapping interpretation: '<code>foaf:firstName {first_name}^^xsd:string</code> means the first_name column is stored as an <code>xsd:integer</code>.'",
+    options:["foaf:firstName doesn't exist","The datatype is xsd:string, not xsd:integer","Column names can't have underscores","The ^^ syntax is invalid"],
+    correct:1,
+    explanation:"The mapping clearly specifies ^^xsd:string as the datatype, NOT xsd:integer. The {first_name} column value is attached as a typed literal of type xsd:string. The ^^ notation is valid Turtle syntax for specifying datatypes."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"What does the <code>university.properties</code> file specify?",
+    options:["SPARQL query templates","JDBC connection details (driver, URL, username, password)","OWL class definitions","CSS styling rules"],
+    correct:1,
+    explanation:"The .properties file contains JDBC connection settings: jdbc.driver=org.h2.Driver, jdbc.url=jdbc:h2:tcp://localhost/../university-session1, jdbc.user=sa, jdbc.password= (empty). This tells Ontop how to connect to the H2 database."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"In the university ontology, Professor is a subclass of:",
+    options:["Only Teacher","Only Researcher","Both Researcher AND Teacher (multiple inheritance)","FacultyMember directly"],
+    correct:2,
+    explanation:"Professor has multiple inheritance — it is a subclass of BOTH Researcher AND Teacher. This means every Professor is automatically both a Researcher and a Teacher. This is a key OWL feature demonstrated in the lab."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"In the university ontology, <code>isTaughtBy</code> is related to <code>teaches</code> how?",
+    options:["They are the same property","isTaughtBy is a sub-property of teaches","isTaughtBy is the inverse of teaches","They are unrelated"],
+    correct:2,
+    explanation:"isTaughtBy is declared as the inverse of teaches. If 'Professor X teaches Course Y', then automatically 'Course Y isTaughtBy Professor X'. OWL inverse properties let you navigate relationships in both directions."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"The university ontology declares Course, EducationalInstitution, and Person as:",
+    options:["Equivalent classes","Subclasses of each other","Pairwise disjoint (nothing can be both)","Identical"],
+    correct:2,
+    explanation:"These three classes are pairwise disjoint — nothing can simultaneously be a Course AND a Person, or a Person AND an EducationalInstitution. This is an OWL constraint that prevents logical contradictions in the data."
+  },
+  {
+    topic:"Ontop Lab",type:"mc",
+    text:"<code>givesLecture</code> and <code>givesLab</code> are what kind of properties relative to <code>teaches</code>?",
+    options:["Inverse properties","Equivalent properties","Sub-properties of teaches","Disjoint properties"],
+    correct:2,
+    explanation:"givesLecture and givesLab are sub-properties of teaches. This means if 'Professor X givesLecture in Course Y', then it automatically follows that 'Professor X teaches Course Y'. Sub-properties specialise a more general property."
+  },
+  {
+    topic:"Ontop Lab",type:"tf",
+    text:"True or False: GraduateStudent has an OWL restriction that it must be supervised by some Professor.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. The .ttl file defines an existential restriction on GraduateStudent: 'isSupervisedBy some Professor'. This means every GraduateStudent MUST have at least one Professor as a supervisor — it's a logical constraint enforced by the ontology."
+  },
+
+  // ═══════════════════ TOPIC: DW vs VDI Comparison ═══════════════════
+  {
+    topic:"DW vs VDI Comparison",type:"mc",
+    text:"Which integration approach provides faster query performance?",
+    options:["VDI (queries go to live sources)","Data Warehouse (data is stored locally)","Both are equally fast","Neither — speed depends only on the user's internet"],
+    correct:1,
+    explanation:"Data Warehouse provides faster queries because all data is stored locally in one place — no network overhead. VDI queries must travel over the network to reach each source, wait for responses, and combine results, which adds latency."
+  },
+  {
+    topic:"DW vs VDI Comparison",type:"mc",
+    text:"Which approach is easier for adding new data sources?",
+    options:["Data Warehouse (build new ETL pipeline)","VDI (just add a new wrapper)","Both are equally easy","Neither supports adding sources"],
+    correct:1,
+    explanation:"VDI: just add a new wrapper and update the mappings. Data Warehouse: you must build a new ETL pipeline (extract from the new source, transform to match the warehouse schema, schedule regular loads). VDI is significantly easier for scaling to new sources."
+  },
+  {
+    topic:"DW vs VDI Comparison",type:"tf",
+    text:"True or False: A Data Warehouse can still function if the original source databases go offline.",
+    options:["True","False"],
+    correct:0,
+    explanation:"True. Since a data warehouse contains physical copies of the data, it continues to function even if the original sources go offline. The data may be slightly stale (from the last ETL refresh), but it's still available. VDI would fail in this scenario."
+  },
+  {
+    topic:"DW vs VDI Comparison",type:"mc",
+    text:"Which approach has higher storage costs?",
+    options:["VDI (must store wrapper configurations)","Data Warehouse (stores duplicate copies of all data)","Both have identical storage costs","OBDA"],
+    correct:1,
+    explanation:"Data Warehouse has much higher storage costs because it physically duplicates all data from every source into the central database. VDI stores no copies — data stays at the source, so storage costs are minimal."
+  }
+];
+
+// ── Shuffle utility ──
+function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+// ── State ──
+let questions, current, score, answered, userAnswers;
+
+function init(){
+  questions=shuffle(QUESTIONS);
+  current=0; score=0; answered=false; userAnswers=[];
+  renderStart();
+}
+
+function renderStart(){
+  const topics=[...new Set(QUESTIONS.map(q=>q.topic))];
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+      <p>Week 7: Data Integration — Silos, DW, ETL, VDI, GAV/LAV, OBDA & Lab</p>
+    </div>
+    <div class="start-screen">
+      <div class="icon">⚡</div>
+      <h2>Ready to Master Data Integration?</h2>
+      <p>This quiz covers every concept from the lecture and lab — data silos, warehousing, star/snowflake schemas, ETL, virtual integration, GAV/LAV/GLAV, OBDA, mappings, and the Ontop/Protégé lab.</p>
+      <div class="stat-row">
+        <div class="stat"><div class="n">${questions.length}</div><div class="l">Questions</div></div>
+        <div class="stat"><div class="n">${topics.length}</div><div class="l">Topics</div></div>
+        <div class="stat"><div class="n">3</div><div class="l">Types</div></div>
+      </div>
+      <button class="nav-btn" onclick="startQuiz()">Begin Drill →</button>
+    </div>`;
+}
+
+function startQuiz(){renderQuestion()}
+
+function renderQuestion(){
+  answered=false;
+  const q=questions[current];
+  const pct=((current)/questions.length*100).toFixed(0);
+  const letters='ABCD';
+  const typeLabel=q.type==='mc'?'Multiple Choice':q.type==='tf'?'True / False':'Spot the Error';
+  const typeCls=q.type;
+
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-stats">
+        <span>Question <span class="val">${current+1}/${questions.length}</span></span>
+        <span class="correct-count">Correct <span class="val">${score}</span></span>
+        <span class="wrong-count">Wrong <span class="val">${current-score}</span></span>
+      </div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="q-number">Question ${current+1} <span class="q-type ${typeCls}">${typeLabel}</span></div>
+      <div class="topic-label">${q.topic}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options" id="opts">
+        ${q.options.map((o,i)=>`<button class="option-btn" data-idx="${i}" onclick="selectAnswer(${i})"><span class="opt-letter">${letters[i]}</span>${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <button class="nav-btn" id="nextBtn" disabled onclick="nextQuestion()">${current<questions.length-1?'Next Question →':'See Results →'}</button>
+    </div>`;
+}
+
+function selectAnswer(idx){
+  if(answered) return;
+  answered=true;
+  const q=questions[current];
+  const isCorrect=idx===q.correct;
+  if(isCorrect) score++;
+  userAnswers.push({q,chosen:idx,correct:isCorrect});
+
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach((b,i)=>{
+    b.classList.add('disabled');
+    if(i===idx && isCorrect) b.classList.add('selected-correct');
+    else if(i===idx && !isCorrect) b.classList.add('selected-wrong');
+    if(i===q.correct && !isCorrect) b.classList.add('reveal-correct');
+  });
+
+  const fb=document.getElementById('feedback');
+  fb.className=`feedback ${isCorrect?'correct':'wrong'}`;
+  fb.style.display='block';
+  fb.innerHTML=`<div class="fb-title">${isCorrect?'✓ Correct!':'✗ Incorrect'}</div><p>${q.explanation}</p>`;
+
+  document.getElementById('nextBtn').disabled=false;
+}
+
+function nextQuestion(){
+  current++;
+  if(current>=questions.length) renderResults();
+  else renderQuestion();
+}
+
+function renderResults(){
+  const pct=Math.round(score/questions.length*100);
+  const topicMap={};
+  userAnswers.forEach(a=>{
+    if(!topicMap[a.q.topic]) topicMap[a.q.topic]={total:0,correct:0};
+    topicMap[a.q.topic].total++;
+    if(a.correct) topicMap[a.q.topic].correct++;
+  });
+
+  let gradeClass,gradeMsg;
+  if(pct>=85){gradeClass='great';gradeMsg='🏆 Outstanding — exam-ready mastery!';}
+  else if(pct>=60){gradeClass='ok';gradeMsg='📝 Solid foundation, but review the weak spots below.';}
+  else{gradeClass='needs-work';gradeMsg='🔁 Needs more drilling — revisit the lecture notes on weak topics.';}
+
+  const wrongItems=userAnswers.filter(a=>!a.correct);
+  const letters='ABCD';
+
+  app.innerHTML=`
+    <div class="header">
+      <div class="tag">F21BD — Big Data Management</div>
+      <h1>Ultimate Drill Quiz</h1>
+    </div>
+    <div class="results-screen" style="display:block">
+      <div class="results-header">
+        <div class="score-circle"><span class="big">${pct}%</span><span class="lbl">${score}/${questions.length}</span></div>
+        <h2>Quiz Complete</h2>
+        <p>Here's your performance breakdown</p>
+      </div>
+      <div class="grade-msg ${gradeClass}">${gradeMsg}</div>
+      <div class="topic-breakdown">
+        <h3>Topic Breakdown</h3>
+        ${Object.entries(topicMap).map(([t,d])=>{
+          const tp=Math.round(d.correct/d.total*100);
+          const cls=tp===100?'perfect':tp>=60?'partial':'low';
+          return `<div class="topic-row"><span class="t-name">${t}</span><span class="t-score ${cls}">${d.correct}/${d.total} (${tp}%)</span></div>`;
+        }).join('')}
+      </div>
+      ${wrongItems.length?`
+      <div class="review-section">
+        <h3>Questions to Review (${wrongItems.length})</h3>
+        ${wrongItems.map(a=>`<div class="review-item"><strong>Q:</strong> ${a.q.text.replace(/<[^>]*>/g,'')}<br><strong>Your answer:</strong> ${a.q.options[a.chosen]}<br><strong>Correct:</strong> ${a.q.options[a.q.correct]}<br>${a.q.explanation}</div>`).join('')}
+      </div>`:''}
+      <button class="restart-btn" onclick="init()">↻ Retake Quiz</button>
+    </div>`;
+}
+
+const app=document.getElementById('app');
+init();
+</script>
+</body>
+</html>
