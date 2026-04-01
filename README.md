@@ -1,6 +1,9 @@
 # Big Data Management - Semantic Web & Knowledge Graphs
 
 A comprehensive learning website for Big Data Management course focusing on Semantic Web and Knowledge Graphs.
+Heriot-Watt University Dubai Semantic Web & Knowledge Graphs Big Data Management — 2025–26 Course Hub
+
+F20BD F21BD
 
 ## 📚 Course Content
 
