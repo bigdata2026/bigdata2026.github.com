@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OWL LAB SIMULATOR · Skip the Protégé Pain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0b12;
+  --bg-panel: #15151f;
+  --bg-raised: #1d1d2a;
+  --border: #2a2a3a;
+  --text: #ececf1;
+  --text-dim: #8a8aa0;
+  --neon: #00ff9d;
+  --pink: #ff3b6d;
+  --cyan: #18e0e8;
+  --yellow: #ffd93d;
+  --purple: #a78bfa;
+  --red: #ff4d4d;
+  --serif: 'Fraunces', serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text); font-family: var(--sans);
+  font-size: 16px; line-height: 1.6; min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255,59,109,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(0,255,157,0.06) 0%, transparent 45%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: auto, auto, 40px 40px, 40px 40px;
+}
+.app { max-width: 980px; margin: 0 auto; padding: 24px 20px 140px; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--border);
+}
+.logo { font-family: var(--serif); font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+.logo .owl { color: var(--neon); font-style: italic; }
+.stats { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.stat b { color: var(--yellow); font-family: var(--mono); }
+.progress-wrap { margin-bottom: 40px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+}
+.progress-bar {
+  height: 6px; background: var(--bg-panel); border-radius: 3px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--neon), var(--cyan));
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 12px var(--neon);
+}
+.module { animation: fadeUp 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.module-badge {
+  display: inline-block; font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px; padding: 4px 10px;
+  border: 1px solid var(--neon); color: var(--neon); border-radius: 3px; margin-bottom: 16px;
+}
+.module-title {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05;
+  letter-spacing: -1.5px; margin-bottom: 10px;
+}
+.module-title i { color: var(--pink); font-weight: 400; }
+.module-sub { color: var(--text-dim); font-size: 17px; margin-bottom: 28px; max-width: 640px; }
+
+.step {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; margin-bottom: 18px;
+  position: relative; overflow: hidden;
+}
+.step::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--cyan);
+}
+.step.setup::before { background: var(--cyan); }
+.step.action::before { background: var(--yellow); }
+.step.predict::before { background: var(--pink); }
+.step.reveal::before { background: var(--neon); }
+.step.trap::before { background: var(--red); }
+
+.step-label {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-dim); margin-bottom: 10px;
+}
+.step.setup .step-label { color: var(--cyan); }
+.step.action .step-label { color: var(--yellow); }
+.step.predict .step-label { color: var(--pink); }
+.step.reveal .step-label { color: var(--neon); }
+.step.trap .step-label { color: var(--red); }
+
+.step h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.3px; }
+.step p { margin-bottom: 10px; color: #d4d4dc; }
+.step p:last-child { margin-bottom: 0; }
+.step ul { margin-left: 20px; margin-top: 8px; }
+.step li { margin-bottom: 4px; }
+
+code, .code {
+  font-family: var(--mono); background: var(--bg-raised);
+  padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: var(--cyan);
+}
+.code-block {
+  font-family: var(--mono); background: #08080d;
+  border: 1px solid var(--border); padding: 14px 16px;
+  border-radius: 6px; margin: 12px 0; font-size: 13px;
+  white-space: pre-wrap; color: #d4d4dc; line-height: 1.7;
+}
+.code-block .kw { color: var(--pink); }
+.code-block .cls { color: var(--cyan); }
+.code-block .prop { color: var(--yellow); }
+.code-block .ind { color: var(--neon); }
+.code-block .cm { color: var(--text-dim); font-style: italic; }
+.code-block .op { color: var(--purple); font-weight: 700; }
+
+.tip {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,217,61,0.08);
+  border-left: 2px solid var(--yellow);
+  border-radius: 4px; font-size: 14px;
+}
+.warn {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,59,109,0.08);
+  border-left: 2px solid var(--pink);
+  border-radius: 4px; font-size: 14px;
+}
+.boom {
+  margin-top: 12px; padding: 14px 16px;
+  background: rgba(255,77,77,0.1);
+  border: 1px solid var(--red);
+  border-radius: 6px; font-size: 14px;
+  font-family: var(--mono);
+  color: #ffb3b3;
+}
+
+.btn {
+  font-family: var(--mono); font-size: 13px; font-weight: 700;
+  padding: 10px 18px; background: transparent; color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.btn:hover { border-color: var(--neon); color: var(--neon); transform: translateY(-1px); }
+.btn-primary {
+  background: var(--neon); color: #000; border-color: var(--neon); font-weight: 700;
+}
+.btn-primary:hover { background: transparent; color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.3); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.predict-opts { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.predict-opt {
+  padding: 12px 16px; background: var(--bg-raised);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+  color: var(--text); font-family: var(--sans); font-size: 14px;
+}
+.predict-opt:hover:not(.locked) { border-color: var(--cyan); transform: translateX(4px); }
+.predict-opt.correct { background: rgba(0,255,157,0.15); border-color: var(--neon); color: var(--neon); }
+.predict-opt.wrong { background: rgba(255,59,109,0.15); border-color: var(--pink); color: var(--pink); }
+.predict-opt.locked { cursor: not-allowed; opacity: 0.65; }
+.predict-opt.locked.correct, .predict-opt.locked.wrong { opacity: 1; }
+
+.feedback {
+  margin-top: 14px; padding: 14px 16px;
+  border-radius: 6px; font-size: 14px; display: none;
+}
+.feedback.show { display: block; animation: fadeUp 0.3s; }
+.feedback.good { background: rgba(0,255,157,0.08); border-left: 3px solid var(--neon); }
+.feedback.bad { background: rgba(255,59,109,0.08); border-left: 3px solid var(--pink); }
+
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(11,11,18,0.95); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border); padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; z-index: 100;
+}
+.nav-bar-inner {
+  max-width: 980px; margin: 0 auto; width: 100%;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.module-indicator { font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+
+/* ONTOLOGY VISUAL */
+.onto-board {
+  background: #08080d; border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; margin: 14px 0;
+  overflow-x: auto;
+}
+.onto-board svg { display: block; margin: 0 auto; }
+
+/* CELEBRATION */
+.celebration {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif); font-size: 80px; font-weight: 900;
+  font-style: italic; color: var(--neon);
+  text-shadow: 0 0 30px var(--neon);
+  pointer-events: none; z-index: 200; opacity: 0;
+}
+.celebration.show { animation: celebrate 1.2s ease-out; }
+@keyframes celebrate {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+  70% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.9); }
+}
+
+.hero-start { text-align: center; padding: 40px 10px; }
+.hero-start h1 {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(44px, 9vw, 80px); line-height: 0.95;
+  letter-spacing: -2px; margin-bottom: 18px;
+}
+.hero-start h1 .flash { color: var(--neon); font-style: italic; }
+.hero-start .tagline {
+  font-size: 18px; color: var(--text-dim);
+  max-width: 520px; margin: 0 auto 32px;
+}
+.feat-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+.feat {
+  font-family: var(--mono); font-size: 11px; padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+}
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; margin: 20px 0; text-align: left;
+}
+.toc-card {
+  padding: 14px 16px; background: var(--bg-panel);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.toc-card:hover { border-color: var(--neon); transform: translateY(-2px); }
+.toc-card .num { font-family: var(--mono); font-size: 10px; color: var(--neon); letter-spacing: 2px; }
+.toc-card .t { font-family: var(--serif); font-size: 16px; font-weight: 700; margin-top: 4px; line-height: 1.2; }
+.toc-card .lab { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; }
+.toc-card.done { background: rgba(0,255,157,0.04); border-color: var(--neon); }
+.toc-card.done .num::after { content: ' ✓'; color: var(--neon); }
+
+.big-emoji { font-size: 60px; text-align: center; margin: 20px 0; }
+
+table {
+  width: 100%; border-collapse: collapse; margin: 14px 0;
+  font-size: 14px; background: var(--bg-raised);
+  border-radius: 8px; overflow: hidden;
+}
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th {
+  background: #0a0a12; font-family: var(--mono);
+  text-transform: uppercase; font-size: 10px;
+  letter-spacing: 1px; color: var(--text-dim);
+}
+tr:last-child td { border-bottom: none; }
+
+.pattern-card {
+  background: linear-gradient(135deg, rgba(0,255,157,0.04), rgba(24,224,232,0.04));
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin-bottom: 14px;
+}
+.pattern-card h4 {
+  font-family: var(--serif); font-size: 19px; font-weight: 700;
+  margin-bottom: 10px; color: var(--yellow);
+}
+
+::selection { background: var(--neon); color: #000; }
+@media (max-width: 640px) {
+  .app { padding: 16px 14px 160px; }
+  .stats { display: none; }
+  .nav-bar-inner { flex-wrap: wrap; }
+  .module-indicator { display: none; }
+  .btn { padding: 10px 14px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="logo"><span class="owl">LAB</span>.sim</div>
+    <div class="stats">
+      <div class="stat">XP <b id="xp">0</b></div>
+      <div class="stat">CORRECT <b id="correct">0</b></div>
+      <div class="stat">MOD <b id="mod-num">0/11</b></div>
+    </div>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>PROGRESS</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <main id="content"></main>
+</div>
+<div class="nav-bar">
+  <div class="nav-bar-inner">
+    <button class="btn" id="btn-prev">◀ Back</button>
+    <div class="module-indicator" id="indicator">BOOT</div>
+    <button class="btn btn-primary" id="btn-next">Next ▶</button>
+  </div>
+</div>
+<div class="celebration" id="celebration"></div>
+
+<script>
+const state = {
+  current: 0,
+  xp: 0,
+  correct: 0,
+  answered: {},
+};
+
+function celebrate(text) {
+  const el = document.getElementById('celebration');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+
+function answer(mod, qid, chosenIdx, correctIdx, explanation) {
+  const key = `${mod}-${qid}`;
+  if (state.answered[key]) return;
+  state.answered[key] = true;
+
+  const opts = document.querySelectorAll(`[data-q="${key}"] .predict-opt`);
+  opts.forEach((o, i) => {
+    o.classList.add('locked');
+    if (i === correctIdx) o.classList.add('correct');
+    else if (i === chosenIdx) o.classList.add('wrong');
+  });
+
+  const fb = document.querySelector(`[data-q="${key}"] .feedback`);
+  fb.classList.add('show');
+  if (chosenIdx === correctIdx) {
+    fb.classList.add('good');
+    fb.innerHTML = `<b style="color:var(--neon)">✓ CORRECT.</b> ${explanation}`;
+    state.xp += 15;
+    state.correct += 1;
+    document.getElementById('xp').textContent = state.xp;
+    document.getElementById('correct').textContent = state.correct;
+    celebrate(['NICE', 'YES', 'BANG', 'GG', 'CLEAN'][Math.floor(Math.random()*5)]);
+  } else {
+    fb.classList.add('bad');
+    fb.innerHTML = `<b style="color:var(--pink)">✗ NOT QUITE.</b> ${explanation}`;
+  }
+}
+
+const modules = [];
+
+// ============================================================
+// MODULE 0 — HERO
+// ============================================================
+modules.push({
+  title: 'START',
+  indicator: 'INTRO',
+  render: () => `
+    <div class="hero-start">
+      <h1>OWL<br><span class="flash">LAB</span><br>SIMULATOR</h1>
+      <p class="tagline">Skip 3 hours of Protégé pain. Walk through every scenario from Basic OWL Lab, Advanced OWL Lab, and the Vehicle Demo — in one sitting. You predict, the reasoner judges.</p>
+      <div class="feat-row">
+        <span class="feat">10 LAB SCENARIOS</span>
+        <span class="feat">PREDICT + REVEAL</span>
+        <span class="feat">ZERO PROTÉGÉ</span>
+        <span class="feat">EXAM PATTERNS</span>
+      </div>
+      <div class="big-emoji">🔬</div>
+      <button class="btn btn-primary" style="font-size:16px;padding:14px 28px" onclick="goTo(1)">RUN SIMULATION ▶</button>
+
+      <div style="margin-top:50px">
+        <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:16px; color:var(--cyan); text-align:left">The runbook:</h3>
+        <div class="toc-grid" id="toc-grid"></div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 1 — Basic OWL: Disjoint + Deliberate Inconsistency
+// ============================================================
+modules.push({
+  title: 'The disjoint trap',
+  indicator: '01 / BASIC LAB',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">BASIC LAB — SCENARIO 1</div>
+      <h2 class="module-title">The <i>disjoint</i> trap</h2>
+      <p class="module-sub">From Lab 2: we create Course and Person, declare them disjoint, then do something stupid on purpose to see the reasoner scream.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — axioms loaded into the ontology</div>
+        <div class="code-block"><span class="cls">Course</span> <span class="kw">rdf:type</span> <span class="op">owl:Class</span> .
+<span class="cls">Person</span> <span class="kw">rdf:type</span> <span class="op">owl:Class</span> .
+<span class="cls">Course</span> <span class="kw">owl:disjointWith</span> <span class="cls">Person</span> .</div>
+        <p>Two classes exist. They're declared disjoint — meaning no single individual can be BOTH a Course AND a Person.</p>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — now we assert individuals</div>
+        <div class="code-block"><span class="ind">:alice</span> <span class="kw">rdf:type</span> <span class="cls">Person</span> .
+<span class="cls cm">// Then we did something stupid on purpose:</span>
+<span class="ind">:alice</span> <span class="kw">rdf:type</span> <span class="cls">Course</span> .</div>
+      </div>
+
+      <div class="onto-board">
+        <svg viewBox="0 0 500 180" width="500">
+          <rect x="60" y="30" width="110" height="50" rx="6" fill="none" stroke="#18e0e8" stroke-width="2"/>
+          <text x="115" y="58" text-anchor="middle" fill="#18e0e8" font-family="JetBrains Mono" font-size="13">Person</text>
+          <text x="115" y="72" text-anchor="middle" fill="#8a8aa0" font-family="JetBrains Mono" font-size="9">CLASS</text>
+
+          <rect x="330" y="30" width="110" height="50" rx="6" fill="none" stroke="#ff3b6d" stroke-width="2"/>
+          <text x="385" y="58" text-anchor="middle" fill="#ff3b6d" font-family="JetBrains Mono" font-size="13">Course</text>
+          <text x="385" y="72" text-anchor="middle" fill="#8a8aa0" font-family="JetBrains Mono" font-size="9">CLASS</text>
+
+          <line x1="170" y1="55" x2="330" y2="55" stroke="#ffd93d" stroke-width="2" stroke-dasharray="4"/>
+          <text x="250" y="48" text-anchor="middle" fill="#ffd93d" font-family="JetBrains Mono" font-size="10">DISJOINT</text>
+
+          <circle cx="250" cy="135" r="20" fill="#00ff9d"/>
+          <text x="250" y="140" text-anchor="middle" fill="#000" font-family="JetBrains Mono" font-size="11" font-weight="700">alice</text>
+
+          <line x1="235" y1="125" x2="150" y2="82" stroke="#00ff9d" stroke-width="1.5"/>
+          <text x="175" y="115" fill="#8a8aa0" font-family="JetBrains Mono" font-size="9">type</text>
+
+          <line x1="265" y1="125" x2="350" y2="82" stroke="#ff3b6d" stroke-width="1.5" stroke-dasharray="3"/>
+          <text x="315" y="115" fill="#ff3b6d" font-family="JetBrains Mono" font-size="9">type ?!</text>
+        </svg>
+      </div>
+
+      <div class="step predict" data-q="m1-q1">
+        <div class="step-label">▶ PREDICT — click reasoner → synchronise</div>
+        <p><b>What happens?</b></p>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m1','q1',0,2,'Actually it does cause a conflict. alice can't satisfy both disjoint class memberships.')">Nothing — alice is just in two classes.</button>
+          <button class="predict-opt" onclick="answer('m1','q1',1,2,'Disjoint isn't resolved by re-classification — it's a hard contradiction.')">Reasoner removes one of the types automatically.</button>
+          <button class="predict-opt" onclick="answer('m1','q1',2,2,'Yes. Ontology goes inconsistent. Protégé screams, everything lights up red, reasoner refuses to give further inferences.')">Ontology becomes INCONSISTENT — reasoner raises an error.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ REVEAL — the explanation window</div>
+        <div class="code-block"><span class="cls cm">Explanation for: owl:Thing SubClassOf owl:Nothing</span>
+<span class="cls">Course</span> <span class="kw">DisjointWith</span> <span class="cls">Person</span>
+<span class="ind">alice</span> <span class="kw">Type</span> <span class="cls">Person</span>
+<span class="ind">alice</span> <span class="kw">Type</span> <span class="cls">Course</span></div>
+        <p>Protégé literally tells you: "these 3 axioms together = contradiction."</p>
+        <div class="tip">🎯 <b>Exam takeaway:</b> Disjoint classes = a HARD wall. Any individual asserted (or inferred!) into both → entire ontology breaks. Reasoner stops giving you useful info until you fix it.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 2 — Basic OWL: Domain/Range Inference + Inverse
+// ============================================================
+modules.push({
+  title: 'Domain, Range, Inverse — auto-inference',
+  indicator: '02 / BASIC LAB',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">BASIC LAB — SCENARIO 2</div>
+      <h2 class="module-title">The reasoner <i>fills in the blanks</i></h2>
+      <p class="module-sub">Lab 2 ends with this power move: assert ONE property, reasoner infers 3+ facts. Classic exam question.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — the property definitions</div>
+        <div class="code-block"><span class="prop">:studies</span> <span class="kw">rdf:type</span> <span class="op">owl:ObjectProperty</span> ;
+         <span class="kw">rdfs:domain</span> <span class="cls">:Student</span> ;
+         <span class="kw">rdfs:range</span> <span class="cls">:Course</span> ;
+         <span class="kw">owl:inverseOf</span> <span class="prop">:hasStudent</span> .</div>
+        <p>Translation:</p>
+        <ul>
+          <li>If <code>X studies Y</code>, then X must be a Student (domain).</li>
+          <li>And Y must be a Course (range).</li>
+          <li>And Y hasStudent X automatically (inverse).</li>
+        </ul>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — assert ONE triple</div>
+        <div class="code-block"><span class="cm">// alice and f20bd are created but NO type is declared!</span>
+<span class="ind">:alice</span> <span class="kw">rdf:type</span> <span class="op">owl:NamedIndividual</span> .
+<span class="ind">:f20bd</span> <span class="kw">rdf:type</span> <span class="op">owl:NamedIndividual</span> .
+
+<span class="cm">// Then:</span>
+<span class="ind">:alice</span> <span class="prop">:studies</span> <span class="ind">:f20bd</span> .</div>
+      </div>
+
+      <div class="step predict" data-q="m2-q1">
+        <div class="step-label">▶ PREDICT — what types does the reasoner infer?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m2','q1',0,2,'No — the reasoner will try to infer types based on domain and range.')">Neither — types were never declared.</button>
+          <button class="predict-opt" onclick="answer('m2','q1',1,2,'Partially right but incomplete.')">Only alice gets typed as Student.</button>
+          <button class="predict-opt" onclick="answer('m2','q1',2,2,'Nailed it. Domain pushes alice into Student. Range pushes f20bd into Course. These show up highlighted yellow in Protégé as INFERRED facts.')">alice is inferred Student AND f20bd is inferred Course.</button>
+          <button class="predict-opt" onclick="answer('m2','q1',3,2,'Domain/range restrictions cause inference, not inconsistency. They don't validate — they propagate types.')">Inconsistent — you can't use a property without declared types.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step predict" data-q="m2-q2">
+        <div class="step-label">▶ PREDICT 2 — and the inverse?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m2','q2',0,1,'Inverse is automatic, no need to manually declare. That's the point.')">Nothing extra — we only asserted studies, not hasStudent.</button>
+          <button class="predict-opt" onclick="answer('m2','q2',1,1,'Yes! Inverse properties are symmetric in inference. If studies ↔ hasStudent and alice studies f20bd, then f20bd hasStudent alice is also inferred.')">f20bd hasStudent alice — inferred automatically.</button>
+          <button class="predict-opt" onclick="answer('m2','q2',2,1,'Studies is not symmetric (that would be same property flipping). Inverse is DIFFERENT property reversed.')">alice hasStudent f20bd (same direction).</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ THE POWER MOVE — 1 assertion → 3 inferences</div>
+        <div class="code-block"><span class="cm">// You wrote this:</span>
+<span class="ind">alice</span> <span class="prop">studies</span> <span class="ind">f20bd</span>
+
+<span class="cm">// Reasoner infers ALL of this:</span>
+<span class="ind">alice</span> <span class="kw">rdf:type</span> <span class="cls">Student</span>       <span class="cm">// via domain</span>
+<span class="ind">f20bd</span> <span class="kw">rdf:type</span> <span class="cls">Course</span>         <span class="cm">// via range</span>
+<span class="ind">f20bd</span> <span class="prop">hasStudent</span> <span class="ind">alice</span>   <span class="cm">// via inverse</span></div>
+        <div class="tip">🎯 <b>Exam gold:</b> Domain & range are NOT constraints — they are inference triggers. If you use them on an individual without a declared type, the reasoner assigns the type. This is the #1 way OWL "discovers" knowledge.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 3 — Advanced Lab: hasValue pattern (Japanese Students)
+// ============================================================
+modules.push({
+  title: 'hasValue — "residentOf value Japan"',
+  indicator: '03 / ADVANCED LAB',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">ADVANCED LAB — JAPANESE STUDENTS</div>
+      <h2 class="module-title">Restrict by <i>specific individual</i></h2>
+      <p class="module-sub">Most restrictions use CLASSES. <code>hasValue</code> is different — it restricts to ONE specific named individual. Exam-critical pattern.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — three pieces, stack them</div>
+        <div class="code-block"><span class="cm">// 1. AsianCountry is a subclass of NonEUCountry, disjoint from N.American</span>
+<span class="cls">AsianCountry</span> <span class="kw">SubClassOf</span> <span class="cls">NonEUCountry</span>
+<span class="cls">AsianCountry</span> <span class="kw">DisjointWith</span> <span class="cls">NorthAmericanCountry</span>
+
+<span class="cm">// 2. Japan is declared as an AsianCountry</span>
+<span class="ind">Japan</span> <span class="kw">Type</span> <span class="cls">AsianCountry</span>
+
+<span class="cm">// 3. The key definition — EQUIVALENT class with hasValue</span>
+<span class="cls">JapaneseStudent</span> <span class="kw">EquivalentTo</span>:
+    <span class="cls">Student</span> <span class="op">and</span> (<span class="prop">residentOf</span> <span class="kw">value</span> <span class="ind">Japan</span>)</div>
+        <div class="tip">🎯 <code>residentOf value Japan</code> means: the individual's <code>residentOf</code> property must point to the exact named individual <code>Japan</code>. Not "some Asian country." Specifically Japan.</div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — meet Mia</div>
+        <div class="code-block"><span class="ind">Mia</span> <span class="kw">Type</span> <span class="cls">Person</span>
+<span class="ind">Mia</span> <span class="prop">studies</span> <span class="ind">Programming</span>   <span class="cm">// Programming is a Course</span>
+<span class="ind">Mia</span> <span class="prop">residentOf</span> <span class="ind">Japan</span></div>
+        <p>Note: Mia is declared <b>Person</b>, NOT Student. And JapaneseStudent requires Student membership.</p>
+      </div>
+
+      <div class="step predict" data-q="m3-q1">
+        <div class="step-label">▶ PREDICT — reasoner runs. Is Mia a JapaneseStudent?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m3','q1',0,2,'Close but missing the Student piece. Mia was only declared Person.')">No — she's Person, not Student.</button>
+          <button class="predict-opt" onclick="answer('m3','q1',1,2,'She has the hasValue match, but you're forgetting WHY she becomes a Student too.')">Yes but ONLY because she was declared Student.</button>
+          <button class="predict-opt" onclick="answer('m3','q1',2,2,'Perfect chain: (a) studies has domain Student → Mia inferred Student. (b) residentOf value Japan matches exactly. (c) JapaneseStudent is EquivalentTo — two-way — so auto-classification fires. Mia pops into JapaneseStudent in the inferred hierarchy.')">Yes — Student inferred via studies domain, then hasValue matches → auto-classified.</button>
+          <button class="predict-opt" onclick="answer('m3','q1',3,2,'JapaneseStudent is EQUIVALENT TO Student and (residentOf value Japan). Equivalent means auto-classification. That's the whole point of ≡.')">No — EquivalentTo definitions don't auto-classify individuals.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ WHAT ACTUALLY HAPPENS (3-step inference chain)</div>
+        <div class="code-block"><span class="cm">// Starting facts:</span>
+Mia : Person
+Mia studies Programming
+Mia residentOf Japan
+
+<span class="cm">// Step 1 — Domain of studies is Student:</span>
+→ Mia : Student    <span class="cm">// INFERRED</span>
+
+<span class="cm">// Step 2 — Mia now matches (Student and residentOf value Japan):</span>
+→ Matches the right-hand side of JapaneseStudent ≡ ...
+
+<span class="cm">// Step 3 — EquivalentTo means two-way, so classification fires:</span>
+→ Mia : JapaneseStudent  <span class="cm">// ★ Protégé highlights this yellow ★</span></div>
+        <div class="tip">🎯 <b>Three patterns combined here:</b><br>1. Domain-triggered type inference<br>2. <code>hasValue</code> restriction with a specific named individual<br>3. <code>EquivalentTo</code> enabling auto-classification<br>ALL THREE are exam fodder.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 4 — Closure Axiom (Art Students) — THE BIG ONE
+// ============================================================
+modules.push({
+  title: 'Closure axiom — Art Students',
+  indicator: '04 / ADVANCED LAB',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">ADVANCED LAB — ART STUDENTS (CRITICAL)</div>
+      <h2 class="module-title">The <i>closure</i> axiom</h2>
+      <p class="module-sub">This scenario catches 80% of students in the exam. Open World Assumption bites you. The closure pattern saves you.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — the ArtStudent definition</div>
+        <div class="code-block"><span class="cls">ArtCourse</span> <span class="kw">SubClassOf</span> <span class="cls">Course</span>
+
+<span class="cls">ArtStudent</span> <span class="kw">EquivalentTo</span>:
+    <span class="cls">Student</span> <span class="op">and</span>
+    (<span class="prop">studies</span> <span class="kw">some</span> <span class="cls">ArtCourse</span>) <span class="op">and</span>
+    (<span class="prop">studies</span> <span class="kw">only</span> <span class="cls">ArtCourse</span>)</div>
+        <p>Translation: An ArtStudent is a Student who (a) studies at least one ArtCourse AND (b) studies NOTHING but ArtCourses.</p>
+        <div class="tip">🎯 This is the <b>closure pattern</b>: <code>some X and only X</code>. Force existence + restrict type. Without BOTH, you get bugs.</div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — meet Jim</div>
+        <div class="code-block"><span class="ind">Dance</span> <span class="kw">Type</span> <span class="cls">ArtCourse</span>
+<span class="ind">EnglishLiterature</span> <span class="kw">Type</span> <span class="cls">ArtCourse</span>
+
+<span class="ind">Jim</span> <span class="kw">Type</span> <span class="cls">Student</span>
+<span class="ind">Jim</span> <span class="prop">studies</span> <span class="ind">Dance</span>
+<span class="ind">Jim</span> <span class="prop">studies</span> <span class="ind">EnglishLiterature</span></div>
+        <p>Jim is a Student. He studies only two things, both of which are ArtCourses.</p>
+      </div>
+
+      <div class="step predict" data-q="m4-q1">
+        <div class="step-label">▶ PREDICT — does the reasoner classify Jim as ArtStudent?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m4','q1',0,1,'Seems obvious but WRONG. The OWA is hiding a knife behind its back.')">Yes, obviously. Both his courses are Art.</button>
+          <button class="predict-opt" onclick="answer('m4','q1',1,1,'Correct — the cruel twist. Under Open World Assumption, the reasoner thinks: "Jim studies Dance and EngLit AS FAR AS WE KNOW. But there might be OTHER studies we haven't been told about — maybe Physics, who knows?" Since we can't prove he studies ONLY art courses, the "only" part fails.')">NO — Open World Assumption. There might be more studies we don't know about.</button>
+          <button class="predict-opt" onclick="answer('m4','q1',2,1,'Nope — both Dance and EngLit are declared as ArtCourse. some ArtCourse is satisfied.')">No — the definition of Dance is unclear.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step trap">
+        <div class="step-label">▶ THE TRAP — Open World Assumption</div>
+        <p>OWL doesn't say: "Jim's data is complete." It says: "This is ALL WE'VE BEEN TOLD so far. Maybe Jim also studies Physics — we just haven't loaded that triple yet."</p>
+        <div class="boom">🚨 The <code>studies only ArtCourse</code> restriction cannot be PROVEN. Jim fails the ArtStudent definition.</div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ THE FIX — close the world manually</div>
+        <p>Add this axiom about Jim specifically:</p>
+        <div class="code-block"><span class="ind">Jim</span> <span class="kw">Type</span>: <span class="prop">studies</span> <span class="kw">only</span> {<span class="ind">Dance</span>, <span class="ind">EnglishLiterature</span>}</div>
+        <p>This tells the reasoner: "Jim's studies are ONLY these two. Full stop. No more."</p>
+      </div>
+
+      <div class="step predict" data-q="m4-q2">
+        <div class="step-label">▶ PREDICT — with the closure added, reasoner run?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m4','q2',0,1,'Closure axioms don't trigger inconsistency — they DEFINE the limits.')">Inconsistent now</button>
+          <button class="predict-opt" onclick="answer('m4','q2',1,1,'Yes! Now the reasoner can see Jim's studies are exactly {Dance, EngLit}, both ArtCourses. All parts of the ArtStudent definition satisfied. Auto-classified.')">Jim is now classified as ArtStudent ✓</button>
+          <button class="predict-opt" onclick="answer('m4','q2',2,1,'Auto-classification fires from EquivalentTo definitions.')">Jim still not an ArtStudent</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ FURTHER TEST — meet Mia</div>
+        <div class="code-block"><span class="ind">Mia</span> <span class="kw">Type</span> <span class="cls">Student</span>
+<span class="ind">Mia</span> <span class="prop">studies</span> <span class="ind">AI</span>              <span class="cm">// Course, NOT ArtCourse</span>
+<span class="ind">Mia</span> <span class="prop">studies</span> <span class="ind">EnglishLanguage</span> <span class="cm">// Course, NOT ArtCourse</span>
+<span class="ind">Mia</span> <span class="prop">studies</span> <span class="ind">Programming</span>     <span class="cm">// Course, NOT ArtCourse</span>
+<span class="ind">Mia</span> <span class="kw">Type</span>: <span class="prop">studies</span> <span class="kw">only</span> {<span class="ind">AI</span>, <span class="ind">EnglishLanguage</span>, <span class="ind">Programming</span>}  <span class="cm">// closure</span></div>
+      </div>
+
+      <div class="step predict" data-q="m4-q3">
+        <div class="step-label">▶ PREDICT — is Mia an ArtStudent?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m4','q3',0,0,'Correct. Her closure says her courses are AI, EngLang, Programming — NONE of which are ArtCourses. So "studies only ArtCourse" FAILS. Not classified as ArtStudent. That's what we want — the definition is working properly.')">NO — she doesn't study any ArtCourses.</button>
+          <button class="predict-opt" onclick="answer('m4','q3',1,0,'Mia doesn't satisfy the definition — all three of her courses are non-Art.')">Yes, the closure satisfies the only-restriction.</button>
+          <button class="predict-opt" onclick="answer('m4','q3',2,0,'The closure in this case doesn't help her — it traps her with non-Art courses.')">Inconsistent — too many courses.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ THE MORAL</div>
+        <div class="tip">🎯 <b>Closure axiom recipe (MEMORIZE THIS):</b><br>
+        1. Write definition as <code>(p some X) and (p only X)</code><br>
+        2. For each individual you want classified, <b>manually close the world</b> by stating <code>p only {specific individuals}</code><br>
+        3. Reasoner then has enough info to enforce "only" semantics<br><br>
+        This is why the lab says "close the world" — OWL defaults to OPEN world, you have to flip it manually per-individual.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 5 — Academics/Administrators DISJOINT TRAP
+// ============================================================
+modules.push({
+  title: 'Disjoint + multi-role = boom',
+  indicator: '05 / ADVANCED LAB',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--red); color:var(--red)">ADVANCED LAB — ACADEMICS vs ADMINS</div>
+      <h2 class="module-title">When disjoint <i>traps</i> reality</h2>
+      <p class="module-sub">A modelling mistake the lab forces you to commit so you learn to spot it.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — the overly strict setup</div>
+        <div class="code-block"><span class="cls">Academic</span> <span class="kw">SubClassOf</span> <span class="cls">Staff</span>
+<span class="cls">Administrator</span> <span class="kw">SubClassOf</span> <span class="cls">Staff</span>
+<span class="cls">Academic</span> <span class="kw">DisjointWith</span> <span class="cls">Administrator</span>  <span class="cm">// ⚠️ danger!</span>
+
+<span class="cm">// Job classes</span>
+<span class="cls">AssistantProfessor</span> <span class="kw">SubClassOf</span> <span class="cls">Academic</span>
+<span class="cls">Professor</span>          <span class="kw">SubClassOf</span> <span class="cls">Academic</span>
+<span class="cls">AdmissionsOfficer</span>  <span class="kw">SubClassOf</span> <span class="cls">Administrator</span>
+<span class="cls">FinanceOfficer</span>     <span class="kw">SubClassOf</span> <span class="cls">Administrator</span></div>
+        <p>We declared Academic and Administrator mutually exclusive. Specific job classes sit under one side or the other.</p>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — Bob works two jobs</div>
+        <div class="code-block"><span class="ind">Jane</span> <span class="kw">Type</span> <span class="cls">Professor</span>                                      <span class="cm">// fine</span>
+
+<span class="ind">Bob</span> <span class="kw">Type</span> <span class="cls">AssistantProfessor</span>
+<span class="ind">Bob</span> <span class="kw">Type</span> <span class="cls">AdmissionsOfficer</span>                              <span class="cm">// real-life dual role</span></div>
+        <p>In reality, many people at universities do BOTH teaching AND admin. Bob does both.</p>
+      </div>
+
+      <div class="step predict" data-q="m5-q1">
+        <div class="step-label">▶ PREDICT — reasoner synchronise. Jane?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m5','q1',0,1,'Professor ⊑ Academic ⊑ Staff. Chain of subclass inheritance.')">Jane is Professor only.</button>
+          <button class="predict-opt" onclick="answer('m5','q1',1,1,'Exactly. Inferred: Professor → Academic → Staff. Clean chain.')">Jane is Professor, Academic, and Staff.</button>
+          <button class="predict-opt" onclick="answer('m5','q1',2,1,'Nope, Jane is clean — only one side of the disjoint line.')">Jane triggers inconsistency.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step predict" data-q="m5-q2">
+        <div class="step-label">▶ PREDICT — and Bob?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m5','q2',0,2,'OWL doesn't pick a side — disjointness is a contradiction, not a priority rule.')">Bob is classified as Academic (first declaration wins).</button>
+          <button class="predict-opt" onclick="answer('m5','q2',1,2,'The reasoner attempts classification; it finds a contradiction rather than ignoring.')">Bob is just ignored by the reasoner.</button>
+          <button class="predict-opt" onclick="answer('m5','q2',2,2,'BOOM. AssistantProfessor → Academic. AdmissionsOfficer → Administrator. Academic ⊓ Administrator = ⊥ (disjoint). Bob is forced into both. Contradiction. Whole ontology inconsistent.')">Ontology goes inconsistent — Bob belongs to disjoint classes.</button>
+          <button class="predict-opt" onclick="answer('m5','q2',3,2,'The inference isn't ignored; it's the trigger of the problem.')">Bob is fine because he has both types declared explicitly.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step trap">
+        <div class="step-label">▶ WHAT HAPPENED</div>
+        <div class="boom">🚨 <b>Bob: AssistantProfessor → (via subclass) → Academic</b><br>
+        <b>Bob: AdmissionsOfficer → (via subclass) → Administrator</b><br>
+        <b>But Academic ⊓ Administrator = ⊥ (disjoint)</b><br>
+        <b>→ INCONSISTENT. Reasoner refuses to continue.</b></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ THE FIX — several options</div>
+        <p><b>Option A (simplest):</b> Remove the disjointness. They overlap in reality.</p>
+        <div class="code-block"><span class="cm">// Remove this line:</span>
+<span class="cls">Academic</span> <span class="kw">DisjointWith</span> <span class="cls">Administrator</span>  <span class="cm">// ← delete</span></div>
+        <p><b>Option B:</b> Use a more flexible modelling — e.g., model JOBS as separate from PEOPLE, so a Person can have multiple Jobs without being multiple disjoint classes themselves.</p>
+        <div class="tip">🎯 <b>Exam takeaway:</b> Be careful with disjointWith. Real-world entities often overlap. Over-constraining kills your ontology. If 1% of your population could be in both classes, DON'T make them disjoint.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 6 — Vehicle: Motorbike/Bicycle + SpecialVehicle inference
+// ============================================================
+modules.push({
+  title: 'Vehicle Demo — some / not-some',
+  indicator: '06 / VEHICLE',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">VEHICLE DEMO — THE CLASSIC EXAMPLE</div>
+      <h2 class="module-title">Motorbike, Bicycle, <i>SpecialVehicle</i></h2>
+      <p class="module-sub">The cleanest demo of how EquivalentTo + restrictions → auto-classification.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — classes + part structure</div>
+        <div class="code-block"><span class="cls">Vehicle</span>, <span class="cls">Engine</span>, <span class="cls">Roof</span>  <span class="cm">// basic classes</span>
+<span class="cls">Bicycle</span> <span class="kw">SubClassOf</span> <span class="cls">Vehicle</span>
+<span class="cls">Motorbike</span> <span class="kw">SubClassOf</span> <span class="cls">Vehicle</span>
+
+<span class="prop">hasPart</span>: <span class="op">owl:ObjectProperty</span>
+
+<span class="cm">// THE KEY DEFINITIONS — both EquivalentTo (two-way)</span>
+<span class="cls">Motorbike</span> <span class="kw">EquivalentTo</span>: <span class="cls">Vehicle</span> <span class="op">and</span> (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>)
+<span class="cls">Bicycle</span>   <span class="kw">EquivalentTo</span>: <span class="cls">Vehicle</span> <span class="op">and</span> <span class="op">not</span> (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>)
+
+<span class="cls">Motorbike</span> <span class="kw">DisjointWith</span> <span class="cls">Bicycle</span></div>
+        <div class="tip">🎯 Motorbike = has an engine. Bicycle = has NO engine. The NOT makes them naturally disjoint anyway, but declaring disjoint explicitly is clearer.</div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — add a SpecialVehicle</div>
+        <div class="code-block"><span class="cls">SpecialVehicle</span> <span class="kw">SubClassOf</span>:
+    <span class="cls">Vehicle</span> <span class="op">and</span>
+    (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>) <span class="op">and</span>
+    (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Roof</span>)</div>
+        <p>A special vehicle has an engine AND a roof.</p>
+      </div>
+
+      <div class="step predict" data-q="m6-q1">
+        <div class="step-label">▶ PREDICT — reasoner runs. Where does SpecialVehicle end up?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m6','q1',0,2,'We declared it SubClassOf Vehicle but the reasoner will CLASSIFY it further down.')">Directly under Vehicle (where we declared it).</button>
+          <button class="predict-opt" onclick="answer('m6','q1',1,2,'Nothing about Bicycle matches — SpecialVehicle definitely has an engine.')">Under Bicycle (since it's a Vehicle).</button>
+          <button class="predict-opt" onclick="answer('m6','q1',2,2,'Yes! The reasoner sees SpecialVehicle has hasPart some Engine, which matches Motorbike's EquivalentTo. Therefore SpecialVehicle ⊑ Motorbike. The hierarchy reorganizes itself.')">Under Motorbike — because it satisfies Motorbike's definition.</button>
+          <button class="predict-opt" onclick="answer('m6','q1',3,2,'Reasoners RE-classify based on semantic matches. The asserted position is only the starting point.')">The reasoner can't move classes after you place them.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ WHY THIS WORKS</div>
+        <div class="code-block"><span class="cls">Motorbike</span> <span class="kw">≡</span> Vehicle ⊓ (hasPart some Engine)     <span class="cm">// definition</span>
+<span class="cls">SpecialVehicle</span> has: Vehicle ⊓ hasPart some Engine ⊓ hasPart some Roof
+                                               ↑ this IS Motorbike's full def
+→ SpecialVehicle ⊑ Motorbike  <span class="cm">// inferred</span></div>
+        <div class="tip">🎯 <b>Exam takeaway:</b> Anything that matches an EquivalentTo definition gets classified as that class. Adding MORE constraints (like +Roof) makes a class a SUBCLASS of the matching one. This is how OWL builds hierarchies automatically.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 7 — MotorisedBicycle Paradox
+// ============================================================
+modules.push({
+  title: 'The MotorisedBicycle paradox',
+  indicator: '07 / VEHICLE',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--red); color:var(--red)">VEHICLE DEMO — PARADOX</div>
+      <h2 class="module-title">Can a Bicycle have an <i>engine?</i></h2>
+      <p class="module-sub">Spoiler: not in THIS ontology. Watch the reasoner detonate.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP — recall from previous module</div>
+        <div class="code-block"><span class="cls">Bicycle</span> <span class="kw">≡</span> <span class="cls">Vehicle</span> <span class="op">and</span> <span class="op">not</span> (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>)</div>
+        <p>A Bicycle is explicitly defined as a Vehicle that does NOT have an engine.</p>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION — try to bolt an engine onto a Bicycle</div>
+        <div class="code-block"><span class="cls">MotorisedBicycle</span> <span class="kw">SubClassOf</span>:
+    <span class="cls">Bicycle</span> <span class="op">and</span>
+    (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>)</div>
+      </div>
+
+      <div class="step predict" data-q="m7-q1">
+        <div class="step-label">▶ PREDICT — reasoner synchronise</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m7','q1',0,2,'Look at the definitions carefully — Bicycle says NOT engine, new class says YES engine.')">Perfectly fine — it's just a new subclass.</button>
+          <button class="predict-opt" onclick="answer('m7','q1',1,2,'The bug is more fundamental than "no individuals" — the class definition is self-contradictory.')">No problem; just no individuals will ever qualify.</button>
+          <button class="predict-opt" onclick="answer('m7','q1',2,2,'Exactly. MotorisedBicycle says both "no engine" (from Bicycle parent) AND "has engine" (from own restriction). Contradiction. Reasoner flags MotorisedBicycle as unsatisfiable (equivalent to ⊥). In Protégé: class shows as a subclass of owl:Nothing — highlighted red.')">MotorisedBicycle is classified as owl:Nothing / unsatisfiable.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step trap">
+        <div class="step-label">▶ THE MATH</div>
+        <div class="code-block"><span class="cls">MotorisedBicycle</span> ⊑ <span class="cls">Bicycle</span> ⊓ (<span class="prop">hasPart</span> some <span class="cls">Engine</span>)
+                 ⊑ (Vehicle ⊓ ¬(hasPart some Engine)) ⊓ (hasPart some Engine)
+                 ⊑ Vehicle ⊓ [¬P ⊓ P]
+                 ⊑ Vehicle ⊓ ⊥
+                 ⊑ ⊥  <span class="cm">// ⚠️ empty class — can never have instances</span></div>
+        <div class="boom">🚨 Unsatisfiable class: ANY individual placed in MotorisedBicycle would instantly break the ontology.</div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ THE DIFFERENCE FROM MODULE 1'S TRAP</div>
+        <p><b>Module 1 trap:</b> an INDIVIDUAL (alice) violated disjointness. Whole ontology immediately inconsistent.</p>
+        <p><b>This trap:</b> a CLASS is self-contradictory by definition. Ontology is still "consistent" (no individuals in the bad class), but the class itself is marked as equivalent to Nothing. You can't put any individual in it without exploding.</p>
+        <div class="tip">🎯 <b>Exam takeaway:</b> Two types of problems — (1) inconsistent ontology, (2) unsatisfiable class. Protégé shows them differently. Learn to read "class highlighted red + subclass of Nothing" = unsatisfiable.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 8 — OWA + Cardinality Trap
+// ============================================================
+modules.push({
+  title: 'Open World Assumption vs exactly 1',
+  indicator: '08 / VEHICLE',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">VEHICLE DEMO — OWA TWIST</div>
+      <h2 class="module-title">Why <i>"exactly 1"</i> breaks things</h2>
+      <p class="module-sub">The demo shows the subtle ways Open World Assumption ruins intuition — and how to fight back.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP 1 — some Engine (works)</div>
+        <div class="code-block"><span class="cls">Motorbike</span> <span class="kw">≡</span> <span class="cls">Vehicle</span> <span class="op">and</span> (<span class="prop">hasPart</span> <span class="kw">some</span> <span class="cls">Engine</span>)
+
+<span class="ind">engine3434</span> <span class="kw">Type</span> <span class="cls">Engine</span>
+<span class="ind">someVehicle</span> <span class="kw">Type</span> <span class="cls">Vehicle</span>
+<span class="ind">someVehicle</span> <span class="prop">hasPart</span> <span class="ind">engine3434</span></div>
+      </div>
+
+      <div class="step predict" data-q="m8-q1">
+        <div class="step-label">▶ PREDICT 1 — Motorbike?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m8','q1',0,1,'some just means at least 1 exists. It exists — we asserted it.')">No, we need to declare the type.</button>
+          <button class="predict-opt" onclick="answer('m8','q1',1,1,'Correct. Vehicle ✓, hasPart some Engine ✓ (engine3434 is in the bag). Equivalent-class definition matched → Motorbike.')">YES — someVehicle is inferred Motorbike.</button>
+          <button class="predict-opt" onclick="answer('m8','q1',2,1,'No OWA problem here — "some" is easy to satisfy.')">OWA blocks classification.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ CHANGE THE DEFINITION — exactly 1 Engine</div>
+        <div class="code-block"><span class="cls">Motorbike</span> <span class="kw">≡</span> <span class="cls">Vehicle</span> <span class="op">and</span> (<span class="prop">hasPart</span> <span class="kw">exactly</span> 1 <span class="cls">Engine</span>)</div>
+        <p>We tighten the definition: not just "has some engine" but "has EXACTLY ONE engine."</p>
+      </div>
+
+      <div class="step predict" data-q="m8-q2">
+        <div class="step-label">▶ PREDICT 2 — still a Motorbike?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m8','q2',0,1,'OWA says otherwise. This is the classic trap.')">Yes — we declared exactly one engine3434.</button>
+          <button class="predict-opt" onclick="answer('m8','q2',1,1,'EXACTLY. Under OWA, the reasoner thinks: "someVehicle hasPart engine3434. But maybe it ALSO has engine9999 and engine7777 — we haven't been told NOT to assume those exist." So it can't PROVE exactly 1. Classification fails.')">NO — OWA says maybe more engines exist we haven't been told about.</button>
+          <button class="predict-opt" onclick="answer('m8','q2',2,1,'It's not inconsistent — just unprovable. Big difference.')">Ontology inconsistent.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ THE FIX — close the world on someVehicle</div>
+        <div class="code-block"><span class="ind">someVehicle</span> <span class="kw">Type</span>: <span class="prop">hasPart</span> <span class="kw">only</span> {<span class="ind">engine3434</span>}</div>
+        <p>We tell the reasoner: "someVehicle's parts are ONLY this list. No more."</p>
+      </div>
+
+      <div class="step predict" data-q="m8-q3">
+        <div class="step-label">▶ PREDICT 3 — NOW it's a Motorbike?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m8','q3',0,1,'Now the reasoner has enough info.')">Still no — OWA still applies.</button>
+          <button class="predict-opt" onclick="answer('m8','q3',1,1,'Yes! With the closure axiom, the reasoner now proves: "hasPart only {engine3434}" + "engine3434 is Engine" = exactly 1 Engine. Motorbike definition matched. ★')">YES — closure axiom gives enough info to prove "exactly 1 engine."</button>
+          <button class="predict-opt" onclick="answer('m8','q3',2,1,'Closure works at the individual level too, not just class definitions.')">No — closure only works on class definitions.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ THE PATTERN</div>
+        <div class="tip">🎯 <b>OWA-killing recipe:</b><br>
+        • <code>some</code> restrictions are EASY to satisfy — OWA-friendly.<br>
+        • <code>exactly n</code> and <code>only</code> restrictions are HARD — OWA blocks them.<br>
+        • Fix: <b>close the world</b> on the specific individual using <code>hasPart only {thing1, thing2}</code> or <code>differentFrom</code> assertions.<br>
+        This recipe is worth learning — exam questions love it.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 9 — AlbertsBicycle (hasValue recap)
+// ============================================================
+modules.push({
+  title: 'AlbertsBicycle — hasValue recap',
+  indicator: '09 / VEHICLE',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">VEHICLE DEMO — hasValue</div>
+      <h2 class="module-title">Owner-based classification</h2>
+      <p class="module-sub">A clean recap of the hasValue pattern from Module 3 — in a new domain.</p>
+
+      <div class="step setup">
+        <div class="step-label">▶ SETUP</div>
+        <div class="code-block"><span class="cls">Person</span>: class
+<span class="ind">Albert</span> <span class="kw">Type</span> <span class="cls">Person</span>
+
+<span class="prop">hasOwner</span>: <span class="op">owl:ObjectProperty</span>
+
+<span class="cm">// THE KEY DEFINITION</span>
+<span class="cls">AlbertsBicycle</span> <span class="kw">EquivalentTo</span>:
+    <span class="cls">Bicycle</span> <span class="op">and</span> (<span class="prop">hasOwner</span> <span class="kw">value</span> <span class="ind">Albert</span>)</div>
+      </div>
+
+      <div class="step action">
+        <div class="step-label">▶ ACTION</div>
+        <div class="code-block"><span class="ind">whosBicycle</span> <span class="kw">Type</span> <span class="cls">Bicycle</span>
+<span class="ind">whosBicycle</span> <span class="prop">hasOwner</span> <span class="ind">Albert</span></div>
+      </div>
+
+      <div class="step predict" data-q="m9-q1">
+        <div class="step-label">▶ PREDICT — reasoner result?</div>
+        <div class="predict-opts">
+          <button class="predict-opt" onclick="answer('m9','q1',0,2,'No problem here — let's check more carefully.')">Inconsistent ontology.</button>
+          <button class="predict-opt" onclick="answer('m9','q1',1,2,'Equivalent-class definitions DO auto-classify.')">whosBicycle stays just Bicycle.</button>
+          <button class="predict-opt" onclick="answer('m9','q1',2,2,'Yes. Bicycle ✓ + hasOwner value Albert ✓ = matches AlbertsBicycle's equivalent definition. Auto-classified. ★ Protégé shows "AlbertsBicycle" highlighted yellow under Types.')">whosBicycle is inferred AlbertsBicycle.</button>
+        </div>
+        <div class="feedback"></div>
+      </div>
+
+      <div class="step reveal">
+        <div class="step-label">▶ COMPARE hasValue vs some</div>
+        <table>
+          <tr><th>Restriction</th><th>Meaning</th></tr>
+          <tr><td><code>hasOwner value Albert</code></td><td>Owner must be SPECIFICALLY Albert. Not someone else.</td></tr>
+          <tr><td><code>hasOwner some Person</code></td><td>Owner must be SOMEONE who is a Person. Any person.</td></tr>
+          <tr><td><code>hasOwner only Person</code></td><td>IF there's an owner, they must be a Person. Zero owners also OK.</td></tr>
+        </table>
+        <div class="tip">🎯 <b>hasValue</b> is the odd one out — it's the ONLY restriction type that references a specific named individual instead of a class. Remember this for the exam.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 10 — EXAM CHEAT SHEET
+// ============================================================
+modules.push({
+  title: 'EXAM CHEAT SHEET',
+  indicator: '10 / FINAL',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--pink); color:var(--pink)">FINAL — PATTERN DECK</div>
+      <h2 class="module-title">Your <i>exam</i> patterns</h2>
+      <p class="module-sub">7 patterns. Every exam question from these labs reduces to one of these. Memorise all.</p>
+
+      <div class="pattern-card">
+        <h4>① Domain / Range Inference</h4>
+        <p><b>Pattern:</b> If property p has domain C, then <code>x p y</code> implies <code>x : C</code>. Same for range.</p>
+        <div class="code-block"><span class="prop">studies</span> rdfs:domain <span class="cls">Student</span> ;
+        rdfs:range <span class="cls">Course</span> .
+<span class="ind">alice</span> <span class="prop">studies</span> <span class="ind">f20bd</span>
+<span class="cm">→ alice:Student, f20bd:Course (both inferred)</span></div>
+      </div>
+
+      <div class="pattern-card">
+        <h4>② Inverse Property Inference</h4>
+        <p><code>studies owl:inverseOf hasStudent</code>. Assert one, get the flip free.</p>
+        <div class="code-block"><span class="ind">alice</span> <span class="prop">studies</span> <span class="ind">f20bd</span>
+<span class="cm">→ f20bd hasStudent alice (auto)</span></div>
+      </div>
+
+      <div class="pattern-card">
+        <h4>③ hasValue Pattern (specific individual)</h4>
+        <div class="code-block"><span class="cls">JapaneseStudent</span> ≡ <span class="cls">Student</span> and (<span class="prop">residentOf</span> value <span class="ind">Japan</span>)
+<span class="cls">AlbertsBicycle</span> ≡ <span class="cls">Bicycle</span> and (<span class="prop">hasOwner</span> value <span class="ind">Albert</span>)</div>
+        <p>Used to group individuals connected to a specific named individual. Auto-classifies.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>④ Closure Axiom (some + only)</h4>
+        <div class="code-block"><span class="cls">ArtStudent</span> ≡ <span class="cls">Student</span>
+    and (<span class="prop">studies</span> some <span class="cls">ArtCourse</span>)
+    and (<span class="prop">studies</span> only <span class="cls">ArtCourse</span>)
+
+<span class="cm">// For individuals to classify, you must close their world:</span>
+<span class="ind">Jim</span> Type: <span class="prop">studies</span> only {<span class="ind">Dance</span>, <span class="ind">EnglishLit</span>}</div>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑤ Enumerated Class (oneOf)</h4>
+        <div class="code-block"><span class="cls">Academic</span> ≡ <span class="cls">Staff</span> and (<span class="prop">employedAs</span> some {<span class="ind">AP</span>, <span class="ind">AssocP</span>, <span class="ind">Prof</span>})</div>
+        <p>The curly braces = closed list of individuals. Also appears as <code>owl:oneOf (a b c)</code> in Turtle.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑥ Unsatisfiable Class (subclass of ⊥)</h4>
+        <div class="code-block"><span class="cls">MotorisedBicycle</span> ⊑ <span class="cls">Bicycle</span> ⊓ (<span class="prop">hasPart</span> some <span class="cls">Engine</span>)
+<span class="cm">// But Bicycle ≡ ¬(hasPart some Engine)
+// → MotorisedBicycle can never have instances
+// → marked owl:Nothing in Protégé (red!)</span></div>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑦ OWA + Cardinality = can't prove "exactly n"</h4>
+        <div class="code-block"><span class="cls">Motorbike</span> ≡ <span class="cls">Vehicle</span> and (<span class="prop">hasPart</span> exactly 1 <span class="cls">Engine</span>)
+<span class="ind">someVehicle</span> <span class="prop">hasPart</span> <span class="ind">engine3434</span>
+<span class="cm">// NOT classified — maybe other engines exist
+// Fix: close the world:</span>
+<span class="ind">someVehicle</span> Type: <span class="prop">hasPart</span> only {<span class="ind">engine3434</span>}</div>
+      </div>
+
+      <div class="pattern-card">
+        <h4>★ BONUS — Disjoint + Multi-role = CRASH</h4>
+        <p>If X ⊑ A and Y ⊑ B and A disjoint B, then any individual in both X and Y breaks the whole ontology. Fix = remove disjointness or redesign.</p>
+      </div>
+
+      <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, rgba(0,255,157,0.08), rgba(255,59,109,0.08)); border-radius: 12px; text-align: center; border: 1px solid var(--border)">
+        <div style="font-size: 50px; margin-bottom: 10px">🎓</div>
+        <h3 style="font-family: var(--serif); font-size: 26px; margin-bottom: 10px">Labs cleared.</h3>
+        <p style="color: var(--text-dim); margin-bottom: 16px">
+          XP: <b id="final-xp" style="color:var(--yellow)">0</b> ·
+          Correct: <b id="final-correct" style="color:var(--neon)">0</b> / 13
+        </p>
+        <p style="font-size: 14px; color: var(--text-dim); max-width: 540px; margin: 0 auto">
+          You just compressed ~3 hours of Protégé labs into a single pass. Re-run any module by scrolling back. Save the HTML file — it works offline for cram sessions. Good luck, Hamza. 🦉
+        </p>
+      </div>
+    </div>
+  `
+});
+
+// ========== RENDERING ==========
+function render() {
+  const mod = modules[state.current];
+  document.getElementById('content').innerHTML = mod.render();
+  document.getElementById('indicator').textContent = mod.indicator;
+  document.getElementById('mod-num').textContent = `${state.current}/${modules.length-1}`;
+  const pct = (state.current / (modules.length-1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+  document.getElementById('btn-prev').disabled = state.current === 0;
+  document.getElementById('btn-next').textContent = state.current === modules.length-1 ? '★ Done' : 'Next ▶';
+
+  if (state.current === 0) renderTOC();
+
+  if (state.current === modules.length - 1) {
+    setTimeout(() => {
+      const fxp = document.getElementById('final-xp');
+      const fcr = document.getElementById('final-correct');
+      if (fxp) fxp.textContent = state.xp;
+      if (fcr) fcr.textContent = state.correct;
+    }, 100);
+  }
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function renderTOC() {
+  const grid = document.getElementById('toc-grid');
+  if (!grid) return;
+  const labLabels = [
+    '', 'BASIC LAB', 'BASIC LAB', 'ADV LAB', 'ADV LAB', 'ADV LAB',
+    'VEHICLE', 'VEHICLE', 'VEHICLE', 'VEHICLE', 'FINAL'
+  ];
+  grid.innerHTML = modules.slice(1).map((m, i) => `
+    <div class="toc-card" onclick="goTo(${i+1})">
+      <div class="num">SCENARIO ${String(i+1).padStart(2, '0')}</div>
+      <div class="t">${m.title}</div>
+      <div class="lab">${labLabels[i+1]}</div>
+    </div>
+  `).join('');
+}
+
+function goTo(idx) {
+  state.current = idx;
+  render();
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (state.current < modules.length - 1) goTo(state.current + 1);
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (state.current > 0) goTo(state.current - 1);
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPARQL LAB SIMULATOR · Blind-Coding Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0b12;
+  --bg-panel: #15151f;
+  --bg-raised: #1d1d2a;
+  --bg-editor: #08080d;
+  --border: #2a2a3a;
+  --text: #ececf1;
+  --text-dim: #8a8aa0;
+  --neon: #00ff9d;
+  --pink: #ff3b6d;
+  --cyan: #18e0e8;
+  --yellow: #ffd93d;
+  --purple: #a78bfa;
+  --red: #ff4d4d;
+  --serif: 'Fraunces', serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(167,139,250,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(0,255,157,0.06) 0%, transparent 45%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: auto, auto, 40px 40px, 40px 40px;
+}
+.app { max-width: 980px; margin: 0 auto; padding: 24px 20px 140px; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--border);
+}
+.logo { font-family: var(--serif); font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+.logo .sp { color: var(--purple); font-style: italic; }
+.stats { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.stat b { color: var(--yellow); font-family: var(--mono); }
+.progress-wrap { margin-bottom: 36px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+}
+.progress-bar {
+  height: 6px; background: var(--bg-panel); border-radius: 3px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--purple), var(--cyan));
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 12px var(--purple);
+}
+.module { animation: fadeUp 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.module-badge {
+  display: inline-block; font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px; padding: 4px 10px;
+  border: 1px solid var(--purple); color: var(--purple);
+  border-radius: 3px; margin-bottom: 16px;
+}
+.module-title {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05;
+  letter-spacing: -1.5px; margin-bottom: 10px;
+}
+.module-title i { color: var(--pink); font-weight: 400; }
+.module-sub { color: var(--text-dim); font-size: 17px; margin-bottom: 28px; max-width: 640px; }
+
+.block {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; margin-bottom: 18px;
+  position: relative; overflow: hidden;
+}
+.block::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--cyan);
+}
+.block.task::before { background: var(--yellow); }
+.block.hint::before { background: var(--purple); }
+.block.solution::before { background: var(--neon); }
+.block.trap::before { background: var(--red); }
+.block.context::before { background: var(--cyan); }
+
+.block-label {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-dim); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.block.task .block-label { color: var(--yellow); }
+.block.hint .block-label { color: var(--purple); }
+.block.solution .block-label { color: var(--neon); }
+.block.trap .block-label { color: var(--red); }
+.block.context .block-label { color: var(--cyan); }
+
+.block h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.3px; }
+.block p { margin-bottom: 10px; color: #d4d4dc; }
+.block p:last-child { margin-bottom: 0; }
+.block ul { margin-left: 20px; margin-top: 8px; }
+.block li { margin-bottom: 4px; }
+
+code, .code {
+  font-family: var(--mono); background: var(--bg-raised);
+  padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: var(--cyan);
+}
+.code-block {
+  font-family: var(--mono); background: var(--bg-editor);
+  border: 1px solid var(--border); padding: 14px 16px;
+  border-radius: 6px; margin: 12px 0; font-size: 13px;
+  white-space: pre-wrap; color: #d4d4dc; line-height: 1.7;
+  overflow-x: auto;
+}
+.code-block .kw { color: var(--pink); font-weight: 700; }
+.code-block .prefix { color: var(--purple); }
+.code-block .var { color: var(--neon); }
+.code-block .str { color: var(--yellow); }
+.code-block .cm { color: var(--text-dim); font-style: italic; }
+.code-block .num { color: var(--yellow); }
+.code-block .op { color: var(--cyan); }
+
+.tip {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,217,61,0.08);
+  border-left: 2px solid var(--yellow);
+  border-radius: 4px; font-size: 14px;
+}
+.warn {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,59,109,0.08);
+  border-left: 2px solid var(--pink);
+  border-radius: 4px; font-size: 14px;
+}
+
+.editor {
+  background: var(--bg-editor);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.editor:focus-within { border-color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.1); }
+.editor-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #050509; padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1px; border-bottom: 1px solid var(--border);
+}
+.editor-dots { display: flex; gap: 6px; }
+.editor-dots span { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+.editor-dots span:nth-child(1) { background: #ff5f57; }
+.editor-dots span:nth-child(2) { background: #febc2e; }
+.editor-dots span:nth-child(3) { background: #28c840; }
+.editor textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #d4d4dc;
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 16px;
+  resize: vertical;
+  min-height: 160px;
+  line-height: 1.6;
+  outline: none;
+  tab-size: 2;
+}
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.btn {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  padding: 10px 18px; background: transparent; color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.btn:hover { border-color: var(--neon); color: var(--neon); transform: translateY(-1px); }
+.btn-primary {
+  background: var(--neon); color: #000; border-color: var(--neon);
+}
+.btn-primary:hover { background: transparent; color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.3); }
+.btn-hint { background: var(--purple); color: #000; border-color: var(--purple); }
+.btn-hint:hover { background: transparent; color: var(--purple); }
+.btn-reveal { background: var(--yellow); color: #000; border-color: var(--yellow); }
+.btn-reveal:hover { background: transparent; color: var(--yellow); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.self-rate { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.rate-btn {
+  padding: 10px 14px; font-family: var(--mono); font-size: 11px;
+  border: 1px solid var(--border); background: var(--bg-raised);
+  color: var(--text); border-radius: 6px; cursor: pointer;
+  transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+}
+.rate-btn:hover { transform: translateY(-1px); }
+.rate-btn.r-nailed:hover { border-color: var(--neon); color: var(--neon); }
+.rate-btn.r-close:hover { border-color: var(--yellow); color: var(--yellow); }
+.rate-btn.r-missed:hover { border-color: var(--pink); color: var(--pink); }
+.rate-btn.selected.r-nailed { background: var(--neon); color: #000; border-color: var(--neon); }
+.rate-btn.selected.r-close { background: var(--yellow); color: #000; border-color: var(--yellow); }
+.rate-btn.selected.r-missed { background: var(--pink); color: #fff; border-color: var(--pink); }
+
+.hint-content {
+  display: none;
+  margin-top: 12px; padding: 12px 16px;
+  background: rgba(167,139,250,0.08);
+  border-left: 2px solid var(--purple);
+  border-radius: 4px; font-size: 14px;
+  animation: fadeUp 0.3s;
+}
+.hint-content.show { display: block; }
+
+.reveal-content {
+  display: none; margin-top: 14px;
+  animation: fadeUp 0.3s;
+}
+.reveal-content.show { display: block; }
+
+.result-table {
+  width: 100%; border-collapse: collapse; margin: 10px 0;
+  background: var(--bg-editor); border-radius: 6px; overflow: hidden;
+  font-family: var(--mono); font-size: 12px;
+}
+.result-table th, .result-table td {
+  padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.result-table th {
+  background: #050509; color: var(--text-dim);
+  text-transform: uppercase; font-size: 10px; letter-spacing: 1px;
+}
+.result-table td { color: var(--cyan); }
+.result-table tr:last-child td { border-bottom: none; }
+
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(11,11,18,0.95); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border); padding: 14px 20px;
+  z-index: 100;
+}
+.nav-bar-inner {
+  max-width: 980px; margin: 0 auto; width: 100%;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.module-indicator { font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+
+.celebration {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif); font-size: 80px; font-weight: 900;
+  font-style: italic; color: var(--neon);
+  text-shadow: 0 0 30px var(--neon);
+  pointer-events: none; z-index: 200; opacity: 0;
+}
+.celebration.show { animation: celebrate 1.2s ease-out; }
+@keyframes celebrate {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+  70% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.9); }
+}
+
+.hero-start { text-align: center; padding: 40px 10px; }
+.hero-start h1 {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(44px, 9vw, 80px); line-height: 0.95;
+  letter-spacing: -2px; margin-bottom: 18px;
+}
+.hero-start h1 .flash { color: var(--purple); font-style: italic; }
+.hero-start .tagline {
+  font-size: 18px; color: var(--text-dim);
+  max-width: 520px; margin: 0 auto 32px;
+}
+.feat-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+.feat {
+  font-family: var(--mono); font-size: 11px; padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+}
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin: 20px 0; text-align: left;
+}
+.toc-card {
+  padding: 14px 16px; background: var(--bg-panel);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.toc-card:hover { border-color: var(--purple); transform: translateY(-2px); }
+.toc-card .num { font-family: var(--mono); font-size: 10px; color: var(--purple); letter-spacing: 2px; }
+.toc-card .t { font-family: var(--serif); font-size: 16px; font-weight: 700; margin-top: 4px; line-height: 1.2; }
+.toc-card .lab { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; }
+.big-emoji { font-size: 60px; text-align: center; margin: 20px 0; }
+
+table {
+  width: 100%; border-collapse: collapse; margin: 14px 0;
+  font-size: 14px; background: var(--bg-raised);
+  border-radius: 8px; overflow: hidden;
+}
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th {
+  background: #0a0a12; font-family: var(--mono);
+  text-transform: uppercase; font-size: 10px;
+  letter-spacing: 1px; color: var(--text-dim);
+}
+tr:last-child td { border-bottom: none; }
+
+.pattern-card {
+  background: linear-gradient(135deg, rgba(167,139,250,0.04), rgba(24,224,232,0.04));
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin-bottom: 14px;
+}
+.pattern-card h4 {
+  font-family: var(--serif); font-size: 18px; font-weight: 700;
+  margin-bottom: 10px; color: var(--yellow);
+}
+
+::selection { background: var(--purple); color: #000; }
+@media (max-width: 640px) {
+  .app { padding: 16px 14px 180px; }
+  .stats { display: none; }
+  .nav-bar-inner { flex-wrap: wrap; justify-content: center; }
+  .module-indicator { display: none; }
+  .btn { padding: 10px 12px; font-size: 10px; }
+  .editor textarea { font-size: 13px; }
+}
+
+.query-counter {
+  display: inline-block; background: var(--bg-raised);
+  padding: 3px 10px; border-radius: 3px; font-family: var(--mono);
+  font-size: 11px; color: var(--yellow); margin-left: 8px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="logo"><span class="sp">SPARQL</span>.lab</div>
+    <div class="stats">
+      <div class="stat">XP <b id="xp">0</b></div>
+      <div class="stat">NAILED <b id="nailed">0</b></div>
+      <div class="stat">MOD <b id="mod-num">0/10</b></div>
+    </div>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>PROGRESS</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <main id="content"></main>
+</div>
+<div class="nav-bar">
+  <div class="nav-bar-inner">
+    <button class="btn" id="btn-prev">◀ Back</button>
+    <div class="module-indicator" id="indicator">BOOT</div>
+    <button class="btn btn-primary" id="btn-next">Next ▶</button>
+  </div>
+</div>
+<div class="celebration" id="celebration"></div>
+
+<script>
+const state = {
+  current: 0,
+  xp: 0,
+  nailed: 0,
+  rated: {},
+};
+
+function celebrate(text) {
+  const el = document.getElementById('celebration');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show');
+}
+
+function revealSolution(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('show');
+}
+
+function rateQuery(taskId, rating) {
+  if (state.rated[taskId]) return;
+  state.rated[taskId] = rating;
+
+  const buttons = document.querySelectorAll(`[data-rate="${taskId}"] .rate-btn`);
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === rating) b.classList.add('selected');
+  });
+
+  const xpMap = { nailed: 20, close: 10, missed: 3 };
+  state.xp += xpMap[rating];
+  if (rating === 'nailed') {
+    state.nailed += 1;
+    celebrate(['CLEAN', 'NAILED', 'GG', 'SHIP IT', 'BANG'][Math.floor(Math.random()*5)]);
+  } else if (rating === 'close') {
+    celebrate('ALMOST');
+  }
+
+  document.getElementById('xp').textContent = state.xp;
+  document.getElementById('nailed').textContent = state.nailed;
+}
+
+const modules = [];
+
+// ============================================================
+// MODULE 0 — HERO
+// ============================================================
+modules.push({
+  title: 'START',
+  indicator: 'INTRO',
+  render: () => `
+    <div class="hero-start">
+      <h1>SPARQL<br><span class="flash">LAB</span><br>SIMULATOR</h1>
+      <p class="tagline">Blind-coding edition. Read the English. Write the SPARQL from scratch in the editor. Peek hints if stuck. Reveal the official solution. Self-rate. Move on. No copy-pasting from PDF.</p>
+      <div class="feat-row">
+        <span class="feat">14 BLIND TASKS</span>
+        <span class="feat">PROGRESSIVE HINTS</span>
+        <span class="feat">FULL SOLUTIONS</span>
+        <span class="feat">EXAM PATTERNS</span>
+      </div>
+      <div class="big-emoji">🎯</div>
+      <button class="btn btn-primary" style="font-size:16px;padding:14px 28px" onclick="goTo(1)">START BLIND-CODING ▶</button>
+
+      <div style="margin-top:40px; padding:20px; background:var(--bg-panel); border:1px solid var(--border); border-radius:10px; text-align:left">
+        <h3 style="font-family:var(--serif); font-size:18px; margin-bottom:12px; color:var(--yellow)">🧠 How to use this (read once)</h3>
+        <ol style="margin-left:20px; color:var(--text-dim); font-size:14px">
+          <li style="margin-bottom:6px"><b style="color:var(--text)">Read the English.</b> Don't scroll. Don't peek.</li>
+          <li style="margin-bottom:6px"><b style="color:var(--text)">Type your query</b> in the dark editor. Get it wrong, that's fine.</li>
+          <li style="margin-bottom:6px"><b style="color:var(--text)">Click HINT</b> only if genuinely stuck — it costs nothing but pride.</li>
+          <li style="margin-bottom:6px"><b style="color:var(--text)">Click REVEAL</b> to see the official solution. Compare honestly.</li>
+          <li><b style="color:var(--text)">Self-rate</b>: Nailed it / Close / Missed it. This trains your metacognition.</li>
+        </ol>
+      </div>
+
+      <div style="margin-top:40px">
+        <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:16px; color:var(--cyan); text-align:left">The lab sprint:</h3>
+        <div class="toc-grid" id="toc-grid"></div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 1 — SPARQL Anatomy + Warm-up
+// ============================================================
+modules.push({
+  title: 'Anatomy + first query',
+  indicator: '01 / WARM-UP',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">WARM-UP</div>
+      <h2 class="module-title">SPARQL <i>anatomy</i> — 60 second recap</h2>
+      <p class="module-sub">Before we blind-code, lock the structure. Every SPARQL query has these pieces in this exact order.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ THE TEMPLATE (memorise order)</div>
+        <div class="code-block"><span class="kw">PREFIX</span> <span class="prefix">foaf:</span> <span class="op">&lt;http://xmlns.com/foaf/0.1/&gt;</span>        <span class="cm"># 1. Namespaces (no @, no trailing dot!)</span>
+<span class="kw">PREFIX</span> <span class="prefix">ex:</span> <span class="op">&lt;http://example.org/&gt;</span>
+
+<span class="kw">SELECT</span> <span class="var">?name</span> <span class="var">?age</span>                             <span class="cm"># 2. Query type + vars</span>
+
+<span class="kw">FROM</span> <span class="op">&lt;http://example.org/mygraph&gt;</span>               <span class="cm"># 3. Graph (optional)</span>
+
+<span class="kw">WHERE</span> {                                          <span class="cm"># 4. Triple patterns</span>
+  <span class="var">?person</span> <span class="prefix">foaf:</span>name <span class="var">?name</span> .
+  <span class="var">?person</span> <span class="prefix">foaf:</span>age <span class="var">?age</span> .
+  <span class="kw">FILTER</span> (<span class="var">?age</span> <span class="op">&gt;</span> <span class="num">18</span>)
+}
+
+<span class="kw">ORDER BY</span> <span class="var">?name</span>                                   <span class="cm"># 5. Modifiers</span>
+<span class="kw">LIMIT</span> <span class="num">10</span></div>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ PREFIX GOTCHA (exam trap!)</div>
+        <table>
+          <tr><th>Context</th><th>Syntax</th></tr>
+          <tr><td>Turtle (data files)</td><td><code>@prefix foaf: &lt;...&gt; .</code> (has @ and trailing dot)</td></tr>
+          <tr><td>SPARQL (queries)</td><td><code>PREFIX foaf: &lt;...&gt;</code> (NO @, NO dot)</td></tr>
+        </table>
+        <div class="warn">⚠️ Dropping this in the exam gets you marked wrong even if the logic is perfect.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 1 — WARM UP <span class="query-counter">BLIND</span></div>
+        <h3>Write the simplest query that exists.</h3>
+        <p><b>English:</b> Select the first 100 distinct triples from any graph. Show Subject, Predicate, Object.</p>
+        <p><b>This is query #1 from the DBpedia demo.</b> Don't overthink it.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?Subject ?Predicate ?Object
+WHERE {
+  ...
+}
+LIMIT ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h1-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r1-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h1-1">
+          💡 You need 3 variables. The triple pattern uses all three as variables: <code>?Subject ?Predicate ?Object</code>. Add <code>LIMIT 100</code> at the end.
+        </div>
+        <div class="reveal-content" id="r1-1">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span> <span class="var">?Predicate</span> <span class="var">?Object</span>
+<span class="kw">WHERE</span> { <span class="var">?Subject</span> <span class="var">?Predicate</span> <span class="var">?Object</span> }
+<span class="kw">LIMIT</span> <span class="num">100</span></div>
+          <div class="tip">🎯 Why it works: Three variables match ANY triple. Triples come back unfiltered. <code>DISTINCT</code> removes duplicates. <code>LIMIT</code> keeps it snappy since DBpedia has billions of triples.</div>
+          <div class="self-rate" data-rate="1-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('1-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('1-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('1-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 2 — DBpedia Demo Queries (Lab 4 Part 1)
+// ============================================================
+modules.push({
+  title: 'DBpedia demo — Canaletto patterns',
+  indicator: '02 / DEMO',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">LAB 4 PART 1 — DEMO</div>
+      <h2 class="module-title">Canaletto <i>pattern drills</i></h2>
+      <p class="module-sub">The DBpedia demo builds up complexity step-by-step. Each task teaches one pattern. Do them blind — no peeking.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — DBpedia namespaces</div>
+        <table>
+          <tr><th>Prefix</th><th>Full URI</th><th>For</th></tr>
+          <tr><td><code>dbo:</code></td><td>http://dbpedia.org/ontology/</td><td>Properties like <code>dbo:author</code>, <code>dbo:birthPlace</code></td></tr>
+          <tr><td><code>dbr:</code></td><td>http://dbpedia.org/resource/</td><td>Entities like <code>dbr:Canaletto</code>, <code>dbr:Tokyo</code></td></tr>
+          <tr><td><code>dbp:</code></td><td>http://dbpedia.org/property/</td><td>Raw Wikipedia infobox props</td></tr>
+        </table>
+        <div class="tip">💡 DBpedia's SPARQL endpoint pre-loads these prefixes, so in the Virtuoso editor you don't need to write PREFIX statements. But in the exam you MUST write them if asked.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 2 — WHO AUTHORED WHAT? <span class="query-counter">BLIND</span></div>
+        <h3>Get 500 author-work pairs.</h3>
+        <p><b>English:</b> Select distinct pairs of Subject, Object where Subject has a <code>dbo:author</code> relationship to Object. Limit 500.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?Subject ?Object
+WHERE {
+  ...
+}
+LIMIT ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h2-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r2-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h2-1">
+          💡 Subject = the work, Object = the author. Predicate is fixed: <code>dbo:author</code>. Put two variables on the sides.
+        </div>
+        <div class="reveal-content" id="r2-1">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span> <span class="var">?Object</span>
+<span class="kw">WHERE</span> { <span class="var">?Subject</span> <span class="prefix">dbo:</span>author <span class="var">?Object</span> }
+<span class="kw">LIMIT</span> <span class="num">500</span></div>
+          <div class="self-rate" data-rate="2-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('2-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('2-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('2-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 3 — WHAT DID CANALETTO PAINT? <span class="query-counter">BLIND</span></div>
+        <h3>Find every work where the author is specifically Canaletto.</h3>
+        <p><b>English:</b> Select distinct Subjects where the <code>dbo:author</code> is <code>dbr:Canaletto</code>. Limit 500.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?...
+WHERE {
+  ?... dbo:author ... .
+}
+LIMIT ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h2-2')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r2-2')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h2-2">
+          💡 This time the Object is NOT a variable — it's a known IRI: <code>dbr:Canaletto</code>. Only Subject is a variable.
+        </div>
+        <div class="reveal-content" id="r2-2">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span>
+<span class="kw">WHERE</span> { <span class="var">?Subject</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto }
+<span class="kw">LIMIT</span> <span class="num">500</span></div>
+          <div class="tip">🎯 Patterns can mix variables and constants. This is how you pivot a search around a specific entity.</div>
+          <div class="self-rate" data-rate="2-2">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('2-2','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('2-2','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('2-2','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 4 — JOIN PATTERN: CANALETTO WORKS + MUSEUMS <span class="query-counter">BLIND</span></div>
+        <h3>Show which museums display Canaletto's works.</h3>
+        <p><b>English:</b> For each work by Canaletto, also return the museum where it's displayed. Use <code>dbo:museum</code>. Limit 500.</p>
+        <p><b>Twist:</b> Write it TWO ways — once with a full stop after each triple, once with a semicolon shorthand.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="# Version A: with full stops
+
+SELECT DISTINCT ?Subject ?Museum
+WHERE {
+  ...
+}
+
+# Version B: with semicolons (same subject shorthand)
+"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h2-3')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r2-3')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h2-3">
+          💡 Both triples share the same Subject (<code>?Subject</code>). Version A: repeat <code>?Subject</code> on each line, separate with <b>.</b><br>Version B: write <code>?Subject</code> once, separate multiple predicate-object pairs with <b>;</b>
+        </div>
+        <div class="reveal-content" id="r2-3">
+          <p style="margin-bottom:6px"><b>Version A — with full stops:</b></p>
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span> <span class="var">?Museum</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?Subject</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto .
+  <span class="var">?Subject</span> <span class="prefix">dbo:</span>museum <span class="var">?Museum</span>
+}
+<span class="kw">LIMIT</span> <span class="num">500</span></div>
+          <p style="margin:10px 0 6px"><b>Version B — with semicolons (same subject shorthand):</b></p>
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span> <span class="var">?Museum</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?Subject</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto ;
+           <span class="prefix">dbo:</span>museum <span class="var">?Museum</span>
+}
+<span class="kw">LIMIT</span> <span class="num">500</span></div>
+          <div class="tip">🎯 The <b>;</b> is shorthand for "same subject as previous line." Saves typing when a single subject has many properties. Exam loves asking you to convert between them.</div>
+          <div class="self-rate" data-rate="2-3">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('2-3','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('2-3','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('2-3','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 5 — DOUBLE-CONSTANT QUERY <span class="query-counter">BLIND</span></div>
+        <h3>Which of Canaletto's works are in the Galleria nazionale di Parma?</h3>
+        <p><b>English:</b> Same pattern as before, but now BOTH author and museum are known. Only ?Subject is variable.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?Subject
+WHERE {
+  ...
+}
+LIMIT ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h2-4')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r2-4')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h2-4">
+          💡 Replace <code>?Museum</code> with <code>dbr:Galleria_nazionale_di_Parma</code>. That's it. Semicolon shorthand still works.
+        </div>
+        <div class="reveal-content" id="r2-4">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?Subject</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?Subject</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto ;
+           <span class="prefix">dbo:</span>museum <span class="prefix">dbr:</span>Galleria_nazionale_di_Parma
+}
+<span class="kw">LIMIT</span> <span class="num">500</span></div>
+          <div class="tip">🎯 Underscores in resource IRIs replace spaces. <code>dbr:Galleria_nazionale_di_Parma</code> ≠ <code>dbr:Galleria nazionale di Parma</code>. The endpoint won't match the latter.</div>
+          <div class="self-rate" data-rate="2-4">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('2-4','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('2-4','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('2-4','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 3 — Authors from Tokyo / New York (the MAIN Task 2)
+// ============================================================
+modules.push({
+  title: 'Task 2 — Authors from a city',
+  indicator: '03 / LAB TASK 2',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">LAB 4 — MAIN TASK 2 (HIGH VALUE)</div>
+      <h2 class="module-title">Authors <i>born in</i> a city</h2>
+      <p class="module-sub">This is THE canonical lab question. It teaches the JOIN pattern: combining two triple patterns by sharing a variable. Write it from memory.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — what predicates you need</div>
+        <p>To answer "who are the authors born in X?" you need TWO facts per result:</p>
+        <ul>
+          <li>The author must be born in X → <code>?author dbo:birthPlace dbr:X</code></li>
+          <li>They must actually BE an author (authored something) → <code>?work dbo:author ?author</code></li>
+        </ul>
+        <div class="tip">💡 The second pattern "joins" the first: <code>?author</code> appears in both. This is how SPARQL joins — shared variables.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 6 — AUTHORS BORN IN TOKYO <span class="query-counter">BLIND</span></div>
+        <h3>List every distinct author who (a) was born in Tokyo AND (b) has authored at least one work.</h3>
+        <p><b>Ordering:</b> Alphabetically by author IRI.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?author
+WHERE {
+  # two triple patterns here, joined on ?author
+  ...
+}
+ORDER BY ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h3-1a')">💡 Hint 1</button>
+          <button class="btn btn-hint" onclick="toggleHint('h3-1b')">💡 Hint 2</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r3-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h3-1a">
+          💡 Hint 1: You only SELECT <code>?author</code>. But your WHERE needs TWO patterns — one about the author's birthplace, one tying them to a work.
+        </div>
+        <div class="hint-content" id="h3-1b">
+          💡 Hint 2: <code>?author dbo:birthPlace dbr:Tokyo</code> filters by city. <code>?work dbo:author ?author</code> proves they authored something. The <code>?author</code> variable appears in both — that's the join.
+        </div>
+        <div class="reveal-content" id="r3-1">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?author</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?author</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>Tokyo .
+  <span class="var">?work</span> <span class="prefix">dbo:</span>author <span class="var">?author</span> .
+}
+<span class="kw">ORDER BY</span> <span class="var">?author</span></div>
+          <p style="margin-top:10px"><b>Sample results:</b></p>
+          <table class="result-table">
+            <tr><th>author</th></tr>
+            <tr><td>http://dbpedia.org/resource/Banana_Yoshimoto</td></tr>
+            <tr><td>http://dbpedia.org/resource/Chiaki_J._Konaka</td></tr>
+            <tr><td>http://dbpedia.org/resource/Fumiko_Enchi</td></tr>
+            <tr><td>http://dbpedia.org/resource/Gen_Urobuchi</td></tr>
+            <tr><td>...</td></tr>
+          </table>
+          <div class="tip">🎯 <b>The JOIN pattern is the #1 SPARQL skill.</b> "People who do X AND have property Y" always means: two triple patterns sharing a variable.</div>
+          <div class="self-rate" data-rate="3-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('3-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('3-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('3-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 7 — NEW YORK VERSION + AUTHOR NAMES <span class="query-counter">BLIND</span></div>
+        <h3>Now return author NAMES, not just IRIs, for authors born in New York.</h3>
+        <p><b>English:</b> Like Task 6 but (a) use New York instead of Tokyo, (b) also fetch the name via <code>dbp:name</code>, (c) return <code>?author ?Name</code>.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?author ?Name
+WHERE {
+  ...
+  ...
+  ?author dbp:name ?Name .
+}
+ORDER BY ?author"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h3-2')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r3-2')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h3-2">
+          💡 <b>Three</b> triple patterns now: birthPlace, name, authorship. All three share <code>?author</code>. Use <code>dbr:New_York_City</code> (underscore!).
+        </div>
+        <div class="reveal-content" id="r3-2">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?author</span> <span class="var">?Name</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?author</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>New_York_City .
+  <span class="var">?author</span> <span class="prefix">dbp:</span>name <span class="var">?Name</span> .
+  <span class="var">?work</span> <span class="prefix">dbo:</span>author <span class="var">?author</span> .
+}
+<span class="kw">ORDER BY</span> <span class="var">?author</span></div>
+          <div class="warn">⚠️ <b>Trap:</b> <code>dbo:birthPlace</code> (ontology) vs <code>dbp:birthPlace</code> (raw infobox). They're different predicates! The lab uses <code>dbo:</code> — the cleaned, typed version. Use <code>dbp:</code> only when told to.</div>
+          <div class="self-rate" data-rate="3-2">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('3-2','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('3-2','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('3-2','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 4 — FILTER: distance > 20km
+// ============================================================
+modules.push({
+  title: 'Task 3 — FILTER with numbers',
+  indicator: '04 / LAB TASK 3',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">LAB 4 — TASK 3A</div>
+      <h2 class="module-title">FILTER on <i>numeric</i> values</h2>
+      <p class="module-sub">When you need "greater than" or "less than", FILTER is your tool.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — FILTER mechanics</div>
+        <div class="code-block"><span class="kw">FILTER</span> (<span class="var">?price</span> <span class="op">&gt;</span> <span class="num">100</span>)                    <span class="cm"># numeric</span>
+<span class="kw">FILTER</span> (<span class="var">?price</span> <span class="op">&gt;</span> <span class="num">100</span> <span class="op">&amp;&amp;</span> <span class="var">?price</span> <span class="op">&lt;</span> <span class="num">500</span>)   <span class="cm"># range (no BETWEEN!)</span>
+<span class="kw">FILTER</span> (<span class="kw">regex</span>(<span class="var">?name</span>, <span class="str">"^Bob"</span>))         <span class="cm"># regex</span>
+<span class="kw">FILTER</span> (<span class="kw">lang</span>(<span class="var">?label</span>) <span class="op">=</span> <span class="str">"en"</span>)            <span class="cm"># language tag</span></div>
+        <div class="warn">⚠️ SPARQL has no <code>BETWEEN</code>. Use <code>FILTER (?x &gt; a && ?x &lt; b)</code>.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 8 — PLACES FAR FROM EDINBURGH <span class="query-counter">BLIND</span></div>
+        <h3>Find all places more than 20km from Edinburgh. Sort by distance.</h3>
+        <p><b>Context:</b> DBpedia has a predicate <code>dbo:distanceToEdinburgh</code> that gives distance in metres. 20km = 20000m.</p>
+        <p><b>Return:</b> <code>?S</code> (place), <code>?Distance</code>.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?S ?Distance
+WHERE {
+  ?S dbo:distanceToEdinburgh ?Distance .
+  FILTER (...)
+}
+ORDER BY ?Distance"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h4-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r4-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h4-1">
+          💡 Bind distance to <code>?Distance</code> in the pattern. Then FILTER it > 20000 (metres). ORDER BY <code>?Distance</code> defaults to ascending.
+        </div>
+        <div class="reveal-content" id="r4-1">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?S</span> <span class="var">?Distance</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?S</span> <span class="prefix">dbo:</span>distanceToEdinburgh <span class="var">?Distance</span> .
+  <span class="kw">FILTER</span> (<span class="var">?Distance</span> <span class="op">&gt;</span> <span class="num">20000</span>) .
+}
+<span class="kw">ORDER BY</span> <span class="var">?Distance</span></div>
+          <p style="margin-top:10px"><b>Sample results:</b></p>
+          <table class="result-table">
+            <tr><th>S</th><th>Distance</th></tr>
+            <tr><td>Livingston, West Lothian</td><td>20921.5</td></tr>
+            <tr><td>Blackness, Falkirk</td><td>21565.2</td></tr>
+            <tr><td>Bo'ness</td><td>27197.9</td></tr>
+            <tr><td>Grangemouth</td><td>33796.2</td></tr>
+          </table>
+          <div class="self-rate" data-rate="4-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('4-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('4-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('4-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 5 — FILTER regex
+// ============================================================
+modules.push({
+  title: 'Task 3 — FILTER regex (postcodes)',
+  indicator: '05 / LAB TASK 3B',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">LAB 4 — TASK 3B</div>
+      <h2 class="module-title">FILTER <i>regex</i> — string patterns</h2>
+      <p class="module-sub">When numbers aren't enough. Regex inside FILTER lets you match strings by pattern.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — regex basics for SPARQL</div>
+        <table>
+          <tr><th>Pattern</th><th>Meaning</th></tr>
+          <tr><td><code>"^EH"</code></td><td>starts with "EH"</td></tr>
+          <tr><td><code>"son$"</code></td><td>ends with "son"</td></tr>
+          <tr><td><code>".*Hadji.*"</code></td><td>contains "Hadji"</td></tr>
+          <tr><td><code>"^EH[0-9]+"</code></td><td>"EH" followed by digits</td></tr>
+        </table>
+        <div class="code-block"><span class="kw">FILTER</span> (<span class="kw">regex</span>(<span class="var">?string</span>, <span class="str">"pattern"</span>))              <span class="cm"># basic</span>
+<span class="kw">FILTER</span> (<span class="kw">regex</span>(<span class="var">?string</span>, <span class="str">"pattern"</span>, <span class="str">"i"</span>))         <span class="cm"># case-insensitive</span></div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 9 — EH POSTCODES + DISTANCE <span class="query-counter">BLIND</span></div>
+        <h3>List all places with postcode starting "EH", plus their distance to Edinburgh. Sort by distance.</h3>
+        <p><b>Predicates:</b> <code>dbo:postalCode</code>, <code>dbo:distanceToEdinburgh</code>.</p>
+        <p><b>Return:</b> <code>?S ?Distance ?PCode</code>.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT DISTINCT ?S ?Distance ?PCode
+WHERE {
+  ?S dbo:distanceToEdinburgh ?Distance ;
+     dbo:postalCode ?PCode .
+  FILTER (regex(...))
+}
+ORDER BY ?Distance"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h5-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r5-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h5-1">
+          💡 Two triples with same subject → use semicolon shortcut. Regex pattern: <code>"^EH*"</code> matches anything starting with "EH". Note: the official solution uses <code>^EH*</code> — technically <code>^EH</code> alone is cleaner but both work.
+        </div>
+        <div class="reveal-content" id="r5-1">
+          <div class="code-block"><span class="kw">SELECT DISTINCT</span> <span class="var">?S</span> <span class="var">?Distance</span> <span class="var">?PCode</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?S</span> <span class="prefix">dbo:</span>distanceToEdinburgh <span class="var">?Distance</span> ;
+     <span class="prefix">dbo:</span>postalCode <span class="var">?PCode</span> .
+  <span class="kw">FILTER</span> (<span class="kw">regex</span>(<span class="var">?PCode</span>, <span class="str">"^EH*"</span>)) .
+}
+<span class="kw">ORDER BY</span> <span class="var">?Distance</span></div>
+          <p style="margin-top:10px"><b>Sample results:</b></p>
+          <table class="result-table">
+            <tr><th>S</th><th>Distance</th><th>PCode</th></tr>
+            <tr><td>Gilmerton</td><td>6437.38</td><td>"EH17"</td></tr>
+            <tr><td>Carberry, East Lothian</td><td>12874.8</td><td>"EH21"</td></tr>
+            <tr><td>Livingston Village</td><td>20921.5</td><td>"EH54"</td></tr>
+          </table>
+          <div class="self-rate" data-rate="5-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('5-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('5-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('5-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 6 — AVG (simple aggregate)
+// ============================================================
+modules.push({
+  title: 'Task 4 — AVG (aggregation)',
+  indicator: '06 / LAB TASK 4A',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">LAB 4 — TASK 4A (AGGREGATION)</div>
+      <h2 class="module-title">SPARQL <i>1.1</i> — aggregates</h2>
+      <p class="module-sub">COUNT, SUM, AVG, MIN, MAX. Just like SQL. First the simple case: no grouping.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — simple aggregate (no GROUP BY)</div>
+        <p>When you compute ONE number over ALL results — no grouping needed:</p>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?x</span>)
+<span class="kw">WHERE</span> { <span class="var">?s</span> <span class="prefix">ex:</span>value <span class="var">?x</span> }</div>
+        <p>Returns a single row with the average across all matched <code>?x</code> values.</p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 10 — AVERAGE DISTANCE TO EDINBURGH <span class="query-counter">BLIND</span></div>
+        <h3>Compute the average distance of all places to Edinburgh.</h3>
+        <p><b>Return:</b> A single number — the average of <code>dbo:distanceToEdinburgh</code> across all entities that have it.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT avg(?Distance)
+WHERE {
+  ?S dbo:distanceToEdinburgh ?Distance .
+}"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h6-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r6-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h6-1">
+          💡 No GROUP BY needed — we want ONE number. Just wrap <code>avg(...)</code> around the variable in the SELECT. WHERE binds the variable to all distance values.
+        </div>
+        <div class="reveal-content" id="r6-1">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?Distance</span>)
+<span class="kw">WHERE</span> {
+  <span class="var">?S</span> <span class="prefix">dbo:</span>distanceToEdinburgh <span class="var">?Distance</span> .
+}</div>
+          <p style="margin-top:10px"><b>Result (one row):</b></p>
+          <table class="result-table">
+            <tr><th>callret-0</th></tr>
+            <tr><td>101806.436254060606212</td></tr>
+          </table>
+          <div class="tip">🎯 The auto-generated column name is ugly (<code>callret-0</code>). Use <code>AS ?prettyName</code> to rename it — you'll need this in the next task.</div>
+          <div class="self-rate" data-rate="6-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('6-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('6-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('6-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 7 — GROUP BY
+// ============================================================
+modules.push({
+  title: 'Task 4 — GROUP BY',
+  indicator: '07 / LAB TASK 4B',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">LAB 4 — TASK 4B (GROUP BY)</div>
+      <h2 class="module-title">GROUP BY <i>per postcode</i></h2>
+      <p class="module-sub">The classic aggregation pattern: bucket results by a variable, then compute aggregate per bucket.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ CONTEXT — GROUP BY pattern</div>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?x</span>) <span class="kw">as</span> <span class="var">?Avg</span>, <span class="var">?bucket</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?s</span> <span class="prefix">ex:</span>value <span class="var">?x</span> ;
+     <span class="prefix">ex:</span>category <span class="var">?bucket</span> .
+}
+<span class="kw">GROUP BY</span> <span class="var">?bucket</span>
+<span class="kw">ORDER BY</span> <span class="var">?Avg</span></div>
+        <div class="tip">💡 Rule: every non-aggregated variable in SELECT must appear in GROUP BY.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 11 — AVG DISTANCE PER POSTCODE AREA <span class="query-counter">BLIND</span></div>
+        <h3>For each postcode area (EH, KY, FK, ...), compute the average distance. Order by average distance.</h3>
+        <p><b>Predicates:</b> <code>dbo:distanceToEdinburgh</code>, <code>dbo:postalCode</code>.</p>
+        <p><b>Return:</b> <code>?Avg</code>, <code>?Area</code> — renamed average and the postcode area.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT avg(?Distance) as ?Avg, ?Area
+WHERE {
+  ?S dbo:distanceToEdinburgh ?Distance ;
+     dbo:postalCode ?Area .
+}
+GROUP BY ...
+ORDER BY ..."></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h7-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r7-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h7-1">
+          💡 You have TWO SELECTed items: the aggregate <code>avg(?Distance) as ?Avg</code> and the group key <code>?Area</code>. The group key MUST appear in GROUP BY.
+        </div>
+        <div class="reveal-content" id="r7-1">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?Distance</span>) <span class="kw">as</span> <span class="var">?Avg</span>, <span class="var">?Area</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?S</span> <span class="prefix">dbo:</span>distanceToEdinburgh <span class="var">?Distance</span> ;
+     <span class="prefix">dbo:</span>postalCode <span class="var">?Area</span> .
+}
+<span class="kw">GROUP BY</span> <span class="var">?Area</span>
+<span class="kw">ORDER BY</span> <span class="var">?Avg</span></div>
+          <p style="margin-top:10px"><b>Sample results:</b></p>
+          <table class="result-table">
+            <tr><th>Avg</th><th>Area</th></tr>
+            <tr><td>6437.376</td><td>"EH17"</td></tr>
+            <tr><td>10460.736</td><td>"EH21"</td></tr>
+            <tr><td>12070.08</td><td>"KY3"</td></tr>
+            <tr><td>13679.424</td><td>"EH26"</td></tr>
+          </table>
+          <div class="self-rate" data-rate="7-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('7-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('7-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('7-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 8 — HAVING
+// ============================================================
+modules.push({
+  title: 'Task 4 — HAVING (filter groups)',
+  indicator: '08 / LAB TASK 4C',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--red); color:var(--red)">LAB 4 — TASK 4C (EXAM TRAP)</div>
+      <h2 class="module-title">HAVING <i>≠</i> FILTER</h2>
+      <p class="module-sub">Single most common SPARQL exam trap. Filter removes rows BEFORE grouping. HAVING removes groups AFTER.</p>
+
+      <div class="block trap">
+        <div class="block-label">▶ THE CRITICAL DIFFERENCE</div>
+        <table>
+          <tr><th></th><th>FILTER</th><th>HAVING</th></tr>
+          <tr><td>When?</td><td>BEFORE grouping</td><td>AFTER grouping</td></tr>
+          <tr><td>Operates on?</td><td>Individual rows</td><td>Aggregated groups</td></tr>
+          <tr><td>Can use <code>avg()</code>?</td><td>❌ No — rows aren't aggregated yet</td><td>✅ Yes — that's the point</td></tr>
+          <tr><td>Example</td><td><code>FILTER(?age &gt; 18)</code></td><td><code>HAVING(COUNT(*) &gt; 5)</code></td></tr>
+        </table>
+        <div class="warn">🎯 <b>Memory trick:</b> FILTER is row-level, HAVING is group-level. If you use an aggregate function in the condition, you MUST use HAVING.</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 12 — ONLY AREAS WITH AVG &gt; 200km <span class="query-counter">BLIND</span></div>
+        <h3>Same as Task 11, but only show postcode areas where the average distance is greater than 200000m (200km).</h3>
+        <p>Starting from your previous query, just add ONE more clause. Careful — FILTER won't work here (why?).</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT avg(?Distance) as ?Avg, ?Area
+WHERE {
+  ?S dbo:distanceToEdinburgh ?Distance ;
+     dbo:postalCode ?Area .
+}
+GROUP BY ?Area
+HAVING (...)
+ORDER BY ?Avg"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h8-1a')">💡 Hint 1</button>
+          <button class="btn btn-hint" onclick="toggleHint('h8-1b')">💡 Hint 2</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r8-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h8-1a">
+          💡 Hint 1: FILTER can't reference <code>avg(?Distance)</code> because at the point FILTER runs, rows aren't grouped yet — there's no "average" concept. That's why HAVING exists.
+        </div>
+        <div class="hint-content" id="h8-1b">
+          💡 Hint 2: HAVING goes AFTER GROUP BY. Inside HAVING you use the same aggregate: <code>HAVING (avg(?Distance) &gt; 200000)</code>.
+        </div>
+        <div class="reveal-content" id="r8-1">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?Distance</span>) <span class="kw">as</span> <span class="var">?Avg</span>, <span class="var">?Area</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?S</span> <span class="prefix">dbo:</span>distanceToEdinburgh <span class="var">?Distance</span> ;
+     <span class="prefix">dbo:</span>postalCode <span class="var">?Area</span> .
+}
+<span class="kw">GROUP BY</span> <span class="var">?Area</span>
+<span class="kw">HAVING</span> (<span class="kw">avg</span>(<span class="var">?Distance</span>) <span class="op">&gt;</span> <span class="num">200000</span>)
+<span class="kw">ORDER BY</span> <span class="var">?Avg</span></div>
+          <div class="tip">🎯 <b>Exam pattern to remember:</b><br>
+          • "Show items where value &gt; X" → <code>FILTER</code> (row-level)<br>
+          • "Show groups where average/count/sum &gt; X" → <code>HAVING</code> (group-level)</div>
+          <div class="self-rate" data-rate="8-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('8-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('8-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('8-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 9 — BONUS patterns: OPTIONAL, UNION, property paths, ASK
+// ============================================================
+modules.push({
+  title: 'BONUS — OPTIONAL, UNION, paths, ASK',
+  indicator: '09 / BONUS',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">BONUS PATTERNS (EXAM EXTENSIONS)</div>
+      <h2 class="module-title">The <i>other</i> patterns</h2>
+      <p class="module-sub">Beyond the labs — patterns the exam loves. Quick drills.</p>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 13 — OPTIONAL (left join) <span class="query-counter">BLIND</span></div>
+        <h3>Show all authors and their webpage IF they have one.</h3>
+        <p><b>English:</b> Every author should appear, even if they have no webpage. Predicates: <code>?author rdf:type foaf:Person</code>, <code>?author foaf:name ?name</code>, <code>?author foaf:homepage ?page</code> (optional).</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT ?author ?name ?page
+WHERE {
+  ...required patterns here...
+  OPTIONAL { ... }
+}"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h9-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r9-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h9-1">
+          💡 OPTIONAL = left join in SQL. Anything inside <code>OPTIONAL { ... }</code> doesn't exclude rows when missing. Name is required, homepage is optional.
+        </div>
+        <div class="reveal-content" id="r9-1">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="var">?author</span> <span class="var">?name</span> <span class="var">?page</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?author</span> <span class="kw">a</span> <span class="prefix">foaf:</span>Person ;
+          <span class="prefix">foaf:</span>name <span class="var">?name</span> .
+  <span class="kw">OPTIONAL</span> { <span class="var">?author</span> <span class="prefix">foaf:</span>homepage <span class="var">?page</span> }
+}</div>
+          <div class="tip">🎯 Without OPTIONAL, authors without homepages would be excluded entirely. OPTIONAL adds the homepage if present, leaves <code>?page</code> unbound otherwise.</div>
+          <div class="self-rate" data-rate="9-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('9-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('9-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('9-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 14 — UNION (OR) <span class="query-counter">BLIND</span></div>
+        <h3>Find people born in Tokyo OR Osaka.</h3>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT ?person
+WHERE {
+  { ... pattern A ... }
+  UNION
+  { ... pattern B ... }
+}"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h9-2')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r9-2')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h9-2">
+          💡 Two alternative patterns, each in its own braces, joined by <code>UNION</code>. The variable <code>?person</code> binds to results from EITHER match.
+        </div>
+        <div class="reveal-content" id="r9-2">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="var">?person</span>
+<span class="kw">WHERE</span> {
+  { <span class="var">?person</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>Tokyo }
+  <span class="kw">UNION</span>
+  { <span class="var">?person</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>Osaka }
+}</div>
+          <div class="tip">🎯 <b>UNION vs OPTIONAL:</b> UNION = "match A OR B, return whichever matches." OPTIONAL = "always match A, additionally try to match B." Different intents!</div>
+          <div class="self-rate" data-rate="9-2">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('9-2','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('9-2','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('9-2','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 15 — PROPERTY PATHS (transitive) <span class="query-counter">BLIND</span></div>
+        <h3>Find everyone Alice knows, directly OR indirectly (1+ hops).</h3>
+        <p><b>English:</b> Using <code>foaf:knows</code>, find all people reachable from Alice via one or more hops.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="SELECT ?connection
+WHERE {
+  :Alice foaf:knows... ?connection .
+}"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h9-3')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r9-3')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h9-3">
+          💡 Property path operators: <code>+</code> means "1 or more hops", <code>*</code> means "0 or more hops", <code>?</code> means "0 or 1 hop".
+        </div>
+        <div class="reveal-content" id="r9-3">
+          <div class="code-block"><span class="kw">SELECT</span> <span class="var">?connection</span>
+<span class="kw">WHERE</span> {
+  <span class="prefix">:</span>Alice <span class="prefix">foaf:</span>knows<span class="op">+</span> <span class="var">?connection</span> .
+}</div>
+          <div class="tip">🎯 <code>foaf:knows+</code> walks 1+ edges. If Alice knows Bob, Bob knows Charlie, Charlie knows Dana → returns all three. Use <code>*</code> (zero or more) to include Alice herself.</div>
+          <div class="self-rate" data-rate="9-3">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('9-3','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('9-3','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('9-3','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 16 — ASK (yes/no query) <span class="query-counter">BLIND</span></div>
+        <h3>Is there at least one author born in Paris?</h3>
+        <p><b>English:</b> Return <code>true</code> if yes, <code>false</code> if no. Don't return rows — just a boolean.</p>
+        <div class="editor">
+          <div class="editor-header">
+            <div class="editor-dots"><span></span><span></span><span></span></div>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="ASK {
+  ...
+}"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h9-4')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r9-4')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h9-4">
+          💡 Replace <code>SELECT ... WHERE</code> with just <code>ASK</code>. The endpoint returns only true/false.
+        </div>
+        <div class="reveal-content" id="r9-4">
+          <div class="code-block"><span class="kw">ASK</span> {
+  <span class="var">?author</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>Paris .
+  <span class="var">?work</span> <span class="prefix">dbo:</span>author <span class="var">?author</span> .
+}</div>
+          <div class="tip">🎯 <b>ASK</b> returns just <code>true</code> or <code>false</code>. Useful for yes/no existence checks. Much cheaper than SELECT when you don't need the actual data.</div>
+          <div class="self-rate" data-rate="9-4">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('9-4','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('9-4','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('9-4','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 10 — EXAM CHEAT SHEET + DONE
+// ============================================================
+modules.push({
+  title: 'SPARQL CHEAT SHEET',
+  indicator: '10 / FINAL',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--pink); color:var(--pink)">FINAL — PATTERN DECK</div>
+      <h2 class="module-title">Your exam <i>pattern deck</i></h2>
+      <p class="module-sub">Every SPARQL question you'll see collapses to one of these. Memorize all.</p>
+
+      <div class="pattern-card">
+        <h4>① Basic triple pattern</h4>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="var">?s</span> <span class="var">?p</span> <span class="var">?o</span>
+<span class="kw">WHERE</span> { <span class="var">?s</span> <span class="var">?p</span> <span class="var">?o</span> } <span class="kw">LIMIT</span> <span class="num">100</span></div>
+        <p>Three variables = match any triple. Mix vars with constants to filter.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>② Pivot on a specific entity</h4>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="var">?work</span>
+<span class="kw">WHERE</span> { <span class="var">?work</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto }</div>
+        <p>Replace any variable with a known IRI to pivot the search.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>③ JOIN via shared variable</h4>
+        <div class="code-block"><span class="var">?author</span> <span class="prefix">dbo:</span>birthPlace <span class="prefix">dbr:</span>Tokyo .
+<span class="var">?work</span> <span class="prefix">dbo:</span>author <span class="var">?author</span> .</div>
+        <p>Two triples sharing a variable = SQL-style inner join.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>④ Semicolon shorthand (same subject)</h4>
+        <div class="code-block"><span class="var">?s</span> <span class="prefix">dbo:</span>author <span class="prefix">dbr:</span>Canaletto ;
+   <span class="prefix">dbo:</span>museum <span class="var">?m</span> .</div>
+        <p><b>;</b> continues with same subject. Saves typing when one subject has many props.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑤ FILTER — row-level</h4>
+        <div class="code-block"><span class="kw">FILTER</span> (<span class="var">?dist</span> <span class="op">&gt;</span> <span class="num">20000</span>)
+<span class="kw">FILTER</span> (<span class="kw">regex</span>(<span class="var">?code</span>, <span class="str">"^EH"</span>))
+<span class="kw">FILTER</span> (<span class="var">?x</span> <span class="op">&gt;</span> <span class="num">10</span> <span class="op">&amp;&amp;</span> <span class="var">?x</span> <span class="op">&lt;</span> <span class="num">50</span>)</div>
+        <p>Numbers, regex, ranges. No BETWEEN.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑥ AGGREGATE without grouping</h4>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?x</span>)
+<span class="kw">WHERE</span> { <span class="var">?s</span> <span class="prefix">ex:</span>val <span class="var">?x</span> }</div>
+        <p>One number across all rows. No GROUP BY needed.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑦ GROUP BY</h4>
+        <div class="code-block"><span class="kw">SELECT</span> <span class="kw">avg</span>(<span class="var">?x</span>) <span class="kw">as</span> <span class="var">?Avg</span>, <span class="var">?bucket</span>
+<span class="kw">WHERE</span> { ... }
+<span class="kw">GROUP BY</span> <span class="var">?bucket</span>
+<span class="kw">ORDER BY</span> <span class="var">?Avg</span></div>
+        <p>Aggregate per bucket. Every non-aggregated SELECT var must be in GROUP BY.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑧ HAVING — group-level filter</h4>
+        <div class="code-block"><span class="kw">GROUP BY</span> <span class="var">?area</span>
+<span class="kw">HAVING</span> (<span class="kw">avg</span>(<span class="var">?x</span>) <span class="op">&gt;</span> <span class="num">200000</span>)</div>
+        <p>FILTER works on rows. HAVING works on groups. Can't swap them — they run at different stages.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑨ OPTIONAL — left join</h4>
+        <div class="code-block"><span class="var">?x</span> <span class="prefix">foaf:</span>name <span class="var">?n</span> .
+<span class="kw">OPTIONAL</span> { <span class="var">?x</span> <span class="prefix">foaf:</span>homepage <span class="var">?h</span> }</div>
+        <p>Row appears even if OPTIONAL part fails. Variable stays unbound.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑩ UNION — alternatives</h4>
+        <div class="code-block">{ ... pattern A ... }
+<span class="kw">UNION</span>
+{ ... pattern B ... }</div>
+        <p>Either match qualifies. Variable binds to whichever succeeded.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑪ Property paths (transitive)</h4>
+        <div class="code-block"><span class="prefix">:</span>Alice <span class="prefix">foaf:</span>knows<span class="op">+</span> <span class="var">?friend</span>    <span class="cm"># 1+ hops</span>
+<span class="prefix">:</span>Alice <span class="prefix">foaf:</span>knows<span class="op">*</span> <span class="var">?friend</span>    <span class="cm"># 0+ hops (includes self)</span></div>
+        <p>Traverse graphs without writing explicit patterns for each hop.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑫ Query types — know when to use each</h4>
+        <table>
+          <tr><th>Type</th><th>Returns</th></tr>
+          <tr><td><code>SELECT</code></td><td>Table of variable bindings</td></tr>
+          <tr><td><code>CONSTRUCT</code></td><td>New RDF graph (triples)</td></tr>
+          <tr><td><code>DESCRIBE</code></td><td>All triples about a resource</td></tr>
+          <tr><td><code>ASK</code></td><td>true / false only</td></tr>
+        </table>
+      </div>
+
+      <div class="pattern-card" style="background: linear-gradient(135deg, rgba(255,59,109,0.08), rgba(255,77,77,0.08)); border-color: var(--red)">
+        <h4 style="color: var(--pink)">⚠️ TOP 5 EXAM TRAPS</h4>
+        <ol style="margin-left:20px">
+          <li><b>PREFIX</b> has no <code>@</code> and no trailing dot (unlike Turtle).</li>
+          <li><b>FILTER vs HAVING</b>: row vs group level. Can't swap.</li>
+          <li><b>BETWEEN doesn't exist</b> — use <code>FILTER(?x &gt; a && ?x &lt; b)</code>.</li>
+          <li><b>OPTIONAL keeps all base rows</b>; UNION changes which rows appear.</li>
+          <li><b>ORDER BY defaults ascending</b> — wrap in <code>DESC()</code> for reverse.</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(0,255,157,0.08)); border-radius: 12px; text-align: center; border: 1px solid var(--border)">
+        <div style="font-size: 50px; margin-bottom: 10px">🏆</div>
+        <h3 style="font-family: var(--serif); font-size: 26px; margin-bottom: 10px">SPARQL labs cleared.</h3>
+        <p style="color: var(--text-dim); margin-bottom: 16px">
+          XP: <b id="final-xp" style="color:var(--yellow)">0</b> ·
+          Nailed: <b id="final-nailed" style="color:var(--neon)">0</b> / 14
+        </p>
+        <p style="font-size: 14px; color: var(--text-dim); max-width: 540px; margin: 0 auto">
+          You just worked through 14 blind-coded queries — the MOST important 1.5-hour session in your entire study plan. Review the missed ones. Save this file. 🦉
+        </p>
+      </div>
+    </div>
+  `
+});
+
+// ========== RENDERING ==========
+function render() {
+  const mod = modules[state.current];
+  document.getElementById('content').innerHTML = mod.render();
+  document.getElementById('indicator').textContent = mod.indicator;
+  document.getElementById('mod-num').textContent = `${state.current}/${modules.length-1}`;
+  const pct = (state.current / (modules.length-1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+  document.getElementById('btn-prev').disabled = state.current === 0;
+  document.getElementById('btn-next').textContent = state.current === modules.length-1 ? '★ Done' : 'Next ▶';
+
+  if (state.current === 0) renderTOC();
+
+  if (state.current === modules.length - 1) {
+    setTimeout(() => {
+      const fxp = document.getElementById('final-xp');
+      const fna = document.getElementById('final-nailed');
+      if (fxp) fxp.textContent = state.xp;
+      if (fna) fna.textContent = state.nailed;
+    }, 100);
+  }
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function renderTOC() {
+  const grid = document.getElementById('toc-grid');
+  if (!grid) return;
+  const labs = [
+    '', 'WARM-UP', 'LAB 4 P1', 'LAB 4 TASK 2',
+    'LAB 4 TASK 3A', 'LAB 4 TASK 3B', 'LAB 4 TASK 4A',
+    'LAB 4 TASK 4B', 'LAB 4 TASK 4C', 'BONUS', 'FINAL'
+  ];
+  grid.innerHTML = modules.slice(1).map((m, i) => `
+    <div class="toc-card" onclick="goTo(${i+1})">
+      <div class="num">MODULE ${String(i+1).padStart(2, '0')}</div>
+      <div class="t">${m.title}</div>
+      <div class="lab">${labs[i+1]}</div>
+    </div>
+  `).join('');
+}
+
+function goTo(idx) {
+  state.current = idx;
+  render();
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (state.current < modules.length - 1) goTo(state.current + 1);
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (state.current > 0) goTo(state.current - 1);
+});
+
+render();
+</script>
+</body>
+</html>
