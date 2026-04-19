@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBDA LAB SIMULATOR · Blind-Coding Mappings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0b12;
+  --bg-panel: #15151f;
+  --bg-raised: #1d1d2a;
+  --bg-editor: #08080d;
+  --border: #2a2a3a;
+  --text: #ececf1;
+  --text-dim: #8a8aa0;
+  --neon: #00ff9d;
+  --pink: #ff3b6d;
+  --cyan: #18e0e8;
+  --yellow: #ffd93d;
+  --purple: #a78bfa;
+  --orange: #ff9f43;
+  --red: #ff4d4d;
+  --serif: 'Fraunces', serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(255,159,67,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(167,139,250,0.06) 0%, transparent 45%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: auto, auto, 40px 40px, 40px 40px;
+}
+.app { max-width: 980px; margin: 0 auto; padding: 24px 20px 140px; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--border);
+}
+.logo { font-family: var(--serif); font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+.logo .sp { color: var(--orange); font-style: italic; }
+.stats { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.stat b { color: var(--yellow); font-family: var(--mono); }
+.progress-wrap { margin-bottom: 36px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+}
+.progress-bar {
+  height: 6px; background: var(--bg-panel); border-radius: 3px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--orange), var(--purple));
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 12px var(--orange);
+}
+.module { animation: fadeUp 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.module-badge {
+  display: inline-block; font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px; padding: 4px 10px;
+  border: 1px solid var(--orange); color: var(--orange);
+  border-radius: 3px; margin-bottom: 16px;
+}
+.module-title {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05;
+  letter-spacing: -1.5px; margin-bottom: 10px;
+}
+.module-title i { color: var(--pink); font-weight: 400; }
+.module-sub { color: var(--text-dim); font-size: 17px; margin-bottom: 28px; max-width: 640px; }
+
+.block {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; margin-bottom: 18px;
+  position: relative; overflow: hidden;
+}
+.block::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--cyan);
+}
+.block.task::before { background: var(--yellow); }
+.block.hint::before { background: var(--purple); }
+.block.solution::before { background: var(--neon); }
+.block.trap::before { background: var(--red); }
+.block.context::before { background: var(--cyan); }
+.block.diagram::before { background: var(--orange); }
+
+.block-label {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-dim); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.block.task .block-label { color: var(--yellow); }
+.block.hint .block-label { color: var(--purple); }
+.block.solution .block-label { color: var(--neon); }
+.block.trap .block-label { color: var(--red); }
+.block.context .block-label { color: var(--cyan); }
+.block.diagram .block-label { color: var(--orange); }
+
+.block h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.3px; }
+.block p { margin-bottom: 10px; color: #d4d4dc; }
+.block p:last-child { margin-bottom: 0; }
+.block ul { margin-left: 20px; margin-top: 8px; }
+.block li { margin-bottom: 4px; }
+
+code, .code {
+  font-family: var(--mono); background: var(--bg-raised);
+  padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: var(--cyan);
+}
+.code-block {
+  font-family: var(--mono); background: var(--bg-editor);
+  border: 1px solid var(--border); padding: 14px 16px;
+  border-radius: 6px; margin: 12px 0; font-size: 13px;
+  white-space: pre-wrap; color: #d4d4dc; line-height: 1.7;
+  overflow-x: auto;
+}
+.code-block .kw { color: var(--pink); font-weight: 700; }
+.code-block .prefix { color: var(--purple); }
+.code-block .var { color: var(--neon); }
+.code-block .str { color: var(--yellow); }
+.code-block .cm { color: var(--text-dim); font-style: italic; }
+.code-block .num { color: var(--yellow); }
+.code-block .op { color: var(--cyan); }
+.code-block .col { color: var(--orange); }
+.code-block .iri { color: var(--purple); }
+
+/* Side by side split for target vs source */
+.mapping-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 12px 0;
+}
+@media (min-width: 760px) {
+  .mapping-split { grid-template-columns: 1fr 1fr; }
+}
+.split-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 2px; margin-bottom: 6px;
+}
+.split-label.t { color: var(--orange); }
+.split-label.s { color: var(--cyan); }
+
+.tip {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,217,61,0.08);
+  border-left: 2px solid var(--yellow);
+  border-radius: 4px; font-size: 14px;
+}
+.warn {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,59,109,0.08);
+  border-left: 2px solid var(--pink);
+  border-radius: 4px; font-size: 14px;
+}
+
+.editor {
+  background: var(--bg-editor);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.editor:focus-within { border-color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.1); }
+.editor-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #050509; padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1px; border-bottom: 1px solid var(--border);
+}
+.editor-header .ftype {
+  padding: 2px 8px; border-radius: 3px;
+  font-family: var(--mono); font-size: 9px;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.editor-header .ftype.target { background: rgba(255,159,67,0.2); color: var(--orange); }
+.editor-header .ftype.source { background: rgba(24,224,232,0.2); color: var(--cyan); }
+.editor textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #d4d4dc;
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 16px;
+  resize: vertical;
+  min-height: 140px;
+  line-height: 1.6;
+  outline: none;
+  tab-size: 2;
+}
+.editor textarea.short { min-height: 90px; }
+
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.btn {
+  font-family: var(--mono); font-size: 12px; font-weight: 700;
+  padding: 10px 18px; background: transparent; color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+  cursor: pointer; transition: all 0.2s;
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.btn:hover { border-color: var(--neon); color: var(--neon); transform: translateY(-1px); }
+.btn-primary {
+  background: var(--neon); color: #000; border-color: var(--neon);
+}
+.btn-primary:hover { background: transparent; color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.3); }
+.btn-hint { background: var(--purple); color: #000; border-color: var(--purple); }
+.btn-hint:hover { background: transparent; color: var(--purple); }
+.btn-reveal { background: var(--yellow); color: #000; border-color: var(--yellow); }
+.btn-reveal:hover { background: transparent; color: var(--yellow); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.self-rate { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.rate-btn {
+  padding: 10px 14px; font-family: var(--mono); font-size: 11px;
+  border: 1px solid var(--border); background: var(--bg-raised);
+  color: var(--text); border-radius: 6px; cursor: pointer;
+  transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+}
+.rate-btn:hover { transform: translateY(-1px); }
+.rate-btn.r-nailed:hover { border-color: var(--neon); color: var(--neon); }
+.rate-btn.r-close:hover { border-color: var(--yellow); color: var(--yellow); }
+.rate-btn.r-missed:hover { border-color: var(--pink); color: var(--pink); }
+.rate-btn.selected.r-nailed { background: var(--neon); color: #000; border-color: var(--neon); }
+.rate-btn.selected.r-close { background: var(--yellow); color: #000; border-color: var(--yellow); }
+.rate-btn.selected.r-missed { background: var(--pink); color: #fff; border-color: var(--pink); }
+
+.hint-content {
+  display: none;
+  margin-top: 12px; padding: 12px 16px;
+  background: rgba(167,139,250,0.08);
+  border-left: 2px solid var(--purple);
+  border-radius: 4px; font-size: 14px;
+  animation: fadeUp 0.3s;
+}
+.hint-content.show { display: block; }
+
+.reveal-content {
+  display: none; margin-top: 14px;
+  animation: fadeUp 0.3s;
+}
+.reveal-content.show { display: block; }
+
+.schema-table {
+  width: 100%; border-collapse: collapse; margin: 10px 0;
+  background: var(--bg-editor); border-radius: 6px; overflow: hidden;
+  font-family: var(--mono); font-size: 12px;
+}
+.schema-table th, .schema-table td {
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+}
+.schema-table th {
+  background: #050509; color: var(--orange);
+  text-transform: uppercase; font-size: 10px; letter-spacing: 1px;
+}
+.schema-table td { color: var(--cyan); }
+.schema-table td.pk { color: var(--pink); font-weight: 700; }
+.schema-table tr:last-child td { border-bottom: none; }
+
+.nav-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(11,11,18,0.95); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border); padding: 14px 20px;
+  z-index: 100;
+}
+.nav-bar-inner {
+  max-width: 980px; margin: 0 auto; width: 100%;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+.module-indicator { font-family: var(--mono); font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+
+.celebration {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif); font-size: 80px; font-weight: 900;
+  font-style: italic; color: var(--neon);
+  text-shadow: 0 0 30px var(--neon);
+  pointer-events: none; z-index: 200; opacity: 0;
+}
+.celebration.show { animation: celebrate 1.2s ease-out; }
+@keyframes celebrate {
+  0% { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  30% { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+  70% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(0.9); }
+}
+
+.hero-start { text-align: center; padding: 40px 10px; }
+.hero-start h1 {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(44px, 9vw, 80px); line-height: 0.95;
+  letter-spacing: -2px; margin-bottom: 18px;
+}
+.hero-start h1 .flash { color: var(--orange); font-style: italic; }
+.hero-start .tagline {
+  font-size: 18px; color: var(--text-dim);
+  max-width: 520px; margin: 0 auto 32px;
+}
+.feat-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+.feat {
+  font-family: var(--mono); font-size: 11px; padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+}
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px; margin: 20px 0; text-align: left;
+}
+.toc-card {
+  padding: 14px 16px; background: var(--bg-panel);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+}
+.toc-card:hover { border-color: var(--orange); transform: translateY(-2px); }
+.toc-card .num { font-family: var(--mono); font-size: 10px; color: var(--orange); letter-spacing: 2px; }
+.toc-card .t { font-family: var(--serif); font-size: 16px; font-weight: 700; margin-top: 4px; line-height: 1.2; }
+.toc-card .lab { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; }
+.big-emoji { font-size: 60px; text-align: center; margin: 20px 0; }
+
+table {
+  width: 100%; border-collapse: collapse; margin: 14px 0;
+  font-size: 14px; background: var(--bg-raised);
+  border-radius: 8px; overflow: hidden;
+}
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th {
+  background: #0a0a12; font-family: var(--mono);
+  text-transform: uppercase; font-size: 10px;
+  letter-spacing: 1px; color: var(--text-dim);
+}
+tr:last-child td { border-bottom: none; }
+
+.pattern-card {
+  background: linear-gradient(135deg, rgba(255,159,67,0.04), rgba(167,139,250,0.04));
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 20px; margin-bottom: 14px;
+}
+.pattern-card h4 {
+  font-family: var(--serif); font-size: 18px; font-weight: 700;
+  margin-bottom: 10px; color: var(--yellow);
+}
+
+/* ARCHITECTURE DIAGRAM */
+.arch-diagram {
+  padding: 16px; margin: 14px 0;
+  background: var(--bg-editor); border-radius: 8px;
+  border: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px;
+}
+.arch-layer {
+  width: 100%; max-width: 480px;
+  padding: 12px 16px; border-radius: 6px;
+  text-align: center; font-family: var(--mono);
+  font-size: 13px; border: 2px solid;
+}
+.arch-layer.user { border-color: var(--cyan); color: var(--cyan); }
+.arch-layer.ont { border-color: var(--purple); color: var(--purple); background: rgba(167,139,250,0.05); }
+.arch-layer.ontop { border-color: var(--orange); color: var(--orange); background: rgba(255,159,67,0.08); font-weight: 700; }
+.arch-layer.db { border-color: var(--neon); color: var(--neon); background: rgba(0,255,157,0.05); }
+.arch-arrow {
+  font-family: var(--mono); font-size: 18px;
+  color: var(--text-dim); line-height: 1;
+}
+.arch-layer small {
+  display: block; font-size: 10px; color: var(--text-dim);
+  margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;
+}
+
+::selection { background: var(--orange); color: #000; }
+@media (max-width: 640px) {
+  .app { padding: 16px 14px 180px; }
+  .stats { display: none; }
+  .nav-bar-inner { flex-wrap: wrap; justify-content: center; }
+  .module-indicator { display: none; }
+  .btn { padding: 10px 12px; font-size: 10px; }
+  .editor textarea { font-size: 13px; }
+}
+
+.card-counter {
+  display: inline-block; background: var(--bg-raised);
+  padding: 3px 10px; border-radius: 3px; font-family: var(--mono);
+  font-size: 11px; color: var(--orange); margin-left: 8px;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <div class="logo"><span class="sp">OBDA</span>.lab</div>
+    <div class="stats">
+      <div class="stat">XP <b id="xp">0</b></div>
+      <div class="stat">NAILED <b id="nailed">0</b></div>
+      <div class="stat">MOD <b id="mod-num">0/9</b></div>
+    </div>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>PROGRESS</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <main id="content"></main>
+</div>
+<div class="nav-bar">
+  <div class="nav-bar-inner">
+    <button class="btn" id="btn-prev">◀ Back</button>
+    <div class="module-indicator" id="indicator">BOOT</div>
+    <button class="btn btn-primary" id="btn-next">Next ▶</button>
+  </div>
+</div>
+<div class="celebration" id="celebration"></div>
+
+<script>
+const state = {
+  current: 0,
+  xp: 0,
+  nailed: 0,
+  rated: {},
+};
+
+function celebrate(text) {
+  const el = document.getElementById('celebration');
+  el.textContent = text;
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+
+function toggleHint(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show');
+}
+
+function revealSolution(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('show');
+}
+
+function rateQuery(taskId, rating) {
+  if (state.rated[taskId]) return;
+  state.rated[taskId] = rating;
+
+  const buttons = document.querySelectorAll(`[data-rate="${taskId}"] .rate-btn`);
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === rating) b.classList.add('selected');
+  });
+
+  const xpMap = { nailed: 20, close: 10, missed: 3 };
+  state.xp += xpMap[rating];
+  if (rating === 'nailed') {
+    state.nailed += 1;
+    celebrate(['CLEAN', 'NAILED', 'GG', 'SHIP IT', 'BANG'][Math.floor(Math.random()*5)]);
+  } else if (rating === 'close') {
+    celebrate('ALMOST');
+  }
+
+  document.getElementById('xp').textContent = state.xp;
+  document.getElementById('nailed').textContent = state.nailed;
+}
+
+const modules = [];
+
+// ============================================================
+// MODULE 0 — HERO
+// ============================================================
+modules.push({
+  title: 'START',
+  indicator: 'INTRO',
+  render: () => `
+    <div class="hero-start">
+      <h1>OBDA<br><span class="flash">LAB</span><br>SIMULATOR</h1>
+      <p class="tagline">Week 7 Lab + the 5 OBDA deck cards (uni1-student → uni1-registration). Blind-code each mapping from a plain-English schema description. See the canonical solution. Rate honestly.</p>
+      <div class="feat-row">
+        <span class="feat">5 BLIND MAPPINGS</span>
+        <span class="feat">TARGET + SOURCE</span>
+        <span class="feat">BONUS SPARQL</span>
+        <span class="feat">THEORY DRILLS</span>
+      </div>
+      <div class="big-emoji">🔬</div>
+      <button class="btn btn-primary" style="font-size:16px;padding:14px 28px" onclick="goTo(1)">START ▶</button>
+
+      <div style="margin-top:40px; padding:20px; background:var(--bg-panel); border:1px solid var(--border); border-radius:10px; text-align:left">
+        <h3 style="font-family:var(--serif); font-size:18px; margin-bottom:12px; color:var(--yellow)">🧠 The fixed pattern (burn this in)</h3>
+        <div class="mapping-split">
+          <div>
+            <div class="split-label t">▸ TARGET (Turtle-like)</div>
+            <div class="code-block" style="margin:0"><span class="iri">:prefix/{primary_key}</span> <span class="kw">a</span> <span class="iri">:ClassName</span> ;
+   <span class="prefix">namespace:</span>prop <span class="col">{column_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>type .</div>
+          </div>
+          <div>
+            <div class="split-label s">▸ SOURCE (plain SQL)</div>
+            <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"schema"</span>.<span class="str">"table"</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:40px">
+        <h3 style="font-family:var(--serif); font-size:22px; margin-bottom:16px; color:var(--cyan); text-align:left">The runbook:</h3>
+        <div class="toc-grid" id="toc-grid"></div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 1 — OBDA concept + architecture
+// ============================================================
+modules.push({
+  title: 'What is OBDA?',
+  indicator: '01 / CONCEPT',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">WARM-UP THEORY</div>
+      <h2 class="module-title">OBDA in <i>60 seconds</i></h2>
+      <p class="module-sub">Before blind-coding 5 mappings, lock the concept. This is "exam Q7 material" — examiners love asking it.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ THE PROBLEM</div>
+        <p>Companies have decades of data sitting in relational databases. Converting everything to RDF triples would cost millions.</p>
+        <p><b>But we want Semantic Web powers</b> — SPARQL queries, OWL reasoning, linked data.</p>
+        <p><b>The answer:</b> put an ontology ON TOP of the existing database. Data stays put. Users query via SPARQL. An engine translates on the fly.</p>
+      </div>
+
+      <div class="block diagram">
+        <div class="block-label">▶ ARCHITECTURE</div>
+        <div class="arch-diagram">
+          <div class="arch-layer user">
+            👤 User writes SPARQL query
+            <small>using ontology vocabulary</small>
+          </div>
+          <div class="arch-arrow">▼</div>
+          <div class="arch-layer ont">
+            📘 ONTOLOGY (OWL)
+            <small>classes, properties, reasoning</small>
+          </div>
+          <div class="arch-arrow">▼</div>
+          <div class="arch-layer ontop">
+            ⚙️ ONTOP ENGINE
+            <small>reads mappings, rewrites SPARQL → SQL</small>
+          </div>
+          <div class="arch-arrow">▼</div>
+          <div class="arch-layer db">
+            🗄️ RELATIONAL DB (H2, MySQL, ...)
+            <small>data stays here — zero migration</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ THE 6 STEPS OF A SPARQL QUERY UNDER OBDA</div>
+        <ol style="margin-left:20px">
+          <li><b>User</b> writes SPARQL using friendly ontology terms.</li>
+          <li><b>Ontop</b> reads the OBDA mappings (class ↔ table, property ↔ column).</li>
+          <li><b>Ontop rewrites</b> SPARQL into equivalent SQL.</li>
+          <li><b>SQL runs</b> on the existing relational DB.</li>
+          <li><b>Rows return</b> from the DB.</li>
+          <li><b>Ontop formats</b> rows as RDF triples and ships them back.</li>
+        </ol>
+        <div class="tip">🎯 Key: <b>data never moves.</b> The "knowledge graph" is VIRTUAL — generated on demand from SQL results. That's why Ontop is called a "Virtual Knowledge Graph" (VKG) system.</div>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ 5 EXAM-GOLD REASONS OBDA MATTERS</div>
+        <table>
+          <tr><th>#</th><th>Benefit</th></tr>
+          <tr><td>1</td><td>No data migration — data stays in the RDB</td></tr>
+          <tr><td>2</td><td>Users don't need SQL — friendly ontology vocabulary</td></tr>
+          <tr><td>3</td><td>Ontology hides ugly table/column names</td></tr>
+          <tr><td>4</td><td>Reasoning — OWL inference on top of SQL data</td></tr>
+          <tr><td>5</td><td>Reuses existing mature RDBMS infrastructure</td></tr>
+        </table>
+      </div>
+
+      <div class="block trap">
+        <div class="block-label">▶ COMMON CONFUSION — Direct Mapping vs R2RML</div>
+        <table>
+          <tr><th>Approach</th><th>Config needed?</th><th>Flexibility</th></tr>
+          <tr><td>Direct Mapping</td><td>None — fully automatic</td><td>Rigid: table=class, column=property, row=individual</td></tr>
+          <tr><td>R2RML / OBDA mappings</td><td>You write mappings</td><td>Fully custom — rename, join, filter, pick types</td></tr>
+        </table>
+        <div class="tip">Ontop uses its own OBDA mapping syntax (the <code>target + source</code> format we'll blind-code) which is semantically equivalent to R2RML.</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 2 — Decode the given mapping
+// ============================================================
+modules.push({
+  title: 'Decode the given mapping',
+  indicator: '02 / READ BEFORE WRITE',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">READ BEFORE YOU WRITE</div>
+      <h2 class="module-title">Line-by-line <i>decoder</i></h2>
+      <p class="module-sub">The Week 7 lab hands you ONE example mapping. Every blind-code task after this is pattern-matching against it. Understand it cold first.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ THE EXAMPLE FROM THE LAB</div>
+        <div class="mapping-split">
+          <div>
+            <div class="split-label t">▸ TARGET</div>
+            <div class="code-block" style="margin:0"><span class="iri">:uni1/student/<span class="col">{s_id}</span></span> <span class="kw">a</span> <span class="iri">:Student</span> ;
+   <span class="prefix">foaf:</span>firstName <span class="col">{first_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string ;
+   <span class="prefix">foaf:</span>lastName <span class="col">{last_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string .</div>
+          </div>
+          <div>
+            <div class="split-label s">▸ SOURCE</div>
+            <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"student"</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ LINE-BY-LINE DECODE</div>
+        <table>
+          <tr><th>Piece</th><th>What it does</th></tr>
+          <tr>
+            <td><code>SELECT * FROM "uni1"."student"</code></td>
+            <td>"Grab every row from the <code>student</code> table in the <code>uni1</code> schema." Ontop runs this on the RDB.</td>
+          </tr>
+          <tr>
+            <td><code>:uni1/student/{s_id}</code></td>
+            <td>For each row, build a URI using the primary key <code>s_id</code>. Row with <code>s_id=42</code> → <code>:uni1/student/42</code>. This becomes the RDF individual's IRI.</td>
+          </tr>
+          <tr>
+            <td><code>a :Student</code></td>
+            <td>Shorthand for <code>rdf:type</code>. Declares this individual is of type <code>:Student</code>.</td>
+          </tr>
+          <tr>
+            <td><code>foaf:firstName {first_name}^^xsd:string</code></td>
+            <td>Attach the value from the <code>first_name</code> column as a <code>foaf:firstName</code> literal, typed as string.</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ WHAT THIS PRODUCES (in one row)</div>
+        <p>If the <code>student</code> table has row <code>(s_id=42, first_name="Alice", last_name="Smith")</code>, Ontop virtually generates these 3 triples:</p>
+        <div class="code-block"><span class="iri">:uni1/student/42</span> <span class="kw">a</span> <span class="iri">:Student</span> .
+<span class="iri">:uni1/student/42</span> <span class="prefix">foaf:</span>firstName <span class="str">"Alice"</span><span class="op">^^</span><span class="prefix">xsd:</span>string .
+<span class="iri">:uni1/student/42</span> <span class="prefix">foaf:</span>lastName <span class="str">"Smith"</span><span class="op">^^</span><span class="prefix">xsd:</span>string .</div>
+        <div class="tip">🎯 Three triples per row. 1000-row table → 3000 virtual triples. All generated on demand, never stored as RDF.</div>
+      </div>
+
+      <div class="block trap">
+        <div class="block-label">▶ SYNTAX MICRO-TRAPS</div>
+        <ul>
+          <li><b>Curly braces <code>{col}</code></b> mean "substitute this column's value for each row."</li>
+          <li><b><code>;</code> at line end</b> = same subject continues. <b><code>.</code></b> = end of mapping.</li>
+          <li><b>Double quotes</b> around <code>"uni1"."student"</code> — required for schema/table names in H2/PostgreSQL dialects.</li>
+          <li><b><code>a</code></b> is Turtle shorthand for <code>rdf:type</code>. Use it or write <code>rdf:type</code> — both fine.</li>
+          <li><b><code>^^xsd:string</code></b> is the datatype. If you omit it for strings, Ontop will infer. Always include it in exam answers — safer.</li>
+        </ul>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 3 — OBDA-01: uni1-student (with scaffolding since first one)
+// ============================================================
+modules.push({
+  title: 'OBDA-01 — uni1-student (guided)',
+  indicator: '03 / CARD 01',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--yellow); color:var(--yellow)">DECK CARD 01 — GUIDED</div>
+      <h2 class="module-title">uni1-<i>student</i></h2>
+      <p class="module-sub">First card. This is the one you saw decoded in Module 2 — now blind-code it from memory to lock it in.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ TABLE SCHEMA (what you have in the DB)</div>
+        <table class="schema-table">
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="pk">s_id</td><td>INT</td><td>🔑 PRIMARY KEY</td></tr>
+          <tr><td>first_name</td><td>VARCHAR</td><td></td></tr>
+          <tr><td>last_name</td><td>VARCHAR</td><td></td></tr>
+        </table>
+        <p><b>Schema:</b> <code>uni1</code> · <b>Table:</b> <code>student</code></p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 1 — BLIND-CODE <span class="card-counter">CARD 01</span></div>
+        <h3>Write the full OBDA mapping: each row in <code>uni1.student</code> becomes an RDF individual of type <code>:Student</code>, with <code>foaf:firstName</code> and <code>foaf:lastName</code> data properties.</h3>
+        <p><b>MappingID:</b> <code>uni1-student</code></p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">target</span>
+            <span>mapping.obda</span>
+          </div>
+          <textarea spellcheck="false" placeholder=":uni1/student/{...} a :... ;
+   foaf:firstName {...}^^xsd:... ;
+   foaf:lastName {...}^^xsd:... ."></textarea>
+        </div>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype source">source</span>
+            <span>source.sql</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder='SELECT *
+FROM "uni1"."..."'></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h3-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r3-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h3-1">
+          💡 Start with the IRI pattern <code>:uni1/student/{s_id}</code>. Declare the class with <code>a :Student</code>. Then TWO data properties separated by <code>;</code>. Close with <code>.</code> on the final line. SOURCE is a simple <code>SELECT * FROM "uni1"."student"</code>.
+        </div>
+        <div class="reveal-content" id="r3-1">
+          <div class="mapping-split">
+            <div>
+              <div class="split-label t">▸ TARGET</div>
+              <div class="code-block" style="margin:0"><span class="iri">:uni1/student/<span class="col">{s_id}</span></span> <span class="kw">a</span> <span class="iri">:Student</span> ;
+   <span class="prefix">foaf:</span>firstName <span class="col">{first_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string ;
+   <span class="prefix">foaf:</span>lastName <span class="col">{last_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string .</div>
+            </div>
+            <div>
+              <div class="split-label s">▸ SOURCE</div>
+              <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"student"</span></div>
+            </div>
+          </div>
+          <div class="tip">🎯 <b>The template unlocked:</b> <code>:prefix/{pk} a :Class ; prop {col}^^xsd:type ; prop {col}^^xsd:type .</code> Every subsequent card reuses this exact skeleton.</div>
+          <div class="self-rate" data-rate="3-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('3-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('3-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('3-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 4 — OBDA-02: uni1-academic
+// ============================================================
+modules.push({
+  title: 'OBDA-02 — uni1-academic',
+  indicator: '04 / CARD 02',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">DECK CARD 02</div>
+      <h2 class="module-title">uni1-<i>academic</i></h2>
+      <p class="module-sub">Same shape as uni1-student but the class is different, the primary key is different. The pattern is sticky — let your fingers learn it.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ SCHEMA</div>
+        <table class="schema-table">
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="pk">a_id</td><td>INT</td><td>🔑 PRIMARY KEY</td></tr>
+          <tr><td>first_name</td><td>VARCHAR</td><td></td></tr>
+          <tr><td>last_name</td><td>VARCHAR</td><td></td></tr>
+          <tr><td>position</td><td>INT</td><td>1=Full Prof, 2=Assoc, 3=Asst</td></tr>
+        </table>
+        <p><b>Schema:</b> <code>uni1</code> · <b>Table:</b> <code>academic</code></p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 2 — BLIND-CODE <span class="card-counter">CARD 02</span></div>
+        <h3>Map each row of <code>uni1.academic</code> as an individual of class <code>:FacultyMember</code>, with first and last name.</h3>
+        <p><b>MappingID:</b> <code>uni1-academic</code> · <b>Class:</b> <code>:FacultyMember</code></p>
+        <p><b>Ignore:</b> <code>position</code> column — we don't map it here.</p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">target</span>
+            <span>mapping.obda</span>
+          </div>
+          <textarea spellcheck="false" placeholder="# Target template (Turtle-like)"></textarea>
+        </div>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype source">source</span>
+            <span>source.sql</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder="-- SQL query"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h4-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r4-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h4-1">
+          💡 Copy your Card 01 answer mentally. Three substitutions: <code>student → academic</code> (in the IRI path AND in the SQL table), <code>s_id → a_id</code>, <code>:Student → :FacultyMember</code>. Columns <code>first_name</code>/<code>last_name</code> stay the same.
+        </div>
+        <div class="reveal-content" id="r4-1">
+          <div class="mapping-split">
+            <div>
+              <div class="split-label t">▸ TARGET</div>
+              <div class="code-block" style="margin:0"><span class="iri">:uni1/academic/<span class="col">{a_id}</span></span> <span class="kw">a</span> <span class="iri">:FacultyMember</span> ;
+   <span class="prefix">foaf:</span>firstName <span class="col">{first_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string ;
+   <span class="prefix">foaf:</span>lastName <span class="col">{last_name}</span><span class="op">^^</span><span class="prefix">xsd:</span>string .</div>
+            </div>
+            <div>
+              <div class="split-label s">▸ SOURCE</div>
+              <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"academic"</span></div>
+            </div>
+          </div>
+          <div class="tip">🎯 Notice: the IRI path segment (<code>academic</code>) doesn't have to match the SQL table name exactly — it's whatever you choose. But matching makes the mapping readable. Stick with matching in exams.</div>
+          <div class="self-rate" data-rate="4-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('4-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('4-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('4-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 5 — OBDA-03: uni1-course (with fixed IRI + untyped literal twist)
+// ============================================================
+modules.push({
+  title: 'OBDA-03 — uni1-course',
+  indicator: '05 / CARD 03',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--pink); color:var(--pink)">DECK CARD 03 — TWIST</div>
+      <h2 class="module-title">uni1-<i>course</i></h2>
+      <p class="module-sub">Similar shape but introduces TWO new ideas: (1) a property value that is a FIXED IRI (not from a column), (2) a literal without an explicit <code>^^xsd:type</code>.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ SCHEMA</div>
+        <table class="schema-table">
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="pk">c_id</td><td>INT</td><td>🔑 PRIMARY KEY</td></tr>
+          <tr><td>title</td><td>VARCHAR</td><td>e.g. "Big Data Management"</td></tr>
+        </table>
+        <p><b>Schema:</b> <code>uni1</code> · <b>Table:</b> <code>course</code></p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 3 — BLIND-CODE <span class="card-counter">CARD 03</span></div>
+        <h3>Each row in <code>uni1.course</code> becomes a <code>:Course</code> with:</h3>
+        <ul>
+          <li>a <code>:title</code> property from the <code>title</code> column (note: NO <code>^^xsd:string</code> — let it infer)</li>
+          <li>an <code>:isGivenAt</code> property pointing at a FIXED IRI: <code>:uni1/university</code></li>
+        </ul>
+        <p><b>MappingID:</b> <code>uni1-course</code></p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">target</span>
+            <span>mapping.obda</span>
+          </div>
+          <textarea spellcheck="false" placeholder="# Target — note the fixed IRI at the end, and the untyped title"></textarea>
+        </div>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype source">source</span>
+            <span>source.sql</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder="-- SQL query"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h5-1a')">💡 Hint 1</button>
+          <button class="btn btn-hint" onclick="toggleHint('h5-1b')">💡 Hint 2</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r5-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h5-1a">
+          💡 Hint 1: When a property VALUE is a fixed IRI (not a column), you just write the IRI directly — no curly braces: <code>:isGivenAt :uni1/university</code>.
+        </div>
+        <div class="hint-content" id="h5-1b">
+          💡 Hint 2: For the <code>:title</code> line, the lab deliberately omits <code>^^xsd:string</code>. Just write <code>:title {title}</code> — Ontop infers the type from the SQL column.
+        </div>
+        <div class="reveal-content" id="r5-1">
+          <div class="mapping-split">
+            <div>
+              <div class="split-label t">▸ TARGET</div>
+              <div class="code-block" style="margin:0"><span class="iri">:uni1/course/<span class="col">{c_id}</span></span> <span class="kw">a</span> <span class="iri">:Course</span> ;
+   <span class="iri">:title</span> <span class="col">{title}</span> ;
+   <span class="iri">:isGivenAt</span> <span class="iri">:uni1/university</span> .</div>
+            </div>
+            <div>
+              <div class="split-label s">▸ SOURCE</div>
+              <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"course"</span></div>
+            </div>
+          </div>
+          <div class="tip">🎯 <b>Two new patterns to memorise:</b><br>
+          ① Untyped literal: <code>:prop {col}</code> — no <code>^^xsd:...</code> suffix.<br>
+          ② Fixed-IRI object property: <code>:prop :some/fixed/iri</code> — same value for every row. Useful when "all rows belong to ONE thing" (here: every course is given at <code>:uni1/university</code>).</div>
+          <div class="self-rate" data-rate="5-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('5-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('5-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('5-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 6 — OBDA-04: uni1-teaching (JOIN TABLE — two IRIs, no class!)
+// ============================================================
+modules.push({
+  title: 'OBDA-04 — uni1-teaching',
+  indicator: '06 / CARD 04',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--red); color:var(--red)">DECK CARD 04 — RELATIONSHIP TABLE</div>
+      <h2 class="module-title">uni1-<i>teaching</i></h2>
+      <p class="module-sub">Major pattern shift. The <code>teaching</code> table is a join/link table — it connects academics to courses. The mapping has NO class declaration and NO data properties. Just ONE triple.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ SCHEMA (the JOIN table)</div>
+        <table class="schema-table">
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="pk">a_id</td><td>INT</td><td>🔑 FK → academic.a_id</td></tr>
+          <tr><td class="pk">c_id</td><td>INT</td><td>🔑 FK → course.c_id</td></tr>
+        </table>
+        <p><b>Schema:</b> <code>uni1</code> · <b>Table:</b> <code>teaching</code></p>
+        <div class="tip">💡 This is a classic "link table" in relational design. <code>(a_id, c_id)</code> composite key. Each row = "this academic teaches this course."</div>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 4 — BLIND-CODE <span class="card-counter">CARD 04</span></div>
+        <h3>Produce ONE triple per row: the academic <code>:teaches</code> the course.</h3>
+        <p>Both the subject and the object are <b>IRIs built from columns</b>. No <code>a :Class</code>. No <code>foaf:firstName</code>. Just a single triple.</p>
+        <p><b>MappingID:</b> <code>uni1-teaching</code></p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">target</span>
+            <span>mapping.obda</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder="# One triple only. Subject IRI :teaches Object IRI ."></textarea>
+        </div>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype source">source</span>
+            <span>source.sql</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder="-- SQL query"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h6-1a')">💡 Hint 1</button>
+          <button class="btn btn-hint" onclick="toggleHint('h6-1b')">💡 Hint 2</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r6-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h6-1a">
+          💡 Hint 1: The subject is an academic IRI → <code>:uni1/academic/{a_id}</code>. The object is a course IRI → <code>:uni1/course/{c_id}</code>. Both use <code>{column}</code> substitution from the <code>teaching</code> table.
+        </div>
+        <div class="hint-content" id="h6-1b">
+          💡 Hint 2: No type declaration. No <code>;</code> needed (only one triple). End with <code>.</code>. The SQL just selects everything from the teaching table — Ontop extracts both FKs from each row.
+        </div>
+        <div class="reveal-content" id="r6-1">
+          <div class="mapping-split">
+            <div>
+              <div class="split-label t">▸ TARGET</div>
+              <div class="code-block" style="margin:0"><span class="iri">:uni1/academic/<span class="col">{a_id}</span></span> <span class="iri">:teaches</span> <span class="iri">:uni1/course/<span class="col">{c_id}</span></span> .</div>
+            </div>
+            <div>
+              <div class="split-label s">▸ SOURCE</div>
+              <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"teaching"</span></div>
+            </div>
+          </div>
+          <div class="tip">🎯 <b>Link-table pattern:</b> SQL join tables become a SINGLE triple mapping where BOTH subject and object are column-built IRIs. No class, no data properties. Exam-critical: whenever you see FK + FK in a table, it's this pattern.</div>
+          <div class="warn">⚠️ <b>Trap:</b> don't accidentally add <code>a :teaches</code> — <code>:teaches</code> is a property, not a class. Also don't redeclare the academic as <code>:FacultyMember</code> here — that already happens in Card 02. Ontop merges triples across mappings.</div>
+          <div class="self-rate" data-rate="6-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('6-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('6-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('6-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 7 — OBDA-05: uni1-registration (hyphenated table name trap!)
+// ============================================================
+modules.push({
+  title: 'OBDA-05 — uni1-registration',
+  indicator: '07 / CARD 05',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--red); color:var(--red)">DECK CARD 05 — QUOTING TRAP</div>
+      <h2 class="module-title">uni1-<i>registration</i></h2>
+      <p class="module-sub">Same link-table pattern as Card 04. But there's a silent killer: the table name has a <b>hyphen</b>.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ SCHEMA</div>
+        <table class="schema-table">
+          <tr><th>Column</th><th>Type</th><th>Notes</th></tr>
+          <tr><td class="pk">s_id</td><td>INT</td><td>🔑 FK → student.s_id</td></tr>
+          <tr><td class="pk">c_id</td><td>INT</td><td>🔑 FK → course.c_id</td></tr>
+        </table>
+        <p><b>Schema:</b> <code>uni1</code> · <b>Table:</b> <code>course-registration</code> ⚠️ (note the hyphen!)</p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 5 — BLIND-CODE <span class="card-counter">CARD 05</span></div>
+        <h3>Map each row: student <code>:attends</code> course.</h3>
+        <p><b>MappingID:</b> <code>uni1-registration</code></p>
+        <p><b>Watch out:</b> how do you write the SQL <code>FROM</code> for a table called <code>course-registration</code>?</p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">target</span>
+            <span>mapping.obda</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder="# One triple: student :attends course"></textarea>
+        </div>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype source">source</span>
+            <span>source.sql</span>
+          </div>
+          <textarea class="short" spellcheck="false" placeholder='-- FROM "uni1"."???" — watch for hyphen!'></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h7-1a')">💡 Hint 1</button>
+          <button class="btn btn-hint" onclick="toggleHint('h7-1b')">💡 Hint 2 — the trap</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r7-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h7-1a">
+          💡 Hint 1: Same shape as Card 04. Subject = <code>:uni1/student/{s_id}</code>. Property = <code>:attends</code>. Object = <code>:uni1/course/{c_id}</code>.
+        </div>
+        <div class="hint-content" id="h7-1b">
+          💡 Hint 2 (the trap): Hyphens are illegal in unquoted SQL identifiers. The double quotes around <code>"course-registration"</code> are NOT optional — they're what makes the hyphen legal. You already quote schema/table names (<code>"uni1"."..."</code>) so you're covered IF you do the standard quoting.
+        </div>
+        <div class="reveal-content" id="r7-1">
+          <div class="mapping-split">
+            <div>
+              <div class="split-label t">▸ TARGET</div>
+              <div class="code-block" style="margin:0"><span class="iri">:uni1/student/<span class="col">{s_id}</span></span> <span class="iri">:attends</span> <span class="iri">:uni1/course/<span class="col">{c_id}</span></span> .</div>
+            </div>
+            <div>
+              <div class="split-label s">▸ SOURCE</div>
+              <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"course-registration"</span></div>
+            </div>
+          </div>
+          <div class="tip">🎯 <b>Quoting rule:</b> Always wrap schema and table identifiers in double quotes in OBDA source queries. It's mandatory in H2/PostgreSQL for mixed case, spaces, hyphens, or SQL keywords. Defensive habit — do it always.</div>
+          <div class="warn">⚠️ <b>Exam trap confirmed:</b> If you wrote <code>FROM uni1.course-registration</code> (no quotes), SQL would parse that as <code>uni1.course MINUS registration</code> — a subtraction! Error. Quotes make the whole identifier literal.</div>
+          <div class="self-rate" data-rate="7-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('7-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('7-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('7-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 8 — BONUS: The SPARQL query on top + theory drills
+// ============================================================
+modules.push({
+  title: 'BONUS — SPARQL over OBDA',
+  indicator: '08 / BONUS',
+  render: () => `
+    <div class="module">
+      <div class="module-badge">BONUS — THE PAYOFF</div>
+      <h2 class="module-title">The <i>payoff</i> query</h2>
+      <p class="module-sub">All 5 mappings loaded. Ontop runs. Now you get to query the virtual graph with SPARQL — and Ontop rewrites it to SQL automatically.</p>
+
+      <div class="block context">
+        <div class="block-label">▶ THE LAB'S FINAL SPARQL QUERY</div>
+        <p>The Week 7 lab ends by asking you to run this SPARQL over the VKG:</p>
+        <p><b>English:</b> "Give me the last names of academics who are Full Professors."</p>
+      </div>
+
+      <div class="block task">
+        <div class="block-label">▶ TASK 6 — BLIND-CODE SPARQL <span class="card-counter">SPARQL</span></div>
+        <h3>Write a SPARQL query that returns the <code>lastName</code> of every <code>:Professor</code>.</h3>
+        <p><b>Note:</b> Assume the ontology has <code>:Professor ⊑ :FacultyMember</code>, and the ontology has a rule that a FacultyMember whose DB <code>position</code>=1 should be classified as Professor (handled via ontology/mapping layer). You just need to query the ontology-level class.</p>
+
+        <div class="editor">
+          <div class="editor-header">
+            <span class="ftype target">sparql</span>
+            <span>query.sparql</span>
+          </div>
+          <textarea spellcheck="false" placeholder="PREFIX : <http://example.org/voc#>
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+SELECT ?lastName
+WHERE {
+  ...
+}"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-hint" onclick="toggleHint('h8-1')">💡 Hint</button>
+          <button class="btn btn-reveal" onclick="revealSolution('r8-1')">✨ Reveal Solution</button>
+        </div>
+        <div class="hint-content" id="h8-1">
+          💡 Two triple patterns joined on a variable: <code>?prof a :Professor</code> and <code>?prof foaf:lastName ?lastName</code>. Ontop translates this to SQL <code>SELECT "last_name" FROM "uni1"."academic" WHERE "position" = 1</code>.
+        </div>
+        <div class="reveal-content" id="r8-1">
+          <div class="code-block"><span class="kw">PREFIX</span> <span class="prefix">:</span> <span class="op">&lt;http://example.org/voc#&gt;</span>
+<span class="kw">PREFIX</span> <span class="prefix">foaf:</span> <span class="op">&lt;http://xmlns.com/foaf/0.1/&gt;</span>
+
+<span class="kw">SELECT</span> <span class="var">?lastName</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?prof</span> <span class="kw">a</span> <span class="iri">:Professor</span> .
+  <span class="var">?prof</span> <span class="prefix">foaf:</span>lastName <span class="var">?lastName</span> .
+}</div>
+          <div class="tip">🎯 <b>This is the whole point of OBDA.</b> You wrote SPARQL using the friendly ontology vocabulary (<code>:Professor</code>, <code>foaf:lastName</code>). You didn't write SQL, didn't know about <code>position=1</code>, didn't know about the <code>academic</code> table. Ontop handled all of it via your 5 mappings + the ontology.</div>
+          <div class="self-rate" data-rate="8-1">
+            <button class="rate-btn r-nailed" data-val="nailed" onclick="rateQuery('8-1','nailed')">✓ Nailed it</button>
+            <button class="rate-btn r-close" data-val="close" onclick="rateQuery('8-1','close')">~ Close</button>
+            <button class="rate-btn r-missed" data-val="missed" onclick="rateQuery('8-1','missed')">✗ Missed</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="block context">
+        <div class="block-label">▶ BONUS THEORY DRILL — the .properties file</div>
+        <p>You don't need to blind-code this, but recognise it. This is <code>university.properties</code>:</p>
+        <div class="code-block"><span class="col">jdbc.driver</span><span class="op">=</span><span class="str">org.h2.Driver</span>
+<span class="col">jdbc.url</span><span class="op">=</span><span class="str">jdbc:h2:tcp://localhost/../university-session1</span>
+<span class="col">jdbc.user</span><span class="op">=</span><span class="str">sa</span>
+<span class="col">jdbc.password</span><span class="op">=</span></div>
+        <p>Tells Ontop:</p>
+        <ul>
+          <li><b>jdbc.driver</b>: which Java DB driver to load</li>
+          <li><b>jdbc.url</b>: where the DB lives (H2 running locally over TCP)</li>
+          <li><b>jdbc.user</b> / <b>jdbc.password</b>: how to authenticate (<code>sa</code> = system admin, empty password in dev)</li>
+        </ul>
+        <div class="tip">🎯 Exam Q5-style: "Explain how Ontop processes a SPARQL query" → your 6 steps from Module 1. The <code>.properties</code> file is part of "connect to DB" (step 2).</div>
+      </div>
+    </div>
+  `
+});
+
+// ============================================================
+// MODULE 9 — CHEAT SHEET
+// ============================================================
+modules.push({
+  title: 'OBDA CHEAT SHEET',
+  indicator: '09 / FINAL',
+  render: () => `
+    <div class="module">
+      <div class="module-badge" style="border-color:var(--pink); color:var(--pink)">FINAL — PATTERN DECK</div>
+      <h2 class="module-title">Your OBDA <i>pattern deck</i></h2>
+      <p class="module-sub">Every OBDA question reduces to one of these 6 shapes. Memorise all.</p>
+
+      <div class="pattern-card">
+        <h4>① Entity mapping (class + data properties)</h4>
+        <div class="mapping-split">
+          <div>
+            <div class="split-label t">TARGET</div>
+            <div class="code-block" style="margin:0"><span class="iri">:prefix/thing/<span class="col">{pk}</span></span> <span class="kw">a</span> <span class="iri">:Class</span> ;
+   <span class="prefix">ns:</span>prop <span class="col">{col}</span><span class="op">^^</span><span class="prefix">xsd:</span>type .</div>
+          </div>
+          <div>
+            <div class="split-label s">SOURCE</div>
+            <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"schema"</span>.<span class="str">"table"</span></div>
+          </div>
+        </div>
+        <p>Used for: Card 01 (student), Card 02 (academic). The bread-and-butter.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>② Fixed-IRI object property</h4>
+        <div class="code-block" style="margin:0"><span class="iri">:prop</span> <span class="iri">:some/fixed/iri</span></div>
+        <p>Used when all rows point at the same object (Card 03: <code>:isGivenAt :uni1/university</code>).</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>③ Untyped literal</h4>
+        <div class="code-block" style="margin:0"><span class="iri">:prop</span> <span class="col">{col}</span>  <span class="cm"># no ^^xsd:...</span></div>
+        <p>Ontop infers type from SQL column. Used in Card 03 (<code>:title</code>).</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>④ Link-table mapping (relationship)</h4>
+        <div class="mapping-split">
+          <div>
+            <div class="split-label t">TARGET</div>
+            <div class="code-block" style="margin:0"><span class="iri">:prefix/a/<span class="col">{a_id}</span></span> <span class="iri">:relationship</span> <span class="iri">:prefix/b/<span class="col">{b_id}</span></span> .</div>
+          </div>
+          <div>
+            <div class="split-label s">SOURCE</div>
+            <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="op">*</span>
+<span class="kw">FROM</span> <span class="str">"schema"</span>.<span class="str">"link_table"</span></div>
+          </div>
+        </div>
+        <p>No class. No data props. Just ONE triple. Used for Cards 04 (teaching), 05 (registration).</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑤ Hyphenated / mixed-case table names</h4>
+        <div class="code-block" style="margin:0"><span class="kw">FROM</span> <span class="str">"uni1"</span>.<span class="str">"course-registration"</span>  <span class="cm"># quotes mandatory</span></div>
+        <p>Always quote schema and table names. Defensive habit.</p>
+      </div>
+
+      <div class="pattern-card">
+        <h4>⑥ SPARQL over OBDA — it just works</h4>
+        <div class="code-block" style="margin:0"><span class="kw">SELECT</span> <span class="var">?name</span>
+<span class="kw">WHERE</span> {
+  <span class="var">?x</span> <span class="kw">a</span> <span class="iri">:Professor</span> .
+  <span class="var">?x</span> <span class="prefix">foaf:</span>lastName <span class="var">?name</span> .
+}</div>
+        <p>Write ontology-level SPARQL. Ontop rewrites to SQL using your mappings. User never sees <code>position=1</code> or <code>uni1.academic</code>.</p>
+      </div>
+
+      <div class="pattern-card" style="background: linear-gradient(135deg, rgba(255,59,109,0.08), rgba(255,77,77,0.08)); border-color: var(--red)">
+        <h4 style="color: var(--pink)">⚠️ TOP 5 OBDA EXAM TRAPS</h4>
+        <ol style="margin-left:20px">
+          <li><b>The 6-step OBDA pipeline</b>: user → ontology → Ontop → mappings → SQL → DB → RDF results. Memorise in order.</li>
+          <li><b>Link tables ≠ entity tables.</b> Link tables get a ONE-triple mapping, no class declaration.</li>
+          <li><b>Fixed IRIs have no curly braces.</b> <code>:prop :fixed/iri</code>, not <code>:prop {fixed/iri}</code>.</li>
+          <li><b>Double-quote table/schema names always.</b> Hyphens and mixed case break unquoted SQL.</li>
+          <li><b>Data stays in the RDB.</b> Never migrates. "Virtual knowledge graph" = on-the-fly RDF from SQL.</li>
+        </ol>
+      </div>
+
+      <div class="pattern-card" style="background: linear-gradient(135deg, rgba(255,217,61,0.05), rgba(255,159,67,0.05));">
+        <h4>🏛️ The 3 exam-style questions you WILL be asked</h4>
+        <ol style="margin-left:20px">
+          <li><b>"What is OBDA?"</b> → Ontology on top of RDB, users query SPARQL, Ontop rewrites to SQL, data never migrates. [6 marks]</li>
+          <li><b>"Interpret this OBDA mapping."</b> → Line-by-line decode exactly like Module 2. Primary key → IRI, columns → properties. [4 marks]</li>
+          <li><b>"Compare Direct Mapping vs R2RML (or OBDA mappings)."</b> → Direct = automatic, rigid. R2RML/OBDA = custom, flexible. [4 marks]</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, rgba(255,159,67,0.08), rgba(167,139,250,0.08)); border-radius: 12px; text-align: center; border: 1px solid var(--border)">
+        <div style="font-size: 50px; margin-bottom: 10px">🏆</div>
+        <h3 style="font-family: var(--serif); font-size: 26px; margin-bottom: 10px">OBDA lab cleared.</h3>
+        <p style="color: var(--text-dim); margin-bottom: 16px">
+          XP: <b id="final-xp" style="color:var(--yellow)">0</b> ·
+          Nailed: <b id="final-nailed" style="color:var(--neon)">0</b> / 6
+        </p>
+        <p style="font-size: 14px; color: var(--text-dim); max-width: 540px; margin: 0 auto">
+          You've blind-coded the 5 OBDA deck cards + the bonus SPARQL. Re-run any module by scrolling back. Save this file — works offline for cram sessions. 🔬
+        </p>
+      </div>
+    </div>
+  `
+});
+
+// ========== RENDERING ==========
+function render() {
+  const mod = modules[state.current];
+  document.getElementById('content').innerHTML = mod.render();
+  document.getElementById('indicator').textContent = mod.indicator;
+  document.getElementById('mod-num').textContent = `${state.current}/${modules.length-1}`;
+  const pct = (state.current / (modules.length-1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+  document.getElementById('btn-prev').disabled = state.current === 0;
+  document.getElementById('btn-next').textContent = state.current === modules.length-1 ? '★ Done' : 'Next ▶';
+
+  if (state.current === 0) renderTOC();
+
+  if (state.current === modules.length - 1) {
+    setTimeout(() => {
+      const fxp = document.getElementById('final-xp');
+      const fna = document.getElementById('final-nailed');
+      if (fxp) fxp.textContent = state.xp;
+      if (fna) fna.textContent = state.nailed;
+    }, 100);
+  }
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function renderTOC() {
+  const grid = document.getElementById('toc-grid');
+  if (!grid) return;
+  const labs = [
+    '', 'THEORY', 'DECODE', 'DECK 01', 'DECK 02', 'DECK 03',
+    'DECK 04', 'DECK 05', 'BONUS', 'FINAL'
+  ];
+  grid.innerHTML = modules.slice(1).map((m, i) => `
+    <div class="toc-card" onclick="goTo(${i+1})">
+      <div class="num">MODULE ${String(i+1).padStart(2, '0')}</div>
+      <div class="t">${m.title}</div>
+      <div class="lab">${labs[i+1]}</div>
+    </div>
+  `).join('');
+}
+
+function goTo(idx) {
+  state.current = idx;
+  render();
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (state.current < modules.length - 1) goTo(state.current + 1);
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (state.current > 0) goTo(state.current - 1);
+});
+
+render();
+</script>
+</body>
+</html>
