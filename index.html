@@ -1633,6 +1633,15 @@
             box-shadow: 0 8px 30px rgba(249, 115, 22, 0.25), 0 0 60px rgba(249, 115, 22, 0.1);
         }
 
+        .lab-sim-card.neo4j-card::before {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.08), rgba(59, 130, 246, 0.06));
+        }
+
+        .lab-sim-card.neo4j-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 8px 30px rgba(6, 182, 212, 0.25), 0 0 60px rgba(6, 182, 212, 0.1);
+        }
+
         .lab-sim-card-icon {
             width: 50px;
             height: 50px;
@@ -1659,6 +1668,11 @@
         .obda-card .lab-sim-card-icon {
             background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(245, 158, 11, 0.15));
             color: var(--accent-orange);
+        }
+
+        .neo4j-card .lab-sim-card-icon {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.15));
+            color: var(--accent-cyan);
         }
 
         .lab-sim-card h3 {
@@ -1711,6 +1725,11 @@
             color: var(--accent-orange);
         }
 
+        .neo4j-card .lab-sim-tag {
+            background: rgba(6, 182, 212, 0.12);
+            color: var(--accent-cyan);
+        }
+
         .lab-sim-launch {
             display: inline-flex;
             align-items: center;
@@ -1732,6 +1751,10 @@
 
         .obda-card .lab-sim-launch {
             color: var(--accent-orange);
+        }
+
+        .neo4j-card .lab-sim-launch {
+            color: var(--accent-cyan);
         }
 
         .lab-sim-card:hover .lab-sim-launch {
@@ -1990,6 +2013,24 @@
                                     <span class="lab-sim-tag">Target + Source</span>
                                     <span class="lab-sim-tag">Ontop</span>
                                     <span class="lab-sim-tag">Lab 7</span>
+                                </div>
+                                <div class="lab-sim-launch">
+                                    Launch Simulator <i class="bi bi-arrow-right"></i>
+                                </div>
+                            </a>
+
+                            <!-- Neo4j Simulator Card -->
+                            <a href="simulators/neo4j-lab-simulator.html" class="lab-sim-card neo4j-card" id="neo4j-sim-link">
+                                <div class="lab-sim-card-icon">
+                                    <i class="bi bi-diagram-2"></i>
+                                </div>
+                                <h3>Neo4j Lab Simulator</h3>
+                                <p>Blind-coding edition. Practice property graph modelling, Cypher queries, and graph interpretation tasks.</p>
+                                <div class="lab-sim-card-tags">
+                                    <span class="lab-sim-tag">10 Modules</span>
+                                    <span class="lab-sim-tag">Blind Coding</span>
+                                    <span class="lab-sim-tag">Cypher</span>
+                                    <span class="lab-sim-tag">Lab 8</span>
                                 </div>
                                 <div class="lab-sim-launch">
                                     Launch Simulator <i class="bi bi-arrow-right"></i>

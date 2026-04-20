@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEO4J LAB SIMULATOR · Blind-Coding Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;0,900;1,400;1,900&family=JetBrains+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0b0b12;
+  --bg-panel: #15151f;
+  --bg-raised: #1d1d2a;
+  --bg-editor: #08080d;
+  --border: #2a2a3a;
+  --text: #ececf1;
+  --text-dim: #8a8aa0;
+  --neon: #00ff9d;
+  --pink: #ff3b6d;
+  --cyan: #18e0e8;
+  --yellow: #ffd93d;
+  --purple: #a78bfa;
+  --red: #ff4d4d;
+  --serif: 'Fraunces', serif;
+  --sans: 'Instrument Sans', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 16px; line-height: 1.6;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(167,139,250,0.08) 0%, transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(0,255,157,0.06) 0%, transparent 45%),
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: auto, auto, 40px 40px, 40px 40px;
+}
+.app { max-width: 980px; margin: 0 auto; padding: 24px 20px 140px; }
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0; margin-bottom: 30px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 16px;
+}
+.logo { font-family: var(--serif); font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+.logo .sp { color: var(--neon); font-style: italic; }
+.stats { display: flex; gap: 16px; font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+.stat b { color: var(--yellow); font-family: var(--mono); }
+.stat.nailed b { color: var(--neon); }
+
+.progress-wrap { margin-bottom: 36px; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+}
+.progress-bar {
+  height: 6px; background: var(--bg-panel); border-radius: 3px;
+  overflow: hidden; border: 1px solid var(--border);
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--neon), var(--cyan));
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 12px var(--neon);
+}
+
+.module { animation: fadeUp 0.5s cubic-bezier(0.2,0.8,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.module-badge {
+  display: inline-block; font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px; padding: 4px 10px;
+  border: 1px solid var(--neon); color: var(--neon);
+  border-radius: 3px; margin-bottom: 16px;
+}
+.module-title {
+  font-family: var(--serif); font-weight: 900;
+  font-size: clamp(30px, 4.5vw, 44px); line-height: 1.05;
+  letter-spacing: -1.5px; margin-bottom: 10px;
+}
+.module-title i { color: var(--pink); font-weight: 400; }
+.module-sub { color: var(--text-dim); font-size: 17px; margin-bottom: 28px; max-width: 640px; }
+
+.block {
+  background: var(--bg-panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; margin-bottom: 18px;
+  position: relative; overflow: hidden;
+}
+.block::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--cyan);
+}
+.block.task::before { background: var(--yellow); }
+.block.hint::before { background: var(--purple); }
+.block.solution::before { background: var(--neon); }
+.block.trap::before { background: var(--red); }
+.block.context::before { background: var(--cyan); }
+.block.mcq::before { background: var(--purple); }
+
+.block-label {
+  font-family: var(--mono); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--text-dim); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.block.task .block-label { color: var(--yellow); }
+.block.hint .block-label { color: var(--purple); }
+.block.solution .block-label { color: var(--neon); }
+.block.trap .block-label { color: var(--red); }
+.block.context .block-label { color: var(--cyan); }
+.block.mcq .block-label { color: var(--purple); }
+
+.block h3 { font-family: var(--serif); font-size: 20px; font-weight: 700; margin-bottom: 12px; letter-spacing: -0.3px; }
+.block h3 i { color: var(--pink); font-weight: 400; }
+.block p { margin-bottom: 10px; color: #d4d4dc; }
+.block p:last-child { margin-bottom: 0; }
+.block ul, .block ol { margin-left: 20px; margin-top: 8px; }
+.block li { margin-bottom: 4px; }
+
+code, .code {
+  font-family: var(--mono); background: var(--bg-raised);
+  padding: 2px 6px; border-radius: 3px; font-size: 0.9em; color: var(--cyan);
+}
+.code-block {
+  font-family: var(--mono); background: var(--bg-editor);
+  border: 1px solid var(--border); padding: 14px 16px;
+  border-radius: 6px; margin: 12px 0; font-size: 13px;
+  white-space: pre-wrap; color: #d4d4dc; line-height: 1.7;
+  overflow-x: auto;
+}
+.code-block .kw { color: var(--pink); font-weight: 700; }
+.code-block .label { color: var(--neon); }
+.code-block .var { color: var(--cyan); }
+.code-block .str { color: var(--yellow); }
+.code-block .cm { color: var(--text-dim); font-style: italic; }
+.code-block .num { color: var(--yellow); }
+.code-block .op { color: #d4d4dc; }
+
+.tip {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,217,61,0.08);
+  border-left: 2px solid var(--yellow);
+  border-radius: 4px; font-size: 14px;
+}
+.warn {
+  margin-top: 12px; padding: 10px 14px;
+  background: rgba(255,59,109,0.08);
+  border-left: 2px solid var(--pink);
+  border-radius: 4px; font-size: 14px;
+}
+
+.editor {
+  background: var(--bg-editor);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  margin: 16px 0;
+}
+.editor:focus-within { border-color: var(--neon); box-shadow: 0 0 20px rgba(0,255,157,0.1); }
+.editor-header {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #050509; padding: 8px 14px;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: 1px; border-bottom: 1px solid var(--border);
+}
+.editor-dots { display: flex; gap: 6px; }
+.editor-dots span { width: 10px; height: 10px; border-radius: 50%; background: #333; }
+.editor-dots span:nth-child(1) { background: #ff5f57; }
+.editor-dots span:nth-child(2) { background: #febc2e; }
+.editor-dots span:nth-child(3) { background: #28c840; }
+.editor textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #d4d4dc;
+  font-family: var(--mono);
+  font-size: 14px;
+  padding: 16px;
+  resize: vertical;
+  min-height: 110px;
+  outline: none;
+  line-height: 1.6;
+}
+.editor textarea::placeholder { color: #4a4a5a; font-style: italic; }
+
+.actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.btn {
+  font-family: var(--mono); font-size: 12px;
+  padding: 10px 18px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--border); background: var(--bg-raised);
+  color: var(--text); transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--neon); color: #000; border-color: var(--neon); }
+.btn.primary:hover { box-shadow: 0 0 20px rgba(0,255,157,0.35); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--pink); border-color: rgba(255,59,109,0.3); }
+.btn.success { color: var(--neon); border-color: rgba(0,255,157,0.3); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+/* MCQ options */
+.mcq-options { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.mcq-option {
+  padding: 12px 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--bg-editor); cursor: pointer; transition: all 0.15s;
+  display: flex; gap: 12px; align-items: flex-start;
+  font-size: 14px; color: #d4d4dc;
+  text-align: left; width: 100%; font-family: var(--sans);
+}
+.mcq-option:hover:not(:disabled) { border-color: var(--cyan); background: #0d0d15; }
+.mcq-option:disabled { cursor: default; }
+.mcq-option .letter {
+  flex-shrink: 0; width: 26px; height: 26px; border-radius: 4px;
+  border: 1px solid var(--border); display: flex; align-items: center;
+  justify-content: center; font-family: var(--mono); font-size: 12px;
+  color: var(--text-dim); font-weight: 700;
+}
+.mcq-option.correct {
+  border-color: var(--neon); background: rgba(0,255,157,0.08); color: var(--neon);
+}
+.mcq-option.correct .letter { background: var(--neon); color: #000; border-color: var(--neon); }
+.mcq-option.wrong {
+  border-color: var(--pink); background: rgba(255,59,109,0.08); color: var(--pink);
+}
+.mcq-option.wrong .letter { background: var(--pink); color: #000; border-color: var(--pink); }
+.mcq-option.dimmed { opacity: 0.35; }
+.mcq-explain {
+  margin-top: 12px; padding: 12px 14px;
+  background: rgba(0,255,157,0.05); border-left: 2px solid var(--neon);
+  border-radius: 4px; font-size: 14px; color: #d4d4dc;
+}
+.mcq-explain b { color: var(--neon); font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+/* TOC grid */
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px; margin-top: 24px;
+}
+.toc-card {
+  padding: 20px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg-panel);
+  cursor: pointer; transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.toc-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 100%; height: 2px;
+  background: linear-gradient(90deg, var(--neon), var(--cyan));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.3s;
+}
+.toc-card:hover {
+  border-color: var(--neon); transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0,255,157,0.1);
+}
+.toc-card:hover::before { transform: scaleX(1); }
+.toc-card .num {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  letter-spacing: 2px; margin-bottom: 10px;
+}
+.toc-card .t {
+  font-family: var(--serif); font-size: 19px; font-weight: 700;
+  margin-bottom: 6px; letter-spacing: -0.3px; line-height: 1.2;
+}
+.toc-card .t i { color: var(--pink); font-weight: 400; }
+.toc-card .meta {
+  font-family: var(--mono); font-size: 11px; color: var(--text-dim);
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border);
+  display: flex; justify-content: space-between;
+}
+.toc-card .meta .done { color: var(--neon); }
+
+/* Pattern cards */
+.pattern-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px; margin: 20px 0;
+}
+.pattern-card {
+  padding: 18px; border: 1px solid var(--border);
+  border-radius: 10px; background: var(--bg-panel);
+}
+.pattern-card h4 {
+  font-family: var(--serif); font-size: 17px; font-weight: 700;
+  margin-bottom: 10px; letter-spacing: -0.3px;
+}
+.pattern-card p { font-size: 13px; color: var(--text-dim); }
+.pattern-card .code-block { margin: 8px 0; font-size: 12px; }
+
+/* Footer nav */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(11,11,18,0.92); backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border); padding: 14px 20px;
+  z-index: 50;
+}
+.nav-inner {
+  max-width: 980px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.nav-mid {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--text-dim); text-transform: uppercase; letter-spacing: 2px;
+}
+.nav-mid b { color: var(--neon); }
+
+/* Graph SVG */
+.graph-wrap {
+  background: linear-gradient(135deg, #0a0a12, #0f0f18);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; margin: 14px 0; overflow: hidden;
+}
+.graph-wrap svg { width: 100%; height: auto; display: block; }
+
+/* CAP triangle */
+.cap-tri {
+  display: flex; justify-content: center; margin: 20px 0;
+}
+.cap-tri svg text { font-family: var(--mono); }
+
+/* Table */
+.data-table {
+  width: 100%; border-collapse: collapse; margin: 12px 0;
+  font-size: 14px;
+}
+.data-table th, .data-table td {
+  padding: 10px 12px; border: 1px solid var(--border);
+  text-align: left; vertical-align: top;
+}
+.data-table th {
+  background: var(--bg-raised); font-family: var(--mono);
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim);
+}
+.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+
+/* Badge chips inline */
+.chip {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-family: var(--mono); font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-right: 4px;
+}
+.chip.neon { background: rgba(0,255,157,0.15); color: var(--neon); }
+.chip.pink { background: rgba(255,59,109,0.15); color: var(--pink); }
+.chip.yellow { background: rgba(255,217,61,0.15); color: var(--yellow); }
+.chip.cyan { background: rgba(24,224,232,0.15); color: var(--cyan); }
+.chip.purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+
+/* Finale */
+.finale {
+  margin-top: 30px; padding: 36px 28px;
+  background: linear-gradient(135deg, rgba(0,255,157,0.06), rgba(24,224,232,0.06));
+  border: 1px solid var(--border); border-radius: 14px;
+  text-align: center;
+}
+.finale .emoji { font-size: 54px; margin-bottom: 14px; display: block; }
+.finale h3 {
+  font-family: var(--serif); font-weight: 900; font-size: 30px;
+  letter-spacing: -1px; margin-bottom: 10px;
+}
+.finale h3 i { color: var(--pink); font-weight: 400; }
+
+/* Utility */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+.muted { color: var(--text-dim); }
+.small { font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="header">
+    <div>
+      <div class="logo">NEO4J LAB <span class="sp">SIMULATOR</span></div>
+      <div class="small muted" style="font-family: var(--mono); font-size: 11px; margin-top: 4px; letter-spacing: 1px;">
+        BLIND-CODING EDITION · F20/21BD
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat">XP <b id="xp">0</b></div>
+      <div class="stat nailed">NAILED <b id="nailed">0</b></div>
+      <div class="stat">MCQ <b id="mcq-score">0/0</b></div>
+    </div>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>MODULE <span id="mod-num">0/10</span> · <span id="indicator">LOADING</span></span>
+      <span><span id="progress-pct">0%</span></span>
+    </div>
+    <div class="progress-bar">
+      <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <div id="content"></div>
+
+</div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <button id="btn-prev" class="btn ghost">◀ Back</button>
+    <div class="nav-mid">
+      XP <b id="nav-xp">0</b> · NAILED <b id="nav-nailed">0</b>
+    </div>
+    <button id="btn-next" class="btn primary">Next ▶</button>
+  </div>
+</nav>
+
+<script>
+// =====================================================================
+// STATE
+// =====================================================================
+const state = {
+  current: 0,
+  xp: 0,
+  nailed: 0,
+  mcqCorrect: 0,
+  mcqTotal: 0,
+  answered: {},   // { moduleIdx: { questionId: {picked, correct, awarded} } }
+  revealed: {},   // { moduleIdx: { taskId: {revealed, nailed} } }
+  visited: new Set(),
+};
+
+// =====================================================================
+// HELPERS
+// =====================================================================
+function award(xp) {
+  state.xp += xp;
+  updateBars();
+}
+function updateBars() {
+  document.getElementById('xp').textContent = state.xp;
+  document.getElementById('nav-xp').textContent = state.xp;
+  document.getElementById('nailed').textContent = state.nailed;
+  document.getElementById('nav-nailed').textContent = state.nailed;
+  document.getElementById('mcq-score').textContent = state.mcqCorrect + '/' + state.mcqTotal;
+}
+
+// MCQ handler
+window.pickMCQ = function(modId, qId, pickedIdx, correctIdx, xpReward) {
+  const key = `${modId}:${qId}`;
+  if (state.answered[key]) return;
+  const correct = pickedIdx === correctIdx;
+  state.answered[key] = { picked: pickedIdx, correct };
+  state.mcqTotal++;
+  if (correct) { state.mcqCorrect++; award(xpReward || 10); }
+  else { award(2); }
+  // Update DOM
+  const opts = document.querySelectorAll(`[data-mcq="${key}"] .mcq-option`);
+  opts.forEach((o, i) => {
+    o.disabled = true;
+    if (i === correctIdx) o.classList.add('correct');
+    else if (i === pickedIdx) o.classList.add('wrong');
+    else o.classList.add('dimmed');
+  });
+  const exp = document.querySelector(`[data-mcq="${key}"] .mcq-explain`);
+  if (exp) exp.style.display = 'block';
+  updateBars();
+};
+
+// Blind-code reveal handler
+window.revealSolution = function(modId, taskId, xpReward) {
+  const key = `${modId}:${taskId}`;
+  if (state.revealed[key]) return;
+  state.revealed[key] = { revealed: true, nailed: false };
+  award(xpReward || 10);
+  const sol = document.querySelector(`[data-task="${key}"] .solution-wrap`);
+  if (sol) sol.style.display = 'block';
+  const btn = document.querySelector(`[data-task="${key}"] .btn-reveal`);
+  if (btn) { btn.disabled = true; btn.textContent = '✓ Revealed'; }
+  const nailBtn = document.querySelector(`[data-task="${key}"] .btn-nailed`);
+  if (nailBtn) nailBtn.style.display = 'inline-block';
+  const missBtn = document.querySelector(`[data-task="${key}"] .btn-missed`);
+  if (missBtn) missBtn.style.display = 'inline-block';
+};
+
+window.markNailed = function(modId, taskId) {
+  const key = `${modId}:${taskId}`;
+  const rec = state.revealed[key];
+  if (!rec || rec.nailed) return;
+  rec.nailed = true;
+  state.nailed++;
+  award(20);
+  const nailBtn = document.querySelector(`[data-task="${key}"] .btn-nailed`);
+  const missBtn = document.querySelector(`[data-task="${key}"] .btn-missed`);
+  if (nailBtn) { nailBtn.disabled = true; nailBtn.textContent = '✓ Nailed it'; nailBtn.classList.add('success'); }
+  if (missBtn) missBtn.disabled = true;
+};
+
+window.markMissed = function(modId, taskId) {
+  const key = `${modId}:${taskId}`;
+  const rec = state.revealed[key];
+  if (!rec) return;
+  rec.nailed = false;
+  const nailBtn = document.querySelector(`[data-task="${key}"] .btn-nailed`);
+  const missBtn = document.querySelector(`[data-task="${key}"] .btn-missed`);
+  if (missBtn) { missBtn.disabled = true; missBtn.textContent = '↻ Will review'; missBtn.classList.add('danger'); }
+  if (nailBtn) nailBtn.disabled = true;
+};
+
+// =====================================================================
+// CYPHER SYNTAX HIGHLIGHTER
+// =====================================================================
+function hl(code) {
+  const KEYWORDS = ['MATCH','CREATE','MERGE','WHERE','RETURN','SET','DELETE','DETACH DELETE','REMOVE','WITH','ORDER BY','LIMIT','SKIP','DISTINCT','AS','AND','OR','NOT','CONTAINS','ON CREATE SET','ON MATCH SET','LOAD CSV','WITH HEADERS','FROM','CREATE CONSTRAINT','REQUIRE','IS UNIQUE','CREATE INDEX','FOR','ON','EXPLAIN','CALL','FOREACH','IN','COLLECT'];
+  const FUNCS = ['count','min','max','length','toInteger','shortestPath','allShortestPaths','avg','sum','lower','upper','id'];
+
+  let out = '';
+  let i = 0;
+  const src = code;
+
+  while (i < src.length) {
+    // Comments
+    if (src[i] === '-' && src[i+1] === '-') {
+      let end = src.indexOf('\n', i);
+      if (end === -1) end = src.length;
+      out += `<span class="cm">${escapeHTML(src.slice(i, end))}</span>`;
+      i = end; continue;
+    }
+    // Strings
+    if (src[i] === "'" || src[i] === '"') {
+      const quote = src[i];
+      let end = i + 1;
+      while (end < src.length && src[end] !== quote) end++;
+      out += `<span class="str">${escapeHTML(src.slice(i, end + 1))}</span>`;
+      i = end + 1; continue;
+    }
+    // Numbers
+    if (/[0-9]/.test(src[i])) {
+      let end = i;
+      while (end < src.length && /[0-9.]/.test(src[end])) end++;
+      out += `<span class="num">${escapeHTML(src.slice(i, end))}</span>`;
+      i = end; continue;
+    }
+    // Labels (after :)
+    if (src[i] === ':' && /[A-Za-z_]/.test(src[i+1] || '')) {
+      let end = i + 1;
+      while (end < src.length && /[A-Za-z0-9_]/.test(src[end])) end++;
+      out += `<span class="label">${escapeHTML(src.slice(i, end))}</span>`;
+      i = end; continue;
+    }
+    // Words / keywords / functions
+    if (/[A-Za-z_]/.test(src[i])) {
+      // Check multi-word keywords first
+      let multiMatch = null;
+      for (const kw of KEYWORDS) {
+        if (kw.includes(' ')) {
+          if (src.slice(i, i + kw.length).toUpperCase() === kw &&
+              !/[A-Za-z0-9_]/.test(src[i + kw.length] || '')) {
+            multiMatch = kw;
+            break;
+          }
+        }
+      }
+      if (multiMatch) {
+        out += `<span class="kw">${escapeHTML(src.slice(i, i + multiMatch.length))}</span>`;
+        i += multiMatch.length; continue;
+      }
+      let end = i;
+      while (end < src.length && /[A-Za-z0-9_]/.test(src[end])) end++;
+      const word = src.slice(i, end);
+      const up = word.toUpperCase();
+      const isKw = KEYWORDS.some(k => !k.includes(' ') && k.toUpperCase() === up);
+      const isFn = FUNCS.some(f => f.toLowerCase() === word.toLowerCase());
+      if (isKw) out += `<span class="kw">${escapeHTML(word)}</span>`;
+      else if (isFn) out += `<span class="var">${escapeHTML(word)}</span>`;
+      else out += escapeHTML(word);
+      i = end; continue;
+    }
+    // Other — punctuation, whitespace
+    out += escapeHTML(src[i]);
+    i++;
+  }
+  return out;
+}
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function cb(code) {
+  return `<div class="code-block">${hl(code)}</div>`;
+}
+
+// =====================================================================
+// TWITTER GRAPH SVG (used in multiple modules)
+// =====================================================================
+function twitterGraph(highlight = [], highlightEdges = [], dim = false) {
+  const users = [
+    { id: 'Greenpeace', x: 110, y: 180 },
+    { id: 'YouTube',    x: 270, y: 70 },
+    { id: 'BBCNews',    x: 270, y: 290 },
+    { id: 'UN',         x: 430, y: 180 },
+    { id: 'WorldBank',  x: 590, y: 90 },
+    { id: 'Bob',        x: 45,  y: 50 },
+    { id: 'G7',         x: 590, y: 290 },
+  ];
+  const follows = [
+    ['Greenpeace','YouTube'], ['Greenpeace','BBCNews'], ['Greenpeace','UN'],
+    ['UN','WorldBank'],
+    ['BBCNews','UN'], ['BBCNews','Greenpeace'], ['BBCNews','WorldBank'],
+    ['WorldBank','G7'],
+    ['Bob','Greenpeace'], ['Bob','YouTube'],
+    ['G7','YouTube'], ['G7','BBCNews'],
+  ];
+  const map = Object.fromEntries(users.map(u => [u.id, u]));
+  const isHi = (id) => highlight.includes(id);
+  const edgeHi = (a,b) => highlightEdges.some(([x,y]) => x===a && y===b);
+
+  let svg = `<svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#4a4a5a"/></marker>
+      <marker id="arrHi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="${'#18e0e8'}"/></marker>
+    </defs>`;
+  follows.forEach(([a,b]) => {
+    const na = map[a], nb = map[b];
+    const dx = nb.x - na.x, dy = nb.y - na.y;
+    const len = Math.sqrt(dx*dx + dy*dy);
+    const ux = dx/len, uy = dy/len;
+    const r = 26;
+    const x1 = na.x + ux*r, y1 = na.y + uy*r;
+    const x2 = nb.x - ux*r, y2 = nb.y - uy*r;
+    const hi = edgeHi(a,b);
+    const op = dim && !hi ? 0.12 : 1;
+    svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"
+      stroke="${hi ? '#18e0e8' : '#4a4a5a'}"
+      stroke-width="${hi ? 2.5 : 1.5}" opacity="${op}"
+      marker-end="url(#${hi ? 'arrHi' : 'arr'})"/>`;
+  });
+  users.forEach(u => {
+    const hi = isHi(u.id);
+    const op = dim && !hi ? 0.3 : 1;
+    svg += `<g opacity="${op}">
+      <circle cx="${u.x}" cy="${u.y}" r="24"
+        fill="${hi ? '#18e0e8' : '#1d1d2a'}"
+        stroke="${hi ? '#00ff9d' : '#4a4a5a'}"
+        stroke-width="${hi ? 3 : 1.5}"/>
+      <text x="${u.x}" y="${u.y + 42}" text-anchor="middle" font-size="12"
+        font-family="JetBrains Mono, monospace"
+        fill="${hi ? '#00ff9d' : '#d4d4dc'}" font-weight="${hi ? 700 : 400}">${u.id}</text>
+    </g>`;
+  });
+  svg += '</svg>';
+  return `<div class="graph-wrap">${svg}</div>`;
+}
+
+// =====================================================================
+// BLOCK HELPERS
+// =====================================================================
+function block(cls, label, body) {
+  return `<div class="block ${cls}"><div class="block-label">${label}</div>${body}</div>`;
+}
+
+function mcq(modId, qId, prompt, options, correctIdx, explain, codeBlock) {
+  const key = `${modId}:${qId}`;
+  const optsHtml = options.map((opt, i) => `
+    <button class="mcq-option" onclick="pickMCQ('${modId}','${qId}',${i},${correctIdx},10)">
+      <span class="letter">${String.fromCharCode(65+i)}</span>
+      <span>${opt}</span>
+    </button>`).join('');
+  const codeHtml = codeBlock ? cb(codeBlock) : '';
+  return `
+    <div class="block mcq" data-mcq="${key}">
+      <div class="block-label">● INTERPRET · +10 XP</div>
+      <p><b>${prompt}</b></p>
+      ${codeHtml}
+      <div class="mcq-options">${optsHtml}</div>
+      <div class="mcq-explain" style="display:none"><b>EXPLANATION</b><br>${explain}</div>
+    </div>`;
+}
+
+function blindTask(modId, taskId, prompt, hint, solution, note) {
+  const key = `${modId}:${taskId}`;
+  const hintHtml = hint ? `<p class="muted small" style="margin-top:6px"><i>hint: ${hint}</i></p>` : '';
+  const noteHtml = note ? `<div class="tip"><b>note:</b> ${note}</div>` : '';
+  return `
+    <div class="block task" data-task="${key}">
+      <div class="block-label">◆ BLIND-CODE TASK · +10 / +20 XP</div>
+      <p>${prompt}</p>
+      ${hintHtml}
+      <div class="editor">
+        <div class="editor-header">
+          <div class="editor-dots"><span></span><span></span><span></span></div>
+          <span>your-cypher.cql</span>
+        </div>
+        <textarea placeholder="// type your cypher here — no peeking"></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn primary btn-reveal" onclick="revealSolution('${modId}','${taskId}',10)">▶ Reveal Answer</button>
+        <button class="btn success btn-nailed" style="display:none" onclick="markNailed('${modId}','${taskId}')">✓ Nailed it (+20)</button>
+        <button class="btn danger btn-missed" style="display:none" onclick="markMissed('${modId}','${taskId}')">✗ Missed it</button>
+      </div>
+      <div class="solution-wrap" style="display:none; margin-top: 16px;">
+        <div class="block solution" style="margin-bottom: 0">
+          <div class="block-label">✓ MODEL ANSWER</div>
+          ${cb(solution)}
+          ${noteHtml}
+        </div>
+      </div>
+    </div>`;
+}
+
+// =====================================================================
+// MODULES
+// =====================================================================
+const modules = [];
+
+// MODULE 00 — TOC / WELCOME
+modules.push({
+  indicator: 'TABLE OF CONTENTS',
+  title: 'TOC',
+  render: () => `
+    <div class="module">
+      <span class="module-badge">MODULE 00 · WELCOME</span>
+      <h1 class="module-title">Neo4j Lab Simulator · <i>Blind-Coded</i></h1>
+      <p class="module-sub">
+        The labs replaced. Every Cypher concept for F20/21BD, compressed into 10 modules with interpretation drills, blind-coding tasks, and exam-style MCQs. No install. No broken queries. Just the reps.
+      </p>
+
+      ${block('context','● HOW THIS WORKS',`
+        <ul>
+          <li><span class="chip cyan">CONTEXT</span> teaches the concept — read it once.</li>
+          <li><span class="chip purple">INTERPRET</span> shows a Cypher query — pick what it does. <b>+10 XP</b> per correct answer.</li>
+          <li><span class="chip yellow">BLIND-CODE</span> gives you an English prompt — write Cypher <i>without looking</i>, then reveal. <b>+10 XP</b> for reveal, <b>+20 XP</b> if you nailed it.</li>
+          <li><span class="chip red">TRAP</span> flags an exam gotcha. Read these twice.</li>
+        </ul>
+        <p style="margin-top:10px" class="muted small">Use <b>Next</b> / <b>Back</b> at the bottom. Jump to any module from the grid below.</p>
+      `)}
+
+      <div class="toc-grid" id="toc-grid"></div>
+
+      ${block('trap','⚠ WHAT THE EXAM ACTUALLY TESTS',`
+        <p>Your sample exam has <b>4+ "what does this Cypher query do?" questions</b>. Module 08 is the dedicated interpretation gauntlet — don't skip it. Also expect theory MCQs on <b>index-free adjacency</b> and <b>where Neo4j sits in CAP</b>.</p>
+      `)}
+    </div>
+  `
+});
+
+// MODULE 01 — WARM-UP / FOUNDATIONS
+modules.push({
+  indicator: 'WARM-UP · FOUNDATIONS',
+  title: 'Property Graph <i>& the theory dump</i>',
+  render: () => {
+    const m = 'm01';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 01 · WARM-UP</span>
+      <h1 class="module-title">The <i>theory</i> that shows up on every exam</h1>
+      <p class="module-sub">Before you touch a single query: property graph model, index-free adjacency, native vs non-native storage, and where Neo4j sits in CAP. Four concepts, all testable.</p>
+
+      ${block('context','● THE PROPERTY GRAPH MODEL', `
+        <p>Neo4j stores data as a <b>property graph</b>. Three ingredients, nothing more:</p>
+        <table class="data-table">
+          <tr><th>Piece</th><th>What it is</th><th>Example</th></tr>
+          <tr><td><b>Node</b></td><td>A thing (entity). Has <i>labels</i> (category) and <i>properties</i> (key:value).</td><td>${cb('(:USER {name:"Bob", age:26})')}</td></tr>
+          <tr><td><b>Relationship</b></td><td>A connection between two nodes. Has a <i>type</i>, a <i>direction</i>, and optional properties.</td><td>${cb('-[:FOLLOWS {since:2020}]->')}</td></tr>
+          <tr><td><b>Property</b></td><td>A key:value pair. Attached to a node OR a relationship.</td><td>${cb('{name: "Bob", age: 26}')}</td></tr>
+        </table>
+        <div class="warn"><b>⚠ Relationships are <i>always</i> directed.</b> You cannot create a bidirectional relationship. You can <i>query</i> in reverse (same relationship, flipped arrow), but if you need "A follows B AND B follows A" semantically, that's two separate relationships.</div>
+      `)}
+
+      ${block('context','● INDEX-FREE ADJACENCY (the magic term)', `
+        <p>This is the one phrase the examiner loves. Plain English:</p>
+        <div class="grid-2">
+          <div class="block" style="margin:0; background: rgba(255,59,109,0.04); border-color: rgba(255,59,109,0.3)">
+            <div class="block-label" style="color: var(--pink)">SQL (relational)</div>
+            <p class="small">Friend-of-friend-of-friend? Scan the Friendship table 3 times. Each hop = another full-table self-join. Gets exponentially slower.</p>
+          </div>
+          <div class="block" style="margin:0; background: rgba(0,255,157,0.04); border-color: rgba(0,255,157,0.3)">
+            <div class="block-label" style="color: var(--neon)">Neo4j (native graph)</div>
+            <p class="small">Each node <b>physically stores pointers</b> to its neighbours. Following a relationship = follow a pointer. <b>No index lookup.</b> Constant cost per hop.</p>
+          </div>
+        </div>
+        <div class="tip"><b>Say it in the exam like this:</b> <i>"Each node stores direct pointers to its adjacent nodes, so traversal is a pointer follow — O(1) per hop — not a global index lookup. Query time is proportional to the part of the graph you traverse, not the total database size."</i></div>
+      `)}
+
+      ${block('context','● NATIVE vs NON-NATIVE STORAGE', `
+        <table class="data-table">
+          <tr><th></th><th style="color:var(--neon)">Native (Neo4j)</th><th style="color:var(--pink)">Non-Native</th></tr>
+          <tr><td><b>Storage</b></td><td>Actual graph on disk. Relationships = real pointers.</td><td>Tables/docs. Relationships faked via foreign keys.</td></tr>
+          <tr><td><b>Key feature</b></td><td>Index-free adjacency</td><td>Needs indexes / table scans</td></tr>
+          <tr><td><b>Per-hop speed</b></td><td>Constant</td><td>Degrades with DB size</td></tr>
+          <tr><td><b>Example</b></td><td>Neo4j, TigerGraph</td><td>Graph-on-MySQL, Graph-on-MongoDB</td></tr>
+        </table>
+      `)}
+
+      ${block('context','● NEO4J IN THE CAP TRIANGLE', `
+        <p>CAP says a distributed DB gets <b>at most 2 of 3</b>: Consistency, Availability, Partition-tolerance.</p>
+        <div class="cap-tri">
+          <svg viewBox="0 0 260 220" width="260" height="220">
+            <polygon points="130,20 30,200 230,200" fill="none" stroke="#4a4a5a" stroke-width="2"/>
+            <text x="130" y="14" text-anchor="middle" fill="#ececf1" font-size="14" font-weight="700">Consistency</text>
+            <text x="24" y="216" text-anchor="start" fill="#ececf1" font-size="14" font-weight="700">Availability</text>
+            <text x="236" y="216" text-anchor="end" fill="#ececf1" font-size="14" font-weight="700">Partition-tol</text>
+            <circle cx="80" cy="130" r="26" fill="rgba(0,255,157,0.25)" stroke="#00ff9d" stroke-width="2"/>
+            <text x="80" y="126" text-anchor="middle" fill="#00ff9d" font-size="14" font-weight="700">CA</text>
+            <text x="80" y="144" text-anchor="middle" fill="#00ff9d" font-size="11">Neo4j</text>
+          </svg>
+        </div>
+        <p><b>Neo4j = CA.</b> Centralised, single-server design. ACID-compliant like a traditional RDBMS. Correct + available while the network is healthy. Not built to ride out network partitions (that's Cassandra = AP, or HBase = CP).</p>
+      `)}
+
+      ${mcq(m,'q1', 'What does "index-free adjacency" actually mean?', [
+        'Neo4j has no indexes at all',
+        'Each node stores direct pointers to its neighbours, so traversal needs no global index lookup',
+        'Relationships are stored in a separate index table for fast lookup',
+        'Neo4j uses a faster-than-B-tree indexing algorithm'
+      ], 1, 'Nodes hold pointers to adjacent nodes. Traversal = pointer follow = O(1) per hop. Neo4j DOES support property indexes separately — but that\'s not what "index-free adjacency" refers to.')}
+
+      ${mcq(m,'q2','Where does Neo4j sit in CAP?', [
+        'AP — like Cassandra',
+        'CP — like HBase',
+        'CA — correct + available, centralised single-server',
+        'All three'
+      ], 2, 'Neo4j is CA. Built as a centralised, ACID-compliant database. Correct + available under normal conditions, not designed for partition-tolerance.')}
+
+      ${mcq(m,'q3','Which three components make up the property graph model?', [
+        'Tables, Rows, Columns',
+        'Nodes, Relationships, Properties',
+        'Keys, Values, Documents',
+        'Entities, Classes, Attributes'
+      ], 1, 'Node = thing, Relationship = directed connection, Property = key:value data attached to either.')}
+
+      ${mcq(m,'q4','Can a single Neo4j relationship point in both directions at once?', [
+        'Yes, just omit the arrow',
+        'No — relationships are always directed. You can query in reverse, but for true two-way semantics you need two separate relationships',
+        'Yes, if you use MERGE instead of CREATE',
+        'Only relationships without properties can be bidirectional'
+      ], 1, 'Every rel has one direction. Using -- (no arrow) in a MATCH means "either direction" for the query, but the underlying rel is still directed.')}
+    </div>`;
+  }
+});
+
+// MODULE 02 — CYPHER 101
+modules.push({
+  indicator: 'CYPHER 101',
+  title: 'CREATE · <i>MATCH · WHERE · RETURN</i>',
+  render: () => {
+    const m = 'm02';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 02 · CYPHER 101</span>
+      <h1 class="module-title">Cypher is <i>ASCII art</i> for graphs</h1>
+      <p class="module-sub">The syntax literally looks like the pattern you're matching. Once that clicks, 70% of Cypher is intuitive.</p>
+
+      ${block('context','● THE ASCII ART RULE', `
+        <div class="pattern-grid">
+          <div class="pattern-card"><h4>( )</h4><p>A node. Like drawing a circle.</p></div>
+          <div class="pattern-card"><h4>[ ]</h4><p>A relationship. Drawn in square brackets.</p></div>
+          <div class="pattern-card"><h4>--></h4><p>Directed edge.</p></div>
+          <div class="pattern-card"><h4>--</h4><p>Any direction (either way).</p></div>
+        </div>
+        <p>So <code>(a:USER)-[:FOLLOWS]-&gt;(b:USER)</code> literally reads: <i>user a follows user b</i>.</p>
+      `)}
+
+      ${block('context','● CREATE — make new data', `
+        ${cb('CREATE (:USER {name:"Bob", age:26})')}
+        <p>Breakdown:</p>
+        <ul>
+          <li><code>CREATE</code> — make something new</li>
+          <li><code>( )</code> — a node</li>
+          <li><code>:USER</code> — its label (category)</li>
+          <li><code>{name:"Bob", age:26}</code> — its properties</li>
+        </ul>
+        <p>Create node + relationship in one statement:</p>
+        ${cb('CREATE (a:USER {name:"Bob"})-[:FOLLOWS]->(b:USER {name:"Alice"})')}
+        <div class="warn"><b>⚠ CREATE makes duplicates.</b> Run the above twice and you get TWO Bobs. If you want "find-or-create" behaviour, use <code>MERGE</code> (Module 04).</div>
+      `)}
+
+      ${block('context','● MATCH + RETURN — read patterns', `
+        <p>MATCH finds existing data. RETURN sends results back.</p>
+        ${cb('MATCH (u:USER) RETURN u')}
+        <p class="muted small">→ every USER node in the graph.</p>
+        ${cb(`MATCH (u:USER {name:"Bob"})-[:FOLLOWS]->(f)
+RETURN f.name`)}
+        <p class="muted small">→ the names of everyone Bob follows.</p>
+        ${cb(`MATCH (f)-[:FOLLOWS]->(u:USER {name:"Bob"})
+RETURN f.name`)}
+        <p class="muted small">→ flipped arrow = everyone who follows Bob.</p>
+      `)}
+
+      ${block('context','● WHERE + CONTAINS — filter', `
+        <p>Two equivalent ways to filter by name:</p>
+        ${cb(`-- Inline (shorter)
+MATCH (u:USER {name:"Bob"}) RETURN u
+
+-- WHERE clause (more flexible: <, >, NOT, etc.)
+MATCH (u:USER) WHERE u.name = "Bob" RETURN u`)}
+        <p>Use WHERE when you need real comparisons:</p>
+        ${cb('MATCH (u:USER) WHERE u.joined < 2010 RETURN u.name')}
+        <p>Substring search uses <code>CONTAINS</code> (case-sensitive):</p>
+        ${cb("MATCH (t:TWEET) WHERE t.msg CONTAINS 'Climate' RETURN t")}
+        <p class="muted small">For case-insensitive: <code>WHERE lower(t.msg) CONTAINS 'climate'</code></p>
+      `)}
+
+      ${block('context','● THE TWITTER PLAYGROUND', `
+        <p>All interpretation questions below use this graph (7 USERs, :FOLLOWS edges). Memorise who follows whom:</p>
+        ${twitterGraph()}
+        <p class="muted small">Plus 3 TWEET nodes linked via <code>:sent_by</code>: tweet 123 "Climate Change..." by Greenpeace, tweet 300 "...the deal..." by BBCNews, tweet 462 "Crazy weather..." by Bob.</p>
+      `)}
+
+      ${mcq(m,'q1','What does this return?', [
+        'Everyone who follows Greenpeace',
+        'Everyone Greenpeace follows (YouTube, BBCNews, UN)',
+        'All users in the graph',
+        "Greenpeace's own name"
+      ], 1, 'The arrow points FROM Greenpeace TO f, so f is the followee. Greenpeace follows YouTube, BBCNews, and UN.', `MATCH (u:USER {name:"Greenpeace"})-[:FOLLOWS]->(f)
+RETURN f.name`)}
+
+      ${mcq(m,'q2','And this one? Note the flipped arrow.', [
+        'Everyone YouTube follows',
+        "YouTube's own name",
+        'Everyone who follows YouTube (Bob, Greenpeace, G7)',
+        'The follow count for YouTube'
+      ], 2, 'Arrow goes FROM f TO YouTube, so f is the follower. Bob, Greenpeace, and G7 all follow YouTube.', `MATCH (f)-[:FOLLOWS]->(u:USER {name:"YouTube"})
+RETURN f.name`)}
+
+      ${mcq(m,'q3','Bob already exists. You run this. What happens?', [
+        'Error — duplicate name',
+        'Nothing — CREATE is idempotent',
+        'A second Bob node is created. CREATE never checks for duplicates.',
+        'The existing Bob is silently updated'
+      ], 2, 'CREATE always creates. No duplicate check. This is why MERGE exists — and why you add a UNIQUE constraint before bulk imports.', 'CREATE (:USER {name:"Bob"})')}
+
+      ${mcq(m,'q4','What does this find?', [
+        'Tweets where msg equals "Climate"',
+        'Tweets whose msg contains the substring "Climate" (case-sensitive)',
+        'Tweets with a property called Climate',
+        'Anything containing "climate" case-insensitively'
+      ], 1, "CONTAINS is a substring match, case-sensitive. Wrap in lower() for case-insensitive searching.",
+      "MATCH (t:TWEET) WHERE t.msg CONTAINS 'Climate' RETURN t")}
+
+      ${blindTask(m,'t1',
+        'Create a USER node named "Alice" with joined=2023.',
+        null,
+        'CREATE (:USER {name:"Alice", joined:2023})')}
+
+      ${blindTask(m,'t2',
+        'Find all USERs whose name contains "peace" (case-sensitive). Return their names.',
+        'CONTAINS',
+        `MATCH (u:USER) WHERE u.name CONTAINS 'peace'
+RETURN u.name`)}
+    </div>`;
+  }
+});
+
+// MODULE 03 — MUTATIONS
+modules.push({
+  indicator: 'MUTATIONS',
+  title: 'SET · <i>REMOVE · DELETE · DETACH DELETE</i>',
+  render: () => {
+    const m = 'm03';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 03 · MUTATIONS</span>
+      <h1 class="module-title">Changing and <i>deleting</i> data</h1>
+      <p class="module-sub">Four clauses, one brutal exam trap. The DELETE vs DETACH DELETE distinction is ALWAYS tested.</p>
+
+      ${block('context','● SET — add or update a property', `
+        ${cb(`MATCH (u:USER {name:"BBCNews"})
+SET u.joined = 2007
+RETURN u`)}
+        <p>→ finds BBCNews, adds (or overwrites) the <code>joined</code> property. If the property didn't exist before, SET creates it.</p>
+        <p>Bulk-copy all properties from a map (e.g. a CSV row) onto a node:</p>
+        ${cb('MATCH (v:Vehicle) SET v += row')}
+        <p class="muted small">The <code>+=</code> form keeps existing properties and merges in the new ones.</p>
+      `)}
+
+      ${block('context','● REMOVE — delete a property (not the node)', `
+        ${cb(`MATCH (u:USER {name:"Bob"}) REMOVE u.age RETURN u`)}
+        <p>→ the node stays. The property is gone. Totally different from DELETE.</p>
+      `)}
+
+      ${block('trap','⚠ DELETE vs DETACH DELETE — the exam trap', `
+        <p>The lab notes literally have a paragraph pointing out this trap. Expect a question.</p>
+        <div class="grid-2">
+          <div class="block" style="margin:0; background: rgba(255,59,109,0.04); border-color: rgba(255,59,109,0.3)">
+            <div class="block-label" style="color: var(--pink)">DELETE</div>
+            ${cb('MATCH (u:USER) DELETE u')}
+            <p class="small"><b>Fails</b> if the node has ANY relationships. Neo4j refuses to orphan an edge.</p>
+          </div>
+          <div class="block" style="margin:0; background: rgba(0,255,157,0.04); border-color: rgba(0,255,157,0.3)">
+            <div class="block-label" style="color: var(--neon)">DETACH DELETE</div>
+            ${cb('MATCH (u:USER) DETACH DELETE u')}
+            <p class="small">Deletes the node <b>AND</b> all its relationships. Safe default for connected data.</p>
+          </div>
+        </div>
+        <div class="tip"><b>Rule of thumb:</b> If the node might have relationships, use <code>DETACH DELETE</code>. Use plain <code>DELETE</code> only for isolated nodes or for deleting relationships alone.</div>
+      `)}
+
+      ${mcq(m,'q1','You run this on the Twitter graph (7 USERs with FOLLOWS edges). What happens?', [
+        'All USER nodes are deleted',
+        'Error — DELETE refuses to orphan relationships',
+        'Only users without relationships are deleted',
+        'All USERs and all FOLLOWS relationships are deleted'
+      ], 1, "Every USER has FOLLOWS edges. Plain DELETE fails. You must use DETACH DELETE (or delete the relationships first).",
+      'MATCH (u:USER) DELETE u')}
+
+      ${mcq(m,'q2',"What's the difference?", [
+        'A sets the property to 2020; B removes the property entirely',
+        'Both do the same thing',
+        'A removes; B sets',
+        'A creates a node; B deletes it'
+      ], 0, "SET assigns a value (creating the property if needed). REMOVE wipes the property off the node. The node itself is untouched in both cases.",
+      `(A)  MATCH (u:USER {name:"Bob"}) SET u.joined = 2020
+(B)  MATCH (u:USER {name:"Bob"}) REMOVE u.joined`)}
+
+      ${blindTask(m,'t1',
+        'Delete every TWEET node and all its relationships in one safe statement.',
+        'detach',
+        'MATCH (t:TWEET) DETACH DELETE t',
+        'Plain DELETE would fail because TWEETs have :sent_by relationships. DETACH DELETE handles both in one pass.')}
+
+      ${blindTask(m,'t2',
+        'Add joined=2012 to the existing user "Bob" and return Bob.',
+        null,
+        `MATCH (u:USER {name:"Bob"}) SET u.joined = 2012 RETURN u`)}
+    </div>`;
+  }
+});
+
+// MODULE 04 — MERGE
+modules.push({
+  indicator: 'MERGE · ON CREATE SET',
+  title: 'MERGE · <i>the safe cousin of CREATE</i>',
+  render: () => {
+    const m = 'm04';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 04 · MERGE</span>
+      <h1 class="module-title">MERGE: <i>find</i> or create</h1>
+      <p class="module-sub">The clause that makes LOAD CSV imports safe. And the one with a sneaky "ON CREATE SET" exam trap.</p>
+
+      ${block('context','● MERGE — no duplicates, ever', `
+        ${cb('MERGE (u:USER {name:"Bob"})')}
+        <p>→ if a USER called Bob exists, match it. If not, create it. Run this 100 times — still one Bob.</p>
+        <p>Think of MERGE as <b>MATCH + CREATE fused</b>: it tries MATCH first, falls back to CREATE.</p>
+      `)}
+
+      ${block('context','● ON CREATE SET — only fires when creating', `
+        ${cb(`MERGE (u:USER {name:"Bob"})
+ON CREATE SET u.joined = 2020`)}
+        <p>If Bob already exists → just find him. <b>Don't touch his <code>joined</code> year.</b></p>
+        <p>If Bob is fresh → create him and set joined = 2020.</p>
+        <p>There's also <code>ON MATCH SET</code> — runs only when MERGE finds an existing node (e.g. to update a lastSeen timestamp).</p>
+      `)}
+
+      ${block('trap','⚠ EXAM TRAP — ON CREATE SET vs SET', `
+        <p>If Bob already has <code>joined=2012</code> and you run:</p>
+        ${cb(`MERGE (u:USER {name:"Bob"}) ON CREATE SET u.joined = 2020`)}
+        <p><b>Bob's joined stays at 2012.</b> MERGE took the MATCH branch; ON CREATE SET didn't fire. If you wanted to overwrite, you'd need plain <code>SET</code> (or <code>ON MATCH SET</code>) after the MERGE.</p>
+      `)}
+
+      ${mcq(m,'q1','Bob already exists with joined=2012. What is Bob\'s joined after this query?', [
+        '2020',
+        '2012 — MERGE matched; ON CREATE SET was skipped',
+        'null',
+        'Both 2012 and 2020'
+      ], 1, 'ON CREATE SET fires only when MERGE creates a new node. Since Bob exists, MERGE matched, and the SET was skipped.',
+      `MERGE (u:USER {name:"Bob"})
+ON CREATE SET u.joined = 2020`)}
+
+      ${mcq(m,'q2','You want to add Ken if missing, else update his lastSeen. Which combo?', [
+        'CREATE + ON MATCH SET',
+        'MERGE + ON CREATE SET',
+        'MERGE + ON MATCH SET',
+        'SET + ON CREATE'
+      ], 2, 'MERGE handles find-or-create. ON MATCH SET runs only when MERGE finds an existing node — perfect for updating a timestamp on every visit.')}
+
+      ${blindTask(m,'t1',
+        'Find-or-create a USER called "Claire". If she\'s brand new, set joined=2024. Do not change it if she exists.',
+        'MERGE + ON CREATE SET',
+        `MERGE (u:USER {name:"Claire"})
+ON CREATE SET u.joined = 2024`,
+        'This is the exact pattern LOAD CSV uses to avoid duplicate imports. Memorise it.')}
+    </div>`;
+  }
+});
+
+// MODULE 05 — SHAPING RESULTS
+modules.push({
+  indicator: 'SHAPING RESULTS',
+  title: 'WITH · <i>ORDER BY · LIMIT · aggregates</i>',
+  render: () => {
+    const m = 'm05';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 05 · SHAPING</span>
+      <h1 class="module-title">Sorting, slicing, <i>counting</i></h1>
+      <p class="module-sub">ORDER BY, LIMIT, SKIP — easy. WITH — looks weird, but it's <i>required</i> whenever you want to filter on an aggregate.</p>
+
+      ${block('context','● ORDER BY · LIMIT · SKIP', `
+        ${cb(`MATCH (u:USER) RETURN u
+ORDER BY u.joined LIMIT 1`)}
+        <p>→ sort ascending (default), take the first = <b>earliest joiner</b>.</p>
+        <ul>
+          <li><code>ORDER BY u.joined DESC</code> — reverse sort</li>
+          <li><code>LIMIT 5</code> — first 5 rows</li>
+          <li><code>SKIP 10 LIMIT 5</code> — rows 11–15 (classic pagination)</li>
+        </ul>
+      `)}
+
+      ${block('context','● DISTINCT — kill duplicates', `
+        ${cb(`MATCH (u:USER)-[:FOLLOWS*1..3]->(d:USER)
+RETURN DISTINCT d.name`)}
+        <p>Without DISTINCT, a destination reachable via multiple paths shows up once per path. DISTINCT collapses duplicates.</p>
+      `)}
+
+      ${block('context','● Aggregates: count, min, max', `
+        ${cb('RETURN count(n), min(p.age), max(length(path))')}
+        <p>Aggregates work <b>implicitly</b>. Anything in the RETURN that ISN'T an aggregate becomes a grouping key — like SQL's GROUP BY, but invisible.</p>
+      `)}
+
+      ${block('context','● WITH — the pipeline operator', `
+        <p>WITH passes the current results to the next part of the query. You need it whenever you want to <b>filter on an aggregate</b>.</p>
+        ${cb(`MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WITH z, count(u) AS fans
+WHERE fans >= 2
+RETURN z.name`)}
+        <ol>
+          <li>MATCH finds every (follower → followee) pair.</li>
+          <li>WITH groups by <code>z</code> (the followee) and counts how many followers each has.</li>
+          <li>WHERE filters those with ≥2 fans.</li>
+          <li>RETURN outputs the names.</li>
+        </ol>
+      `)}
+
+      ${block('trap','⚠ EXAM TRAP — aggregates can\'t live in WHERE', `
+        <p>This FAILS:</p>
+        ${cb(`MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WHERE count(u) >= 2
+RETURN z`)}
+        <p>You can't use an aggregate directly in WHERE. Pipe through <code>WITH</code> first (like SQL's HAVING vs WHERE). The correct version is above.</p>
+      `)}
+
+      ${mcq(m,'q1','What does this return, assuming all users have a joined year?', [
+        'The most recent joiner',
+        'The earliest joiner',
+        'A random user',
+        'The user with the smallest ID'
+      ], 1, "ORDER BY defaults to ascending. LIMIT 1 takes the top row. For the latest joiner, you'd need ORDER BY u.joined DESC.",
+      'MATCH (u:USER) RETURN u ORDER BY u.joined LIMIT 1')}
+
+      ${mcq(m,'q2','What does this compute on the Twitter graph?', [
+        'Users who follow 2+ others',
+        'Users with 2+ followers (UN, BBCNews, YouTube, WorldBank, Greenpeace)',
+        'The top 2 most-followed users',
+        'Mutual followers'
+      ], 1, "u is the follower, z is the followee (arrow points to z). count(u) per z = followers per z. ≥2 filters for the popular ones.",
+      `MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WITH z, count(u) AS rels
+WHERE rels >= 2
+RETURN z.name`)}
+
+      ${mcq(m,'q3','Why does this fail?', [
+        'Missing semicolon',
+        "You can't use aggregates in WHERE directly — must pipe through WITH",
+        "count() isn't valid Cypher",
+        'The MATCH needs DISTINCT'
+      ], 1, 'Same reason SQL has HAVING instead of WHERE for group filters. WITH is the aggregation boundary in Cypher.',
+      `MATCH (u:USER)-[:FOLLOWS]->(z)
+WHERE count(u) >= 2
+RETURN z.name`)}
+
+      ${blindTask(m,'t1',
+        'Find every user with 2 or more followers. Return their names.',
+        'WITH + count + WHERE',
+        `MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WITH z, count(u) AS fans
+WHERE fans >= 2
+RETURN z.name`)}
+    </div>`;
+  }
+});
+
+// MODULE 06 — PATHS & HOPS
+modules.push({
+  indicator: 'PATHS & HOPS',
+  title: 'Variable hops · <i>shortestPath</i>',
+  render: () => {
+    const m = 'm06';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 06 · PATHS</span>
+      <h1 class="module-title">The <i>star</i> syntax, shortest paths, direction traps</h1>
+      <p class="module-sub">The most powerful corner of Cypher — and the corner with the most exam trip-wires. Pay attention to ranges and arrows.</p>
+
+      ${block('context','● VARIABLE-LENGTH PATHS', `
+        <table class="data-table">
+          <tr><th>Syntax</th><th>Meaning</th></tr>
+          <tr><td><code>(a)-[*]-&gt;(b)</code></td><td>Any number of hops (unbounded — careful)</td></tr>
+          <tr><td><code>(a)-[:FOLLOWS*]-&gt;(b)</code></td><td>Any number of hops, only via FOLLOWS</td></tr>
+          <tr><td><code>(a)-[:FOLLOWS*1..3]-&gt;(b)</code></td><td><b>1 to 3</b> hops (inclusive — 1, 2, AND 3)</td></tr>
+          <tr><td><code>(a)-[:FOLLOWS*2..3]-&gt;(b)</code></td><td>2 or 3 hops only</td></tr>
+          <tr><td><code>(a)-[:FOLLOWS*2]-&gt;(b)</code></td><td><b>Exactly 2</b> hops</td></tr>
+        </table>
+        <div class="warn"><b>⚠ Exam trap:</b> <code>*1..3</code> is inclusive on <b>both ends</b>. Matches paths of length 1, 2, AND 3.</div>
+      `)}
+
+      ${block('context','● NAMING A PATH', `
+        ${cb(`MATCH p = (a:USER {name:"Greenpeace"})-[:FOLLOWS*]->(b:USER {name:"G7"})
+RETURN p, length(p)`)}
+        <p>The <code>p =</code> part names the whole path. Then <code>length(p)</code> gives its hop count.</p>
+      `)}
+
+      ${block('context','● shortestPath() and allShortestPaths()', `
+        ${cb(`MATCH (u:USER {name:"Greenpeace"}), (v:USER {name:"G7"}),
+      p = shortestPath((u)-[:FOLLOWS*]->(v))
+RETURN p, length(p)`)}
+        <p>→ returns <b>one</b> shortest path. If multiple tie, Neo4j picks one.</p>
+        <p>Need all the ties?</p>
+        ${cb(`MATCH p = allShortestPaths((u:USER {name:"A"})-[:FOLLOWS*]->(v:USER {name:"B"}))
+RETURN p`)}
+        <p>Manual alternative (works but slower):</p>
+        ${cb(`MATCH p = (a:USER {name:"X"})-[:FOLLOWS*]->(b:USER {name:"Y"})
+RETURN min(length(p))`)}
+      `)}
+
+      ${block('trap','⚠ DIRECTION MATTERS', `
+        <p>These look similar. They're not.</p>
+        ${cb(`-- Directed: follows goes FROM n TO m only
+MATCH (n)-[:FOLLOWS]->(m) RETURN n, m
+
+-- Undirected: either direction
+MATCH (n)-[:FOLLOWS]-(m) RETURN n, m
+
+-- Any rel type, any direction
+MATCH (n)--(m) RETURN n, m`)}
+        <p>Writing <code>--</code> when you meant <code>--&gt;</code> matches reverse directions that make no sense. <b>Pick direction deliberately.</b></p>
+      `)}
+
+      ${block('trap','⚠ COURSE-SPECIFIC: COLLECT + FOREACH for bulk SET', `
+        <p>When updating every matched neighbour in your course, the expected pattern is:</p>
+        ${cb(`MATCH (a:Person {name:"Bob"})-[:FRIEND]-(b:Person)
+WITH COLLECT(b) AS friends
+FOREACH (n IN friends | SET n.checked = TRUE)`)}
+        <p>A direct <code>SET b.checked = TRUE</code> right after the MATCH is <b>not accepted</b> as the correct answer in your exam. Use COLLECT → FOREACH for iterative updates to multiple matched nodes.</p>
+      `)}
+
+      ${mcq(m,'q1','In (a)-[:FOLLOWS*1..3]->(b), what lengths match?', [
+        'Exactly 3',
+        'Only 1 or 3 — never 2',
+        '1, 2, AND 3 (inclusive on both ends)',
+        '1 to infinity, capped at 3 results'
+      ], 2, 'Cypher variable-hop ranges are inclusive on BOTH ends. *1..3 means 1 OR 2 OR 3 hops.')}
+
+      ${mcq(m,'q2','What does this return on the Twitter graph?', [
+        'Everyone Greenpeace follows directly',
+        'Everyone reachable from Greenpeace in 1 or 2 hops',
+        'Everyone reachable from Greenpeace in exactly 2 FOLLOWS hops',
+        'Greenpeace\'s 2 closest friends'
+      ], 2, '*2 = exactly 2 hops. Greenpeace → {YouTube,BBCNews,UN} (1 hop) → their followees (2nd hop). DISTINCT removes dups.',
+      `MATCH (g:USER {name:"Greenpeace"})-[:FOLLOWS*2]->(d:USER)
+RETURN DISTINCT d.name`)}
+
+      ${mcq(m,'q3','What\'s the length of the shortest FOLLOWS path from Greenpeace to G7?', [
+        '0','2','3','5'
+      ], 2, 'Greenpeace → UN → WorldBank → G7 = 3 hops. Length counts relationships, not nodes.',
+      `MATCH p = shortestPath((a:USER {name:"Greenpeace"})-[:FOLLOWS*]->(b:USER {name:"G7"}))
+RETURN length(p)`)}
+
+      ${mcq(m,'q4','shortestPath vs allShortestPaths?', [
+        'shortestPath picks one; allShortestPaths returns every path tied for the shortest length',
+        'shortestPath is deprecated',
+        'allShortestPaths ignores direction',
+        "They're identical"
+      ], 0, 'If multiple paths tie for shortest, shortestPath picks one arbitrarily; allShortestPaths returns them all.')}
+
+      ${blindTask(m,'t1',
+        'Find users reachable from "Greenpeace" in 1 to 2 FOLLOWS hops. Return distinct names.',
+        '*1..2 + DISTINCT',
+        `MATCH (u:USER {name:"Greenpeace"})-[:FOLLOWS*1..2]->(d:USER)
+RETURN DISTINCT d.name`,
+        "Without DISTINCT you'd see duplicates when the same destination is reachable via multiple paths (e.g. WorldBank via UN AND via BBCNews).")}
+
+      ${blindTask(m,'t2',
+        'Return the length of the shortest FOLLOWS path from "Greenpeace" to "G7".',
+        'shortestPath + length()',
+        `MATCH (u:USER {name:"Greenpeace"}), (v:USER {name:"G7"}),
+      p = shortestPath((u)-[:FOLLOWS*]->(v))
+RETURN length(p)`)}
+    </div>`;
+  }
+});
+
+// MODULE 07 — ADMIN / LOAD CSV
+modules.push({
+  indicator: 'INDEXES · CONSTRAINTS · LOAD CSV',
+  title: 'Indexes, constraints, <i>LOAD CSV</i>',
+  render: () => {
+    const m = 'm07';
+    return `
+    <div class="module">
+      <span class="module-badge">MODULE 07 · ADMIN</span>
+      <h1 class="module-title">Loading data <i>fast and safe</i></h1>
+      <p class="module-sub">Indexes for speed, constraints for sanity, LOAD CSV for bulk imports. Plus the pattern the Accidents lab expects.</p>
+
+      ${block('context','● CREATE INDEX — speed up property lookups', `
+        ${cb('CREATE INDEX cityindex FOR (n:CITY) ON (n.name)')}
+        <p>After this, queries like <code>MATCH (n:CITY {name:"London"})</code> jump straight to the matching node instead of scanning every CITY.</p>
+        <p>Verify the effect:</p>
+        ${cb('EXPLAIN MATCH (n:CITY {name:"London"}) RETURN n')}
+        <p class="muted small">Plan shows <b>NodeIndexSeek</b> (fast) vs <b>NodeByLabelScan</b> (slow).</p>
+      `)}
+
+      ${block('context','● CREATE CONSTRAINT — enforce uniqueness', `
+        ${cb(`CREATE CONSTRAINT FOR (a:Accident)
+REQUIRE a.accidentIndex IS UNIQUE`)}
+        <p>→ no two Accident nodes can share the same <code>accidentIndex</code>. <b>Bonus:</b> this also creates an index automatically.</p>
+        <div class="tip"><b>Why before LOAD CSV?</b> Without the constraint (and its auto-index), MERGE has to scan linearly to check for duplicates — <b>very slow</b> on big imports. With the constraint, MERGE does instant lookups. The lab notes literally say "without the constraint this would be very slow".</div>
+      `)}
+
+      ${block('context','● LOAD CSV — the import workhorse', `
+        <p>The pattern you need to memorise for the exam:</p>
+        ${cb(`-- 1. Constraint first (creates index too)
+CREATE CONSTRAINT FOR (a:Accident) REQUIRE a.accidentIndex IS UNIQUE;
+
+-- 2. Read the CSV, MERGE to avoid duplicates
+LOAD CSV WITH HEADERS FROM "file:///accidents.csv" AS row
+MERGE (a:Accident {accidentIndex: row.Accident_Index})
+ON CREATE SET a.severity = toInteger(row.Accident_Severity);`)}
+        <ul>
+          <li><code>WITH HEADERS</code> → first row is column names, access with <code>row.ColName</code></li>
+          <li><code>toInteger()</code> → CSV values are strings by default; cast them explicitly</li>
+          <li><code>ON CREATE SET</code> → only set the property when we create fresh; re-runs don't clobber</li>
+        </ul>
+        <p>To link rows and copy all columns:</p>
+        ${cb(`LOAD CSV WITH HEADERS FROM "file:///vehicles.csv" AS row
+MATCH (a:Accident {accidentIndex: row.Accident_Index})
+CREATE (v:Vehicle) SET v += row
+CREATE (a)-[:INVOLVES]->(v)`)}
+        <p class="muted small"><code>v += row</code> = "merge this map of key/value pairs into v as properties".</p>
+      `)}
+
+      ${mcq(m,'q1','Why create a unique constraint BEFORE a big LOAD CSV + MERGE import?', [
+        'Cypher requires it',
+        'The constraint creates an auto-index, so MERGE duplicate-checks become instant instead of linear scans',
+        'It prevents duplicate rows in the CSV',
+        'It forces single-threaded execution'
+      ], 1, "Without an index, every MERGE scans every existing node of that label. With the auto-index from the constraint, it's O(log n) or better. This is the LAB'S stated reason.")}
+
+      ${mcq(m,'q2','What does this CSV import do exactly?', [
+        'Creates one Accident per row, duplicates allowed',
+        'For each row: MERGE an Accident with that index (find-or-create); set severity ONLY when newly created; cast string to int',
+        'Deletes all existing accidents and reloads',
+        'Creates accidents and relationships together'
+      ], 1, "MERGE = find-or-create. ON CREATE SET only fires on fresh creates. toInteger casts the CSV string to int. Re-running doesn't overwrite existing severities.",
+      `LOAD CSV WITH HEADERS FROM "file:///accidents.csv" AS row
+MERGE (a:Accident {accidentIndex: row.Accident_Index})
+ON CREATE SET a.severity = toInteger(row.Accident_Severity)`)}
+
+      ${mcq(m,'q3','What does CREATE INDEX speed up?', [
+        'All queries',
+        'Writes',
+        'Property-based lookups like MATCH (u:USER {name:"Bob"})',
+        'Relationship traversals'
+      ], 2, "Indexes target property lookups. Relationship traversals already benefit from index-free adjacency — no index needed there.")}
+
+      ${blindTask(m,'t1',
+        'Create a unique constraint so no two USERs can share the same name.',
+        null,
+        'CREATE CONSTRAINT FOR (u:USER) REQUIRE u.name IS UNIQUE')}
+
+      ${blindTask(m,'t2',
+        'Load users.csv (columns: name, joined) and MERGE each row as a USER. Set joined only for newly-created nodes, as an integer.',
+        'LOAD CSV + MERGE + ON CREATE SET + toInteger',
+        `LOAD CSV WITH HEADERS FROM "file:///users.csv" AS row
+MERGE (u:USER {name: row.name})
+ON CREATE SET u.joined = toInteger(row.joined)`,
+        "row is a map. row.name / row.joined access columns. toInteger converts the CSV string. ON CREATE SET prevents re-runs from overwriting existing data.")}
+    </div>`;
+  }
+});
+
+// MODULE 08 — INTERPRETATION GAUNTLET (THE BIG ONE)
+modules.push({
+  indicator: '★ INTERPRETATION GAUNTLET',
+  title: 'The <i>"what does this query do"</i> gauntlet',
+  render: () => {
+    const m = 'm08';
+    return `
+    <div class="module">
+      <span class="module-badge" style="border-color: var(--pink); color: var(--pink)">★ MODULE 08 · BOSS LEVEL</span>
+      <h1 class="module-title">The <i>interpretation</i> gauntlet</h1>
+      <p class="module-sub">Your sample exam has 4+ "what does this Cypher query do?" questions. This is the dedicated drill. 10 queries. Reference graph below. Go slow, read arrow directions twice.</p>
+
+      ${block('context','● STRATEGY', `
+        <p>Read queries in this order, every time:</p>
+        <ol>
+          <li><b>MATCH pattern</b> — what's the shape? Which node is bound (has a name/label)?</li>
+          <li><b>Arrow direction</b> — <code>-&gt;</code> vs <code>&lt;-</code> vs <code>--</code>?</li>
+          <li><b>Variable hops?</b> <code>*</code>, <code>*1..3</code>, <code>*2</code> — get the range right.</li>
+          <li><b>WHERE / WITH</b> — what's being filtered, what's being aggregated?</li>
+          <li><b>RETURN</b> — node? property? count? path? Read the actual output.</li>
+        </ol>
+      `)}
+
+      ${block('context','● YOUR REFERENCE GRAPH', twitterGraph())}
+
+      ${mcq(m,'q1','Q1. What does this return?', [
+        'Users YouTube follows',
+        'Users who follow YouTube — Bob, Greenpeace, G7',
+        'YouTube itself',
+        'All users'
+      ], 1, "The arrow points INTO YouTube (←), so q is the source of the relationship — a follower of YouTube.",
+      `MATCH (u:USER {name:"YouTube"})<-[:FOLLOWS]-(q:USER)
+RETURN q.name`)}
+
+      ${mcq(m,'q2','Q2. What does this return?', [
+        'Users with zero followers',
+        "Users who don't follow anyone — YouTube",
+        'All users',
+        'Users who follow themselves'
+      ], 1, "(u)-[:FOLLOWS]->() means 'u follows at least one node'. NOT that = 'u follows nobody'. YouTube is a sink in the graph — incoming only.",
+      'MATCH (u:USER) WHERE NOT (u)-[:FOLLOWS]->() RETURN u.name')}
+
+      ${mcq(m,'q3','Q3. Greenpeace already exists. What happens?', [
+        'Error — duplicate',
+        'Nothing — CREATE is idempotent',
+        'A SECOND Greenpeace node is created (CREATE never deduplicates)',
+        'The existing Greenpeace is updated'
+      ], 2, "CREATE always creates. For find-or-create, use MERGE. This is exactly why unique constraints exist.",
+      'CREATE (:USER {name:"Greenpeace"})')}
+
+      ${mcq(m,'q4','Q4. What does this return?', [
+        'Users who follow YouTube OR Greenpeace',
+        'Users who follow BOTH YouTube AND Greenpeace — Bob',
+        'Users followed by both YouTube and Greenpeace',
+        'YouTube and Greenpeace themselves'
+      ], 1, "Two MATCH clauses on the same variable u = both patterns must hold. Only Bob follows both.",
+      `MATCH (u:USER)-[:FOLLOWS]->(z:USER {name:"YouTube"})
+MATCH (u)-[:FOLLOWS]->(x:USER {name:"Greenpeace"})
+RETURN u.name`)}
+
+      ${mcq(m,'q5','Q5. Given users have a joined property, what does this return?', [
+        'All users',
+        'The user with the smallest joined value — the earliest joiner',
+        'The most recent joiner',
+        'Syntax error'
+      ], 1, "Step 1: compute min(joined), call it p. Step 2: find the user whose joined equals p. Two-step version of ORDER BY joined LIMIT 1.",
+      `MATCH (u:USER)
+WITH min(u.joined) AS p
+MATCH (z:USER) WHERE z.joined = p
+RETURN z`)}
+
+      ${mcq(m,'q6','Q6. What does this return on the Twitter graph?', [
+        'Users with 2+ followers — UN, BBCNews, YouTube, WorldBank, Greenpeace',
+        'Users who follow 2+ others',
+        'All mutual followers',
+        'The top 2 most-followed users'
+      ], 0, "u = follower, z = followee. count(u) per z = followers per z. ≥2 filters for the popular ones. Five users qualify.",
+      `MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WITH z, count(u) AS fans
+WHERE fans >= 2
+RETURN z.name`)}
+
+      ${mcq(m,'q7','Q7. What does this return?', [
+        'Count of all FOLLOWS relationships',
+        'The length of the shortest FOLLOWS path from UN to G7 — answer: 2',
+        'All paths between UN and G7',
+        "Error — length() doesn't work on paths"
+      ], 1, "z = names the whole path. * = any-length FOLLOWS. length(z) = hop count. min() = shortest. UN → WorldBank → G7 = 2.",
+      `MATCH z = (u:USER {name:"UN"})-[:FOLLOWS*]->(q:USER {name:"G7"})
+RETURN min(length(z))`)}
+
+      ${mcq(m,'q8','Q8. The joined property has not been set on the Twitter graph yet. What does this return?', [
+        'All users',
+        'All users who joined before 2010',
+        'No rows — users with no joined property are silently excluded',
+        'Error — missing property crashes Cypher'
+      ], 2, "If a property is missing, comparisons return null → filtered out. Missing property ≠ error. Only users with joined set can appear.",
+      'MATCH (u:USER) WHERE u.joined < 2010 RETURN u.name')}
+
+      ${mcq(m,'q9','Q9. What does this return?', [
+        'One shortest path from Bob to G7',
+        'ALL paths tied for the shortest length',
+        'The longest path from Bob to G7',
+        'All FOLLOWS relationships'
+      ], 1, "allShortestPaths returns every path whose length equals the minimum. If there's one, you get one; if several tie, you get them all.",
+      `MATCH p = allShortestPaths((a:USER {name:"Bob"})-[:FOLLOWS*]->(b:USER {name:"G7"}))
+RETURN p`)}
+
+      ${mcq(m,'q10','Q10. What does this return?', [
+        'Greenpeace\'s direct followees only (1 hop)',
+        'Everyone reachable from Greenpeace in 1 OR 2 FOLLOWS hops (distinct)',
+        "Greenpeace's 2 closest connections",
+        'Users joined within 2 years'
+      ], 1, '*1..2 = 1 OR 2 hops. DISTINCT collapses duplicates when a node is reachable via multiple paths.',
+      `MATCH (u:USER {name:"Greenpeace"})-[:FOLLOWS*1..2]->(d:USER)
+RETURN DISTINCT d.name`)}
+    </div>`;
+  }
+});
+
+// MODULE 09 — BLIND CODING BOSS
+modules.push({
+  indicator: 'BLIND CODING · BOSS LEVEL',
+  title: 'Blind-code: <i>English → Cypher</i>',
+  render: () => {
+    const m = 'm09';
+    return `
+    <div class="module">
+      <span class="module-badge" style="border-color: var(--yellow); color: var(--yellow)">♦ MODULE 09 · BLIND-CODE BOSS</span>
+      <h1 class="module-title">Write the Cypher <i>without</i> looking</h1>
+      <p class="module-sub">English prompt in, Cypher out. Type your attempt first, reveal the model answer, compare word-for-word. The point isn't to be perfect — it's to surface the exact gaps before the exam surfaces them for you.</p>
+
+      ${block('context','● HOW TO GRADE YOURSELF', `
+        <ul>
+          <li>✓ Exact match (modulo whitespace / variable names) → <b>+20 XP "Nailed it"</b></li>
+          <li>⚠ Same logic, wrong direction / label / missing DISTINCT → mark missed, review the module</li>
+          <li>✗ Totally off → redo the earlier module</li>
+        </ul>
+      `)}
+
+      ${blindTask(m,'t1',
+        'Find everyone Greenpeace follows directly. Return their names.',
+        null,
+        `MATCH (u:USER {name:"Greenpeace"})-[:FOLLOWS]->(f:USER)
+RETURN f.name`)}
+
+      ${blindTask(m,'t2',
+        'Find everyone who follows Greenpeace (the reverse direction).',
+        'flip the arrow',
+        `MATCH (f:USER)-[:FOLLOWS]->(u:USER {name:"Greenpeace"})
+RETURN f.name`)}
+
+      ${blindTask(m,'t3',
+        'Find mutual followers: pairs (a, b) where a follows b AND b follows a. Return both.',
+        null,
+        `MATCH (a:USER)-[:FOLLOWS]->(b:USER)
+MATCH (b)-[:FOLLOWS]->(a)
+RETURN a, b`,
+        "Two MATCH clauses with the same variables = BOTH must hold. Writing just (a)-[:FOLLOWS]-(b) is a direction-agnostic version but doesn't guarantee both directions exist.")}
+
+      ${blindTask(m,'t4',
+        'Return all users reachable from "Greenpeace" in exactly 2 FOLLOWS hops. Distinct names only.',
+        '*2 + DISTINCT',
+        `MATCH (u:USER {name:"Greenpeace"})-[:FOLLOWS*2]->(d:USER)
+RETURN DISTINCT d.name`)}
+
+      ${blindTask(m,'t5',
+        'Find all tweets containing the word "Climate" and the user who sent each one.',
+        'CONTAINS + :sent_by',
+        `MATCH (t:TWEET)-[:sent_by]->(u:USER)
+WHERE t.msg CONTAINS 'Climate'
+RETURN u, t`)}
+
+      ${blindTask(m,'t6',
+        'Find the earliest USER to join. Use ORDER BY + LIMIT.',
+        null,
+        `MATCH (u:USER) RETURN u
+ORDER BY u.joined LIMIT 1`)}
+
+      ${blindTask(m,'t7',
+        'Delete every USER node and all relationships in one safe statement.',
+        'detach',
+        'MATCH (u:USER) DETACH DELETE u',
+        'Plain DELETE fails when nodes have relationships. DETACH DELETE handles both.')}
+
+      ${blindTask(m,'t8',
+        'Find users with 2 or more followers. Return their names.',
+        'WITH + count + WHERE',
+        `MATCH (u:USER)-[:FOLLOWS]->(z:USER)
+WITH z, count(u) AS fans
+WHERE fans >= 2
+RETURN z.name`)}
+
+      ${blindTask(m,'t9',
+        'Return the shortest FOLLOWS path from "Greenpeace" to "G7".',
+        'shortestPath',
+        `MATCH (u:USER {name:"Greenpeace"}), (v:USER {name:"G7"}),
+      p = shortestPath((u)-[:FOLLOWS*]->(v))
+RETURN p`)}
+
+      ${blindTask(m,'t10',
+        'Find users who follow BOTH "YouTube" AND "Greenpeace".',
+        'two MATCH clauses, same u',
+        `MATCH (u:USER)-[:FOLLOWS]->(:USER {name:"YouTube"})
+MATCH (u)-[:FOLLOWS]->(:USER {name:"Greenpeace"})
+RETURN u.name`)}
+
+      ${blindTask(m,'t11',
+        'Create an index on the name property of USER nodes. Call it userNameIdx.',
+        null,
+        'CREATE INDEX userNameIdx FOR (u:USER) ON (u.name)')}
+
+      ${blindTask(m,'t12',
+        'From users.csv (columns name, joined), create USER nodes without duplicates and cast joined to an integer on newly created nodes only.',
+        'LOAD CSV + MERGE + ON CREATE SET + toInteger',
+        `LOAD CSV WITH HEADERS FROM "file:///users.csv" AS row
+MERGE (u:USER {name: row.name})
+ON CREATE SET u.joined = toInteger(row.joined)`)}
+    </div>`;
+  }
+});
+
+// MODULE 10 — PATTERNS REFERENCE + FINALE
+modules.push({
+  indicator: 'PATTERNS & EXAM TRAPS',
+  title: 'Patterns reference · <i>Top 5 traps</i> · Finale',
+  render: () => `
+    <div class="module">
+      <span class="module-badge" style="border-color: var(--cyan); color: var(--cyan)">◉ MODULE 10 · REFERENCE</span>
+      <h1 class="module-title">The <i>Cypher</i> cheat page</h1>
+      <p class="module-sub">Everything in one scroll. Save this module — it's your pre-exam 5-minute flash review.</p>
+
+      <div class="pattern-grid">
+        <div class="pattern-card">
+          <h4>① Create a node</h4>
+          ${cb('CREATE (:USER {name:"Bob"})')}
+          <p>Label + properties. CREATE never deduplicates.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>② Find nodes by label</h4>
+          ${cb('MATCH (u:USER) RETURN u')}
+          <p>No filter = every USER. Add <code>{name:"x"}</code> or WHERE to narrow.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>③ Follow a relationship</h4>
+          ${cb(`MATCH (u:USER {name:"Bob"})-[:FOLLOWS]->(f)
+RETURN f.name`)}
+          <p>Arrow direction matters. <code>-[:X]-&gt;</code> vs <code>&lt;-[:X]-</code> vs <code>-[:X]-</code>.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>④ Variable-length path</h4>
+          ${cb('MATCH (a)-[:R*1..3]->(b) RETURN b')}
+          <p><code>*1..3</code> is INCLUSIVE on both ends. Matches 1, 2, AND 3 hops.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑤ Shortest path</h4>
+          ${cb(`MATCH p = shortestPath((a)-[:R*]->(b))
+RETURN p, length(p)`)}
+          <p>One path. For ties: <code>allShortestPaths</code>.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑥ Filter with WHERE</h4>
+          ${cb('MATCH (u:USER) WHERE u.joined < 2010 RETURN u')}
+          <p>WHERE supports <code>&lt;</code>, <code>&gt;</code>, <code>NOT</code>, <code>CONTAINS</code>, <code>IN</code>.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑦ Aggregate + WITH</h4>
+          ${cb(`MATCH (u)-[:FOLLOWS]->(z)
+WITH z, count(u) AS n
+WHERE n >= 2 RETURN z`)}
+          <p>WITH = pipeline. Required to filter on an aggregate.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑧ ORDER BY · LIMIT · SKIP</h4>
+          ${cb(`MATCH (u:USER) RETURN u
+ORDER BY u.joined DESC
+SKIP 10 LIMIT 5`)}
+          <p>ASC by default. Combine for pagination.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑨ Update with SET / REMOVE</h4>
+          ${cb(`SET u.joined = 2020
+REMOVE u.nickname`)}
+          <p>SET creates-or-updates a property. REMOVE wipes one.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑩ DELETE vs DETACH DELETE</h4>
+          ${cb(`MATCH (u:USER) DETACH DELETE u`)}
+          <p>Plain DELETE fails if there are relationships. DETACH DELETE removes both.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑪ MERGE + ON CREATE SET</h4>
+          ${cb(`MERGE (u:USER {name:"Ken"})
+ON CREATE SET u.joined = 2020`)}
+          <p>Find-or-create. ON CREATE SET fires only on creation.</p>
+        </div>
+        <div class="pattern-card">
+          <h4>⑫ Constraint → Index → Import</h4>
+          ${cb(`CREATE CONSTRAINT FOR (a:X) REQUIRE a.id IS UNIQUE;
+LOAD CSV WITH HEADERS FROM "file:///x.csv" AS row
+MERGE (a:X {id: row.id})
+ON CREATE SET a.val = toInteger(row.val)`)}
+          <p>Always constraint first → MERGE gets fast dedup lookups.</p>
+        </div>
+      </div>
+
+      ${block('trap',`⚠ TOP 5 EXAM TRAPS`, `
+        <ol>
+          <li><b>CREATE duplicates.</b> It never dedupes. Use MERGE if you need find-or-create.</li>
+          <li><b>DELETE fails on connected nodes.</b> Always DETACH DELETE if rels exist.</li>
+          <li><b>Aggregates can't live in WHERE.</b> Pipe through WITH first (<code>WITH z, count(u) AS n WHERE n &gt;= 2</code>).</li>
+          <li><b><code>*1..3</code> is inclusive on both ends.</b> Matches 1, 2, AND 3 hops.</li>
+          <li><b>ON CREATE SET only fires on creation.</b> If MERGE matches an existing node, the SET is skipped entirely.</li>
+        </ol>
+      `)}
+
+      ${block('context','● ONE-LINER MEMORY HOOKS', `
+        <ul>
+          <li>"() is a node, [] is a rel, arrow is direction"</li>
+          <li>"Index-free adjacency = pointers to neighbours, no global lookup"</li>
+          <li>"Neo4j is CA — single-server, ACID"</li>
+          <li>"DELETE → fails; DETACH DELETE → works"</li>
+          <li>"MERGE = MATCH + CREATE fused; ON CREATE SET only on create"</li>
+          <li>"WITH = pipeline; required for aggregate filters"</li>
+          <li>"*N..M is INCLUSIVE"</li>
+          <li>"shortestPath = one; allShortestPaths = every tie"</li>
+          <li>"Constraint before LOAD CSV = fast MERGE"</li>
+        </ul>
+      `)}
+
+      <div class="finale">
+        <span class="emoji">🦉</span>
+        <h3>Neo4j labs <i>cleared</i>.</h3>
+        <p style="color: var(--text-dim); margin-bottom: 16px;">
+          XP: <b id="final-xp" style="color:var(--yellow)">0</b> ·
+          Nailed: <b id="final-nailed" style="color:var(--neon)">0</b> / 17 blind-code drills ·
+          MCQ: <b id="final-mcq" style="color:var(--cyan)">0/0</b>
+        </p>
+        <p style="font-size: 14px; color: var(--text-dim); max-width: 560px; margin: 0 auto 14px;">
+          You just worked through 9 concept modules, 47 interpretation MCQs, and 17 blind-code drills — the Neo4j/Cypher half of your module, compressed. Scroll up, grab any pattern card, and drill the ones where you missed.
+        </p>
+        <p id="final-verdict" style="font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--neon);"></p>
+      </div>
+    </div>
+  `
+});
+
+// =====================================================================
+// RENDERING
+// =====================================================================
+function render() {
+  const mod = modules[state.current];
+  const content = document.getElementById('content');
+  content.innerHTML = mod.render();
+  document.getElementById('indicator').textContent = mod.indicator;
+  document.getElementById('mod-num').textContent = `${state.current}/${modules.length-1}`;
+
+  const pct = (state.current / (modules.length-1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+
+  document.getElementById('btn-prev').disabled = state.current === 0;
+  document.getElementById('btn-next').textContent = state.current === modules.length-1 ? '✦ Finish' : 'Next ▶';
+
+  state.visited.add(state.current);
+
+  // TOC module: render grid
+  if (state.current === 0) renderTOC();
+
+  // Restore MCQ/task state on re-render
+  setTimeout(restoreState, 30);
+
+  // Final module: update stats
+  if (state.current === modules.length - 1) {
+    setTimeout(() => {
+      const fxp = document.getElementById('final-xp');
+      const fna = document.getElementById('final-nailed');
+      const fmcq = document.getElementById('final-mcq');
+      const verdict = document.getElementById('final-verdict');
+      if (fxp) fxp.textContent = state.xp;
+      if (fna) fna.textContent = state.nailed;
+      if (fmcq) fmcq.textContent = state.mcqCorrect + '/' + state.mcqTotal;
+      if (verdict) {
+        const pct = state.mcqTotal > 0 ? Math.round((state.mcqCorrect / state.mcqTotal) * 100) : 0;
+        let msg;
+        if (pct >= 85) msg = "You're exam-ready. Go pass that thing.";
+        else if (pct >= 70) msg = "Solid. A quick re-run of the weakest module and you're there.";
+        else if (pct >= 50) msg = "You've got the shape. Hit the interpretation gauntlet again.";
+        else msg = "Restart from Cypher 101 — it'll stick this time.";
+        verdict.textContent = msg;
+      }
+    }, 100);
+  }
+
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function restoreState() {
+  // Restore MCQ selections
+  Object.entries(state.answered).forEach(([key, rec]) => {
+    const opts = document.querySelectorAll(`[data-mcq="${key}"] .mcq-option`);
+    if (opts.length === 0) return;
+    opts.forEach((o, i) => { o.disabled = true; });
+    // Find correct via the on-click handler — we stored picked & correct
+    // Need to re-derive correctIdx from the onclick attr
+    opts.forEach((o) => {
+      const onclick = o.getAttribute('onclick') || '';
+      const match = onclick.match(/pickMCQ\('([^']+)','([^']+)',(\d+),(\d+)/);
+      if (!match) return;
+      const pickedIdx = parseInt(match[3]);
+      const correctIdx = parseInt(match[4]);
+      if (pickedIdx === correctIdx) o.classList.add('correct');
+      else if (pickedIdx === rec.picked) o.classList.add('wrong');
+      else o.classList.add('dimmed');
+    });
+    const exp = document.querySelector(`[data-mcq="${key}"] .mcq-explain`);
+    if (exp) exp.style.display = 'block';
+  });
+
+  // Restore blind-code reveals
+  Object.entries(state.revealed).forEach(([key, rec]) => {
+    const sol = document.querySelector(`[data-task="${key}"] .solution-wrap`);
+    const btn = document.querySelector(`[data-task="${key}"] .btn-reveal`);
+    if (sol) sol.style.display = 'block';
+    if (btn) { btn.disabled = true; btn.textContent = '✓ Revealed'; }
+    const nailBtn = document.querySelector(`[data-task="${key}"] .btn-nailed`);
+    const missBtn = document.querySelector(`[data-task="${key}"] .btn-missed`);
+    if (nailBtn && missBtn) {
+      if (rec.nailed) {
+        nailBtn.style.display = 'inline-block';
+        nailBtn.disabled = true; nailBtn.textContent = '✓ Nailed it';
+        nailBtn.classList.add('success');
+        missBtn.style.display = 'inline-block';
+        missBtn.disabled = true;
+      } else {
+        nailBtn.style.display = 'inline-block';
+        missBtn.style.display = 'inline-block';
+      }
+    }
+  });
+}
+
+function renderTOC() {
+  const grid = document.getElementById('toc-grid');
+  if (!grid) return;
+  const meta = [
+    '', 'theory · 4 MCQ', 'ASCII art · 4 MCQ · 2 drills',
+    'mutations · 2 MCQ · 2 drills', 'merge · 2 MCQ · 1 drill',
+    'with + agg · 3 MCQ · 1 drill', 'paths · 4 MCQ · 2 drills',
+    'loading · 3 MCQ · 2 drills', '★ 10 MCQ', '♦ 12 blind-code drills',
+    'cheat sheet'
+  ];
+  grid.innerHTML = modules.slice(1).map((m, i) => {
+    const visited = state.visited.has(i+1);
+    return `
+      <div class="toc-card" onclick="goTo(${i+1})">
+        <div class="num">MODULE ${String(i+1).padStart(2, '0')}</div>
+        <div class="t">${m.title}</div>
+        <div class="meta">
+          <span>${meta[i+1]}</span>
+          <span class="${visited ? 'done' : ''}">${visited ? '✓ visited' : '◌ unseen'}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function goTo(idx) {
+  state.current = idx;
+  render();
+}
+
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (state.current < modules.length - 1) goTo(state.current + 1);
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (state.current > 0) goTo(state.current - 1);
+});
+
+// Keyboard nav
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight' && state.current < modules.length - 1) goTo(state.current + 1);
+  if (e.key === 'ArrowLeft' && state.current > 0) goTo(state.current - 1);
+});
+
+render();
+</script>
+</body>
+</html>
